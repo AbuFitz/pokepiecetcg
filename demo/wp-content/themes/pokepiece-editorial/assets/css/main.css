@@ -940,3 +940,6 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 .pp-rev::before{content:"“";font:900 44px/0.6 var(--font);color:#c1232c;display:block;margin-bottom:4px}
 .pp-rev__note{margin-top:2px;font-size:12px}
 @media(min-width:900px){.pp-rev__grid{margin:0;padding-inline:0!important}.pp-rev{flex-basis:calc((100% - 56px)/4)!important}.pp-rev--lead{flex-basis:calc((100% - 56px)/4)!important;max-width:none}}
+/* worlds: zoom the photos out so the whole product shows */
+.pp-world__photo img{transform:scale(1);object-fit:contain;object-position:50% 50%;padding:14px;transition:transform .5s var(--ease)}
+.pp-world:hover .pp-world__photo img{transform:scale(1.06)}
