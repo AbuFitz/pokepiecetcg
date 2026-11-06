@@ -90,7 +90,7 @@ function pp_game_groups() {
 		foreach ( $terms as $t ) {
 			if ( str_starts_with( $t->slug, $g['prefix'] ) ) {
 				$lang = ucfirst( substr( $t->slug, strlen( $g['prefix'] ) ) );
-				$items[] = array( 'name' => $lang, 'url' => get_term_link( $t ), 'count' => (int) $t->count, 'slug' => $t->slug );
+				$items[] = array( 'name' => $lang, 'url' => get_term_link( $t ), 'count' => pp_term_product_count( $t ), 'slug' => $t->slug );
 			}
 		}
 		if ( $items ) {
@@ -191,4 +191,10 @@ function pp_search_featured( $n = 8 ) {
 function pp_search_tile( $p ) {
 	[ $k, $t ] = pp_stock_state( $p ); $mode = pp_product_mode( $p );
 	echo '<li><a class="pp-sp__tile" href="' . esc_url( $p->get_permalink() ) . '"><span class="pp-sp__img">' . $p->get_image( 'pp-plate', array( 'alt' => '', 'loading' => 'lazy' ) ) . ( $mode ? '<span class="pp-mode pp-mode--' . esc_attr( $mode ) . '">' . esc_html( pp_modes()[ $mode ]['short'] ) . '</span>' : '' ) . '</span><span class="pp-sp__t">' . esc_html( $p->get_name() ) . '</span><span class="pp-sp__p">' . wp_kses_post( $p->get_price_html() ) . '</span><span class="pp-stock pp-stock--' . esc_attr( $k ) . '"><span class="pp-stock__dot" aria-hidden="true"></span>' . esc_html( $t ) . '</span></a></li>';
+}
+
+/** Published, visible products in a category, excluding service/add-on products. */
+function pp_term_product_count( $t ) {
+	$ids = get_posts( array( 'post_type' => 'product', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'post__not_in' => pp_service_ids(), 'tax_query' => array( array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => $t->term_id ) ) ) );
+	return count( $ids );
 }

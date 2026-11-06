@@ -12,8 +12,8 @@ function pp_art( $name, $class = '' ) {
 }
 
 /** Pill call-to-action with circled arrow. */
-function pp_cta( $label, $url, $variant = 'light', $extra = '' ) {
-	return '<a class="pp-cta pp-cta--' . esc_attr( $variant ) . '" href="' . esc_url( $url ) . '"' . $extra . '><span>' . esc_html( $label ) . '</span><i>' . pp_art( 'arrow' ) . '</i></a>';
+function pp_cta( $label, $url, $variant = 'light', $extra = '', $icon = '' ) {
+	return '<a class="pp-cta pp-cta--' . esc_attr( $variant ) . '" href="' . esc_url( $url ) . '"' . $extra . '>' . ( $icon ? '<b class="pp-cta__ico">' . pp_art( $icon ) . '</b>' : '' ) . '<span>' . esc_html( $label ) . '</span><i>' . pp_art( 'arrow' ) . '</i></a>';
 }
 
 /** Which franchise colour world a product / term belongs to (from the existing category slugs). */

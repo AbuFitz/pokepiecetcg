@@ -114,7 +114,7 @@ function pp_mode_callout( $product ) {
 // Descriptions come after the purchase decision; related products exclude services and unavailable stock-less noise.
 add_filter( 'woocommerce_related_products', function ( $ids ) { return array_values( array_diff( (array) $ids, pp_service_ids() ) ); } );
 add_filter( 'woocommerce_output_related_products_args', function ( $a ) { $a['posts_per_page'] = 4; $a['columns'] = 4; return $a; } );
-add_filter( 'woocommerce_product_tabs', function ( $t ) { unset( $t['additional_information'], $t['reviews'] ); return $t; } ); // product reviews off: the shop's reviews are Vinted seller reviews, not verified product ratings
+add_filter( 'woocommerce_product_tabs', function ( $t ) { unset( $t['additional_information'], $t['reviews'] ); if ( isset( $t['description'] ) ) { $t['description']['title'] = __( 'About this product', 'pokepiece' ); } return $t; } ); // product reviews off: the shop's reviews are Vinted seller reviews, not verified product ratings
 
 /* ---- Cart / misc ------------------------------------------------------------- */
 add_filter( 'woocommerce_loop_add_to_cart_args', function ( $a ) { $a['class'] .= ' pp-btn pp-btn--primary'; return $a; } );
@@ -166,3 +166,5 @@ add_action( 'woocommerce_single_product_summary', function () {
 		echo '</div>';
 	}
 }, 31 );
+
+add_filter( 'woocommerce_product_description_heading', fn() => __( 'About this product', 'pokepiece' ) );

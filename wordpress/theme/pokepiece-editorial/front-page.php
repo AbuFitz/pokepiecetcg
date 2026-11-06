@@ -75,14 +75,14 @@ function pp_world_products( $items, $game = '' ) {
 		<div class="pp-wrap">
 			<div class="pp-shelf__head">
 				<div class="pp-head"><p class="pp-script"><?php echo $all_in ? esc_html__( 'ready to ship', 'pokepiece' ) : esc_html__( 'the full range', 'pokepiece' ); ?></p><h2 id="pp-shelf-h" class="pp-display"><?php echo $all_in ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
-				<div class="pp-rail-ctl"><button type="button" class="pp-round pp-round--play" data-rail-play aria-pressed="true" aria-label="<?php esc_attr_e( 'Pause auto-scroll', 'pokepiece' ); ?>"><span class="pp-play__pause" aria-hidden="true"></span></button><button type="button" class="pp-round" data-rail="-1" aria-label="<?php esc_attr_e( 'Previous products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-rail="1" aria-label="<?php esc_attr_e( 'Next products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
+				
 			</div>
 			<?php if ( ! $stocked ) : ?>
 			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'Everything we list is out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry, each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
 			<?php endif; ?>
 		</div>
 		<?php if ( $range ) : ?>
-		<ul class="products pp-rail pp-wheel" data-pp-rail data-pp-wheel tabindex="0" aria-roledescription="carousel" aria-label="<?php esc_attr_e( 'Products', 'pokepiece' ); ?>">
+		<ul class="products pp-rail pp-rail--swipe" data-pp-rail tabindex="0" aria-label="<?php esc_attr_e( 'Products', 'pokepiece' ); ?>">
 			<?php foreach ( $range as $p ) { $GLOBALS['post'] = get_post( $p->get_id() ); setup_postdata( $GLOBALS['post'] ); $GLOBALS['product'] = $p; wc_get_template_part( 'content', 'product' ); } wp_reset_postdata(); ?>
 		</ul>
 		<?php endif; ?>
@@ -144,15 +144,15 @@ function pp_world_products( $items, $game = '' ) {
 		</div>
 		<?php endif; ?>
 		<div class="pp-wrap pp-comm__ctas">
-			<?php echo pp_cta( __( 'Follow on TikTok', 'pokepiece' ), $tt, 'light', ' rel="noopener"' ); // phpcs:ignore ?>
-			<?php if ( $dc ) { echo pp_cta( __( 'Join the community', 'pokepiece' ), $dc, 'yellow', ' rel="noopener"' ); } // phpcs:ignore ?>
+			<?php echo pp_cta( __( 'Follow on TikTok', 'pokepiece' ), $tt, 'light', ' rel="noopener"', 'tiktok' ); // phpcs:ignore ?>
+			<?php if ( $dc ) { echo pp_cta( __( 'Join the community', 'pokepiece' ), $dc, 'yellow', ' rel="noopener"', 'discord' ); } // phpcs:ignore ?>
 		</div>
 	</section>
 	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">
 			<div><p class="pp-script"><?php esc_html_e( 'shipping', 'pokepiece' ); ?></p><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
 			<p class="pp-deliver__links"><?php $sp = get_page_by_path( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
-			<?php $svc = pp_service_ids(); if ( $svc && get_post_status( $svc[0] ) === 'publish' ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $svc[0] ) ); ?>"><?php esc_html_e( 'Upgrade your postage', 'pokepiece' ); ?></a><?php endif; ?></p></div>
+			<?php echo pp_upgrade_card( 'listing' ); // phpcs:ignore ?></p></div>
 			<div><p class="pp-script"><?php esc_html_e( 'questions?', 'pokepiece' ); ?></p><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
 		</div>
 	</section>

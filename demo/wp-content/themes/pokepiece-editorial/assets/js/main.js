@@ -175,7 +175,8 @@
 		// Shown only once the real purchase button has scrolled ABOVE the viewport (not while it is still below the fold).
 		var check = function () {
 			ticking = false;
-			var gone = target.getBoundingClientRect().bottom < 0;
+			var end = document.querySelector('.related, .pp-footer'); var past = end && end.getBoundingClientRect().top < window.innerHeight * 0.9;
+			var gone = target.getBoundingClientRect().bottom < 0 && !past;
 			if (gone === shown) return;
 			shown = gone; clearTimeout(hideT);
 			if (gone) { sticky.hidden = false; requestAnimationFrame(function () { sticky.classList.add('is-shown'); }); }
@@ -235,37 +236,15 @@
 	}
 })();
 
-/* ----- Wheel: snap carousel, centre-weighted, auto-advancing with pause controls (WCAG 2.2.2) ----- */
+/* ----- Shelf rail: mouse drag-to-scroll (touch and trackpad scroll natively) ----- */
 (function () {
-	var rail = document.querySelector('[data-pp-wheel]'); if (!rail) return;
-	var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	var items = Array.prototype.slice.call(rail.children), btn = document.querySelector('[data-rail-play]');
-	var startIdx = 0, playing = !reduce, hold = false, offscreen = false, timer = null, raf = 0, lastUser = 0;
-	function centreOf(li) { return li.offsetLeft + li.offsetWidth / 2; }
-	function nearest() { var mid = rail.scrollLeft + rail.clientWidth / 2, best = 0, bd = 1e9; items.forEach(function (li, i) { var d = Math.abs(centreOf(li) - mid); if (d < bd) { bd = d; best = i; } }); return best; }
-	function paint() {
-		raf = 0; var mid = rail.scrollLeft + rail.clientWidth / 2, n = nearest();
-		items.forEach(function (li, i) { var w = li.offsetWidth + 20, off = (centreOf(li) - mid) / w, d = Math.min(Math.abs(off), 2); li.style.setProperty('--d', d.toFixed(3)); li.style.setProperty('--s', off < 0 ? -1 : 1); li.classList.toggle('is-center', i === n); });
-	}
-	function go(i, smooth) { i = (i + items.length) % items.length; rail.scrollTo({ left: centreOf(items[i]) - rail.clientWidth / 2, behavior: smooth && !reduce ? 'smooth' : 'auto' }); }
-	function tick() { if (!playing || hold || offscreen || document.hidden || items.length < 3) return; if (Date.now() - lastUser < 6000) return; go(nearest() + 1 >= items.length ? startIdx : nearest() + 1, true); }
-	function setPlaying(p) { playing = p; if (btn) { btn.setAttribute('aria-pressed', String(p)); btn.setAttribute('aria-label', p ? 'Pause auto-scroll' : 'Start auto-scroll'); } }
-	rail.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
-	['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(function (ev) { rail.addEventListener(ev, function () { lastUser = Date.now(); }, { passive: true }); });
-	rail.addEventListener('mouseenter', function () { hold = true; }); rail.addEventListener('mouseleave', function () { hold = false; });
-	rail.addEventListener('focusin', function () { hold = true; }); rail.addEventListener('focusout', function () { hold = false; });
-	rail.addEventListener('keydown', function (e) { if (e.target !== rail) return; if (e.key === 'ArrowRight') { e.preventDefault(); go(nearest() + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(nearest() - 1, true); } });
-	document.addEventListener('click', function (e) {
-		var b = e.target.closest('[data-rail]'); if (b) { lastUser = Date.now(); go(nearest() + parseInt(b.dataset.rail, 10), true); }
-		if (e.target.closest('[data-rail-play]')) setPlaying(!playing);
-	});
-	if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { offscreen = !en[0].isIntersecting; }).observe(rail);
-	if (reduce) setPlaying(false);
-	timer = setInterval(tick, 3200);
-	window.addEventListener('resize', function () { go(nearest(), false); paint(); });
-	var start = items.length >= 5 ? 2 : 0; // open with neighbours on both sides, not an empty half-screen
-	go(start, false); paint();
-	startIdx = start;
+	var r = document.querySelector('[data-pp-rail]'); if (!r) return;
+	var down = false, moved = false, sx = 0, sl = 0;
+	r.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; sx = e.clientX; sl = r.scrollLeft; });
+	window.addEventListener('pointermove', function (e) { if (!down) return; var dx = e.clientX - sx; if (!moved && Math.abs(dx) > 5) { moved = true; r.classList.add('is-drag'); } if (moved) r.scrollLeft = sl - dx; });
+	window.addEventListener('pointerup', function () { if (!down) return; down = false; if (moved) setTimeout(function () { r.classList.remove('is-drag'); }, 0); });
+	r.addEventListener('click', function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+	r.addEventListener('keydown', function (e) { if (e.target !== r) return; if (e.key === 'ArrowRight') r.scrollBy({ left: 300, behavior: 'smooth' }); if (e.key === 'ArrowLeft') r.scrollBy({ left: -300, behavior: 'smooth' }); });
 })();
 
 /* ----- Reveal on scroll + pointer tilt (fine pointers only). Content is fully visible without JS. ----- */
@@ -320,5 +299,14 @@
 				feat.hidden = true; res.hidden = false; st.textContent = j.total + (j.total === 1 ? ' result' : ' results'); grid.innerHTML = j.items.map(tile).join(''); all.href = j.all; all.hidden = j.total <= j.items.length;
 			}).catch(function (err) { if (err && err.name === 'AbortError') return; st.hidden = false; st.textContent = PP.i18n.searchFail; });
 		}, 220);
+	});
+})();
+
+/* ----- Quantity stepper on the product page (the native input stays the source of truth) ----- */
+(function () {
+	document.querySelectorAll('.single-product form.cart .quantity').forEach(function (q) {
+		var i = q.querySelector('input.qty'); if (!i || q.dataset.step) return; q.dataset.step = '1';
+		var mk = function (t, d, l) { var b = document.createElement('button'); b.type = 'button'; b.className = 'pp-step'; b.textContent = t; b.setAttribute('aria-label', l); b.addEventListener('click', function () { var min = parseInt(i.min || '1', 10), max = parseInt(i.max || '', 10), v = (parseInt(i.value, 10) || 1) + d; v = Math.max(min, isNaN(max) ? v : Math.min(max, v)); i.value = v; i.dispatchEvent(new Event('change', { bubbles: true })); }); return b; };
+		q.insertBefore(mk('−', -1, 'Decrease quantity'), i); q.appendChild(mk('+', 1, 'Increase quantity'));
 	});
 })();

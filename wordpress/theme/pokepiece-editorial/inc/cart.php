@@ -37,7 +37,7 @@ function pp_cart_foot_html() {
 		return '<div class="pp-drawer__foot" data-pp-cart-foot hidden></div>';
 	}
 	{
-		echo '<div class="pp-drawer__foot" data-pp-cart-foot><p class="pp-subtotal"><span>' . esc_html__( 'Subtotal', 'pokepiece' ) . '</span><strong>' . wp_kses_post( $cart->get_cart_subtotal() ) . '</strong></p><p class="pp-muted">' . esc_html__( 'Shipping and tax are calculated by the shop at checkout.', 'pokepiece' ) . '</p><a class="pp-btn pp-btn--primary pp-btn--block" href="' . esc_url( wc_get_checkout_url() ) . '">' . esc_html__( 'Checkout', 'pokepiece' ) . '</a><a class="pp-btn pp-btn--ghost pp-btn--block" href="' . esc_url( wc_get_cart_url() ) . '">' . esc_html__( 'View cart', 'pokepiece' ) . '</a></div>';
+		echo '<div class="pp-drawer__foot" data-pp-cart-foot>' . pp_upgrade_card( 'drawer' ) . '<p class="pp-subtotal"><span>' . esc_html__( 'Subtotal', 'pokepiece' ) . '</span><strong>' . wp_kses_post( $cart->get_cart_subtotal() ) . '</strong></p><p class="pp-muted">' . esc_html__( 'Shipping and tax are calculated by the shop at checkout.', 'pokepiece' ) . '</p><a class="pp-btn pp-btn--primary pp-btn--block" href="' . esc_url( wc_get_checkout_url() ) . '">' . esc_html__( 'Checkout', 'pokepiece' ) . '</a><a class="pp-btn pp-btn--ghost pp-btn--block" href="' . esc_url( wc_get_cart_url() ) . '">' . esc_html__( 'View cart', 'pokepiece' ) . '</a></div>';
 	}
 	return ob_get_clean();
 }

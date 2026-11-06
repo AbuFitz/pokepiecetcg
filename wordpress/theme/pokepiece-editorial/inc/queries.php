@@ -30,7 +30,7 @@ add_filter( 'pre_get_posts', function ( $q ) {
 
 /** Count of products per filter option for the current category, so impossible options can be disabled with accuracy. */
 function pp_option_counts( $key, $value ) {
-	$args = array( 'post_type' => 'product', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true,
+	$args = array( 'post_type' => 'product', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'post__not_in' => pp_service_ids(),
 		'meta_query' => array( array( 'key' => $key, 'value' => $value ) ) );
 	if ( is_tax( 'product_cat' ) ) {
 		$args['tax_query'] = array( array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => get_queried_object_id() ) );

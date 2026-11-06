@@ -52,6 +52,31 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     assert.deepEqual(p.errs, []); await p.context().close();
   });
 
+  await t('shelf: plain swipe rail (no buttons, no angles), Add to cart sits right under the price, mouse drag scrolls without opening a product', async () => {
+    const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.evaluate(() => document.querySelector('.pp-shelf').scrollIntoView()); await p.waitForTimeout(400);
+    assert.equal(await p.locator('.pp-shelf [data-rail],.pp-shelf [data-rail-play],.pp-shelf .pp-round').count(), 0, 'carousel buttons must be gone');
+    const g = await p.evaluate(() => { const li = document.querySelector('[data-pp-rail] li'); const cs = getComputedStyle(li); const stock = li.querySelector('.pp-stock').getBoundingClientRect(), act = li.querySelector('.pp-card__action').getBoundingClientRect(); return { tf: cs.transform, gap: act.top - stock.bottom }; });
+    assert.ok(g.tf === 'none', 'cards must not be transformed/angled: ' + g.tf); assert.ok(g.gap < 40, 'action sits too low under the price: ' + g.gap);
+    const bb = await p.evaluate(() => { const r = document.querySelector('[data-pp-rail]').getBoundingClientRect(); return [r.left + r.width / 2, r.top + 120]; });
+    const sl0 = await p.evaluate(() => document.querySelector('[data-pp-rail]').scrollLeft);
+    await p.mouse.move(bb[0], bb[1]); await p.mouse.down(); await p.mouse.move(bb[0] - 220, bb[1], { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(300);
+    assert.ok(await p.evaluate(() => document.querySelector('[data-pp-rail]').scrollLeft) > sl0 + 100, 'drag did not scroll'); assert.ok(/localhost/.test(p.url()) && !/\/product\//.test(p.url()), 'drag opened a product'); await p.context().close();
+  });
+
+  await t('shipping upgrade is an option, not a listing: absent from shop/category/search, offered on PDP, cart drawer and cart page, adds the same service product', async () => {
+    const p = await mk(); const SVC = '/product/' + SERVICE_SLUG + '/';
+    await p.goto(BASE + '/shop/?post_type=product', { waitUntil: 'networkidle' }); assert.equal(await p.locator('li.product a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'service in shop listing');
+    await p.goto(BASE + '/product-category/pokemon-english/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('li.product a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'service in category listing');
+    assert.ok(await p.locator('.pp-upgrade--listing').count() >= 1, 'no listing promo');
+    const j = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?per_page=40')).json(); const ins = j.find(x => x.is_in_stock && x.id !== 686);
+    await p.goto(ins.permalink, { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-upgrade--pdp').count(), 1, 'no PDP upgrade option');
+    await p.click('.pp-upgrade--pdp .add_to_cart_button'); await p.waitForSelector('#pp-cart-drawer.is-open'); await p.waitForFunction(() => document.querySelectorAll('.pp-line').length >= 1);
+    assert.ok(await p.locator('.pp-line a[href*="' + SERVICE_SLUG + '"]').count() >= 1, 'service line not in cart');
+    assert.equal(await p.locator('#pp-cart-drawer .pp-upgrade').count(), 0, 'upgrade card must disappear once added');
+    const r = await p.goto(BASE + SVC); assert.equal(r.status(), 200); assert.ok((await p.textContent('.pp-callout--service')).includes('order notes')); await p.context().close();
+  });
+
   await t('404 returns real 404 status and offers search + categories', async () => {
     const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
     assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();
@@ -148,7 +173,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
   await t('sticky purchase bar appears only after the main action leaves view (phone)', async () => {
     const p = await mk(390); const live = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?per_page=30')).json(); const ins = live.find(x => x.is_in_stock && x.id !== 686); await p.goto(ins.permalink, { waitUntil: 'networkidle' });
     assert.equal(await p.locator('.pp-sticky.is-shown').count(), 0);
-    await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
+    await p.evaluate(() => { const b = document.querySelector('.single_add_to_cart_button').getBoundingClientRect(); window.scrollTo(0, window.scrollY + b.bottom + 200); }); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
   });
 
   await t('newsletter UI + endpoint stay disabled without a provider (501), no fake success', async () => {
