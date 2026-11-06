@@ -971,3 +971,7 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 	.pp-hero__ctas{margin:6px 0 26px}
 }
 @media(max-width:899px){.pp-hero__title{font-size:min(10.6vw,54px)}}
+/* space between the nav and the "driven by adventure" kicker */
+.pp-hero__inner{padding-top:118px}
+@media(min-width:900px){.pp-hero__inner{padding-top:176px}}
+@media(max-width:899px){.pp-hero__inner{padding-top:122px}.pp-hero .pp-script{margin-bottom:8px}}
