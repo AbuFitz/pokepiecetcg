@@ -27,6 +27,21 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     });
   }
 
+  await t('worlds panels: each shows loaded product photos; mis-filed Pokémon pack is not shown under One Piece; panel links reach real categories', async () => {
+    for (const w of [390, 1440]) {
+      const p = await mk(w); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+      await p.evaluate(() => document.querySelector('.pp-worlds').scrollIntoView()); await p.waitForTimeout(500);
+      const r = await p.evaluate(() => [...document.querySelectorAll('.pp-world')].map(l => ({ n: l.querySelectorAll('.pp-wt img').length, ok: [...l.querySelectorAll('.pp-wt img')].every(i => i.complete && i.naturalWidth > 0), links: [...l.querySelectorAll('.pp-world__links a')].map(a => a.getAttribute('href')) })));
+      assert.equal(r.length, 3); for (const x of r) { assert.ok(x.n >= 1 && x.ok, 'panel images missing/unloaded @' + w); assert.ok(x.links.every(h => /product-category/.test(h))); }
+      for (const [game, word] of [['pokemon', /pok[eé]mon/i], ['one-piece', /one piece/i], ['dragon-ball', /dragon ball/i]]) {
+        const ids = await p.evaluate(g => [...document.querySelectorAll('.pp-game-' + g + ' .pp-wt')].map(e => e.dataset.pid), game);
+        const prods = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?include=' + ids.join(',') + '&per_page=20')).json();
+        assert.ok(prods.length === ids.length && prods.every(x => word.test(x.name)), game + ' panel shows a product whose title is not ' + game + ': ' + prods.map(x => x.name).join(' | '));
+      }
+      assert.deepEqual(p.errs, []); await p.context().close();
+    }
+  });
+
   await t('404 returns real 404 status and offers search + categories', async () => {
     const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
     assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();

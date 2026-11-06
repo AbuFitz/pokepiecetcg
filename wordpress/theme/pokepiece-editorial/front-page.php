@@ -19,6 +19,17 @@ $world = array(
 	'one-piece'   => array( 'blurb' => __( 'Japanese and English boxes and packs.', 'pokepiece' ) ),
 	'dragon-ball' => array( 'blurb' => __( 'Fusion World boxes, live rip and ship.', 'pokepiece' ) ),
 );
+
+/** Up to three real product photos per game (WooCommerce data): in-stock first, never the service product, only products that actually have an image. */
+function pp_world_products( $items, $game = '' ) {
+	$slugs = array_column( $items, 'slug' );
+	$ps = wc_get_products( array( 'status' => 'publish', 'limit' => 24, 'category' => $slugs, 'exclude' => pp_service_ids(), 'orderby' => 'date', 'order' => 'DESC' ) );
+	// Only products whose own title names the game: a mis-filed item (e.g. a Pokémon pack under One Piece) must not represent the wrong world.
+	$needles = array( 'pokemon' => array( 'pokémon', 'pokemon' ), 'one-piece' => array( 'one piece' ), 'dragon-ball' => array( 'dragon ball' ) )[ $game ] ?? array();
+	$ps = array_values( array_filter( $ps, function ( $p ) use ( $needles ) { if ( ! $p->get_image_id() ) { return false; } $n = mb_strtolower( $p->get_name() ); foreach ( $needles as $w ) { if ( str_contains( $n, $w ) ) { return true; } } return ! $needles; } ) );
+	usort( $ps, fn( $a, $b ) => (int) $b->is_in_stock() <=> (int) $a->is_in_stock() );
+	return array_slice( $ps, 0, 3 );
+}
 ?>
 <main id="main" class="pp-main pp-home" tabindex="-1">
 
@@ -51,6 +62,7 @@ $world = array(
 		<ul class="pp-worlds__rail">
 			<?php foreach ( $groups as $k => $g ) : $w = $world[ $k ] ?? array( 'blurb' => '' ); $total = array_sum( array_column( $g['items'], 'count' ) ); ?>
 			<li class="pp-world pp-game-<?php echo esc_attr( $k ); ?>">
+				<div class="pp-world__stack" aria-hidden="true"><?php foreach ( pp_world_products( $g['items'], $k ) as $i => $wp ) : ?><span class="pp-wt pp-wt--<?php echo (int) $i; ?>" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'pp-plate', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></span><?php endforeach; ?></div>
 				<h3><?php echo esc_html( $g['name'] ); ?></h3>
 				<p><?php echo esc_html( $w['blurb'] ); ?></p>
 				<ul class="pp-world__links">
