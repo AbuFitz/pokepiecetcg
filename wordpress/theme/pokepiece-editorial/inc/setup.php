@@ -66,7 +66,7 @@ add_filter( 'body_class', function ( $c ) {
 	$c[] = 'pp';
 	$bar = 'ink';
 	if ( is_front_page() ) { $bar = 'red'; }
-	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'red', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
+	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'blue', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
 	$c[] = 'pp-bar-' . $bar;
 	return $c;
 } );
@@ -83,7 +83,7 @@ add_filter( 'woocommerce_enqueue_styles', function ( $s ) {
 
 /** Colour of the area behind the phone status bar / notch: matches the top of the page (hero colour). */
 function pp_top_colour() {
-	$map = array( 'red' => '#0a0a0a', 'blue' => '#b5262d', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#0a0a0a' );
+	$map = array( 'red' => '#c1232c', 'blue' => '#2447b3', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#14171a' );
 	foreach ( get_body_class() as $c ) { if ( str_starts_with( $c, 'pp-bar-' ) ) { return $map[ substr( $c, 7 ) ] ?? $map['ink']; } }
 	return $map['ink'];
 }

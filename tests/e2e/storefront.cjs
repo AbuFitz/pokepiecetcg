@@ -76,6 +76,12 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     const r = await p.goto(BASE + SVC); assert.equal(r.status(), 200); assert.ok((await p.textContent('.pp-callout--service')).includes('order notes')); await p.context().close();
   });
 
+  await t('reviews: all four from his site render, and all fit in view on desktop', async () => {
+    const p = await mk(1440); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    const r = await p.evaluate(() => { const g = document.querySelector('.pp-rev__grid').getBoundingClientRect(); return [...document.querySelectorAll('.pp-rev')].map(c => { const b = c.getBoundingClientRect(); return { t: c.innerText.slice(0, 30), inside: b.left >= g.left - 1 && b.right <= g.right + 1 }; }); });
+    assert.equal(r.length, 4); assert.ok(r.every(x => x.inside), JSON.stringify(r)); await p.context().close();
+  });
+
   await t('404 returns real 404 status and offers search + categories', async () => {
     const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
     assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();
