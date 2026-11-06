@@ -581,11 +581,18 @@ ul.products::before,ul.products::after{display:none!important}
 .pp-js .pp-reveal.is-in{opacity:1}
 @media(prefers-reduced-motion:reduce){.pp-js .pp-reveal{opacity:1;transition:none}}
 /* ---------- TikTok content swipe ---------- */
+.pp-comm__head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.pp-comm__bio{margin:16px 0 0;max-width:40ch;font-weight:600;color:#e6ecff}
+.pp-community .pp-round{border-color:#fff;background:transparent;color:#fff}.pp-community .pp-round:hover{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.pp-community .pp-rail-ctl{margin-bottom:clamp(22px,3.6vw,48px)}
+.pp-community .pp-round[data-clips="-1"] .pp-i{transform:rotate(180deg)}
+.pp-prog{height:6px;background:#ffffff33;border-radius:3px;overflow:hidden;margin-top:6px}.pp-prog span{display:block;height:100%;width:20%;background:var(--yellow);border-radius:3px;transition:width .15s linear}
 .pp-community{background:var(--blue);color:#fff;padding:clamp(48px,8vw,120px) 0;border-bottom:2px solid var(--ink);overflow:hidden}
 .pp-community .pp-script{color:var(--yellow)}
 .pp-clips{list-style:none;margin:0;padding:6px var(--gut) 26px;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;scroll-padding-inline:var(--gut)}
 .pp-clips::-webkit-scrollbar{display:none}
 .pp-clip{flex:0 0 min(68vw,270px);scroll-snap-align:start}
+.pp-clip__cap{font-size:14px}
 .pp-clip a{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;height:clamp(380px,118vw,480px);padding:20px;border:2px solid var(--ink);border-radius:var(--shape);box-shadow:6px 6px 0 var(--ink);overflow:hidden;background:#fff;color:var(--ink);text-decoration:none;transition:transform .22s var(--ease),box-shadow .22s var(--ease)}
 .pp-clip a:hover{transform:translate(-3px,-3px);box-shadow:10px 10px 0 var(--ink)}
 .pp-clip>a>img:not([width]){position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -597,7 +604,7 @@ ul.products::before,ul.products::after{display:none!important}
 .pp-clip--profile img{width:200px;height:auto;margin-bottom:auto}
 .pp-clip--discord a{background:var(--yellow)}
 .pp-clip__k{font:800 13px var(--font);letter-spacing:.1em;text-transform:uppercase;margin-bottom:auto}
-.pp-clip__h{font-weight:900;font-stretch:100%;text-transform:uppercase;letter-spacing:-.01em;line-height:.95;font-size:clamp(22px,1.9vw,27px);overflow-wrap:anywhere;hyphens:none}
+.pp-clip__h{font-weight:900;font-stretch:100%;text-transform:uppercase;letter-spacing:-.01em;line-height:.95;font-size:clamp(17px,1.5vw,21px);overflow-wrap:anywhere;hyphens:none}
 .pp-clip__t{font-weight:500}
 .pp-clip__go{display:inline-flex;align-items:center;gap:10px;font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.04em}
 .pp-clip__go i{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;transition:transform .22s var(--ease)}

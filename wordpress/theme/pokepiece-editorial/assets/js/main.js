@@ -293,3 +293,13 @@
 	window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
 	h.addEventListener('focusin', function () { h.classList.remove('is-hidden'); });
 })();
+
+/* ----- TikTok swipe: prev/next + progress bar ----- */
+(function () {
+	var r = document.querySelector('[data-pp-clips]'); if (!r) return;
+	var bar = document.querySelector('[data-pp-prog]'), reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	function prog() { var max = r.scrollWidth - r.clientWidth; var vis = r.clientWidth / r.scrollWidth; if (bar) { bar.style.width = Math.max(12, vis * 100) + '%'; bar.style.marginLeft = (max > 0 ? (r.scrollLeft / max) * (100 - Math.max(12, vis * 100)) : 0) + '%'; } }
+	r.addEventListener('scroll', function () { requestAnimationFrame(prog); }, { passive: true }); window.addEventListener('resize', prog); prog();
+	document.addEventListener('click', function (e) { var b = e.target.closest('[data-clips]'); if (!b) return; var li = r.querySelector('li'); var step = (li ? li.getBoundingClientRect().width + 16 : 300) * 2; r.scrollBy({ left: step * parseInt(b.dataset.clips, 10), behavior: reduce ? 'auto' : 'smooth' }); });
+	r.addEventListener('keydown', function (e) { if (e.target !== r) return; if (e.key === 'ArrowRight') r.scrollBy({ left: 300 }); if (e.key === 'ArrowLeft') r.scrollBy({ left: -300 }); });
+})();

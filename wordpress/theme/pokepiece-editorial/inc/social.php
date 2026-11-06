@@ -30,7 +30,17 @@ add_action( 'admin_menu', function () {
 	} );
 } );
 
+/** Bundled snapshots of the owner's public TikTok posts (fetched 6 Nov 2026 through a real browser; covers + one-line summaries of his own captions, customer @names removed). Replaced by Settings > PokePiece when the owner sets links. */
+function pp_tiktok_bundled() {
+	$f = PP_DIR . '/assets/social/clips.json';
+	if ( ! is_readable( $f ) ) { return array(); }
+	$out = array();
+	foreach ( (array) json_decode( file_get_contents( $f ), true ) as $c ) { $out[] = array( 'url' => $c['url'], 'title' => $c['caption'], 'thumb' => PP_URI . '/assets/social/' . $c['img'] ); }
+	return $out;
+}
+
 function pp_tiktok_items() {
+	if ( '' === trim( (string) get_option( 'pokepiece_tiktok_videos', '' ) ) ) { return pp_tiktok_bundled(); }
 	$cached = get_transient( 'pp_tiktok_items' );
 	if ( is_array( $cached ) ) { return $cached; }
 	$urls = array_slice( array_filter( array_map( 'trim', preg_split( '/\R/', (string) get_option( 'pokepiece_tiktok_videos', '' ) ) ) ), 0, 12 );
@@ -53,5 +63,5 @@ function pp_tiktok_items() {
 		}
 	}
 	set_transient( 'pp_tiktok_items', $items, $items ? 12 * HOUR_IN_SECONDS : HOUR_IN_SECONDS );
-	return $items;
+	return $items ?: pp_tiktok_bundled();
 }

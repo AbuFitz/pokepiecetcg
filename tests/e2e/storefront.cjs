@@ -42,6 +42,18 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     }
   });
 
+  await t('TikTok swipe: real snapshots load, every card links to his TikTok, controls move the rail', async () => {
+    const p = await mk(390); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.evaluate(() => document.querySelector('.pp-community').scrollIntoView()); await p.waitForTimeout(600);
+    const r = await p.evaluate(() => { const c = [...document.querySelectorAll('.pp-clip')]; return { n: c.length, hrefs: c.map(x => x.querySelector('a').href), loaded: [...document.querySelectorAll('.pp-clip img[loading=lazy]')].filter(i => i.complete && i.naturalWidth > 0).length }; });
+    assert.ok(r.n >= 13, 'expected profile + 12 clips + discord, got ' + r.n);
+    assert.ok(r.hrefs.filter(h => /tiktok\.com\/@pokepiecetcgg\//.test(h)).length >= 12);
+    const sl0 = await p.evaluate(() => document.querySelector('[data-pp-clips]').scrollLeft);
+    await p.click('[data-clips="1"]'); await p.waitForTimeout(700);
+    assert.ok(await p.evaluate(() => document.querySelector('[data-pp-clips]').scrollLeft) > sl0, 'next did not scroll');
+    assert.deepEqual(p.errs, []); await p.context().close();
+  });
+
   await t('404 returns real 404 status and offers search + categories', async () => {
     const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
     assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();

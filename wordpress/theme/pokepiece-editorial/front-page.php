@@ -127,17 +127,20 @@ function pp_world_products( $items, $game = '' ) {
 	<?php endif; ?>
 
 	<section class="pp-community" aria-labelledby="pp-comm-h">
-		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'follow along', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2></div>
+		<div class="pp-wrap pp-comm__head">
+			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'follow along', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2>
+			<p class="pp-comm__bio"><?php esc_html_e( 'Live TCG Rip & Ship · Big pulls · Trusted stock · Multiple TCGs', 'pokepiece' ); ?></p></div>
+			<div class="pp-rail-ctl"><button type="button" class="pp-round" data-clips="-1" aria-label="<?php esc_attr_e( 'Previous videos', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-clips="1" aria-label="<?php esc_attr_e( 'Next videos', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
 		</div>
 		<?php $clips = pp_tiktok_items(); ?>
-		<ul class="pp-clips" tabindex="0" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">
+		<ul class="pp-clips" data-pp-clips tabindex="0" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">
 			<li class="pp-clip pp-clip--profile"><a href="<?php echo esc_url( $tt ); ?>" rel="noopener"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="220" height="55"><span class="pp-clip__h">@pokepiecetcgg</span><span class="pp-clip__t"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Follow on TikTok', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li>
 			<?php foreach ( $clips as $c ) : ?>
-			<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy"><span class="pp-clip__play" aria-hidden="true"></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 12 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
+			<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy" decoding="async"><span class="pp-clip__play" aria-hidden="true"></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 16 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
 			<?php endforeach; ?>
 			<?php if ( $dc ) : ?><li class="pp-clip pp-clip--discord"><a href="<?php echo esc_url( $dc ); ?>" rel="noopener"><span class="pp-clip__k">Discord</span><span class="pp-clip__h"><?php esc_html_e( 'Join the community', 'pokepiece' ); ?></span><span class="pp-clip__t"><?php esc_html_e( 'Join the PokePieceTCG Discord community.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Join the Discord', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li><?php endif; ?>
 		</ul>
+		<div class="pp-wrap"><div class="pp-prog" aria-hidden="true"><span data-pp-prog></span></div></div>
 	</section>
 	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">
