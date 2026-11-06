@@ -83,7 +83,7 @@ add_filter( 'woocommerce_enqueue_styles', function ( $s ) {
 
 /** Colour of the area behind the phone status bar / notch: matches the top of the page (hero colour). */
 function pp_top_colour() {
-	$map = array( 'red' => '#33271f', 'blue' => '#b5262d', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#1f1814' );
+	$map = array( 'red' => '#0a0a0a', 'blue' => '#b5262d', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#0a0a0a' );
 	foreach ( get_body_class() as $c ) { if ( str_starts_with( $c, 'pp-bar-' ) ) { return $map[ substr( $c, 7 ) ] ?? $map['ink']; } }
 	return $map['ink'];
 }

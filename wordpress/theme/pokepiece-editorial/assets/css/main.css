@@ -1006,3 +1006,43 @@ body{background:#f6f1ea}
 .pp-game-one-piece{--world:#b5262d;--world-ink:#fff}
 .pp-bar-blue .pp-bar{background:var(--dark-2)!important}
 .pp-band.pp-game-one-piece{background:#b5262d}
+
+/* ---------- true black dark areas, amber glow ---------- */
+:root{--dark:#121212;--dark-2:#050505}
+.pp-hero{background:radial-gradient(60% 85% at 76% 50%,rgba(248,154,2,.34),rgba(248,154,2,0) 62%),radial-gradient(40% 50% at 12% 10%,rgba(248,154,2,.10),rgba(248,154,2,0) 70%),linear-gradient(180deg,#0a0a0a,#141414)}
+.pp-community{background:radial-gradient(70% 110% at 85% 0%,rgba(248,154,2,.22),rgba(248,154,2,0) 60%),linear-gradient(180deg,#101010,#070707)}
+.pp-footer,.pp-bar,.pp-bar-red .pp-bar,.pp-bar-blue .pp-bar,.pp-bar-yellow .pp-bar,.pp-bar-orange .pp-bar{background:#050505!important}
+html,html:has(.pp-bar-red){background:#0a0a0a}
+.pp-know,.pp-live{background:#1a1a1a}
+body,.pp-deliver,.pp-faq,.pp-worlds{background:#f4f3f1}
+.pp-frame{box-shadow:0 10px 30px rgba(0,0,0,.35)}
+/* reviews: framed, lifted cards in a swipe rail */
+.pp-reviews{background:#fff;overflow:hidden}
+.pp-rev__grid{display:flex!important;gap:18px;overflow-x:auto;scroll-snap-type:x proximity;padding:14px var(--gut) 34px!important;margin:0 calc(var(--gut) * -1);scrollbar-width:none;overscroll-behavior-x:contain;cursor:grab;scroll-padding-inline:var(--gut);-webkit-overflow-scrolling:touch}
+.pp-rev__grid::-webkit-scrollbar{display:none}
+.pp-rev__grid.is-drag{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.pp-rev{flex:0 0 min(84vw,380px);scroll-snap-align:start;margin:0!important;padding:26px 24px!important;background:#fff;border:2px solid #121212!important;border-radius:26px;box-shadow:0 22px 40px -18px rgba(0,0,0,.35),6px 6px 0 var(--amber);display:flex;flex-direction:column;justify-content:space-between;min-height:260px;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.pp-rev:hover{transform:translateY(-6px);box-shadow:0 30px 48px -18px rgba(0,0,0,.4),8px 8px 0 var(--amber)}
+.pp-rev--lead{grid-column:auto!important;flex-basis:min(88vw,460px);background:#121212;color:#fff;border-color:#121212!important}
+.pp-rev--lead p{font:800 clamp(22px,2.2vw,30px)/1.12 var(--font)!important;max-width:none!important;text-transform:none;letter-spacing:0}
+.pp-rev--lead figcaption,.pp-rev--lead figcaption b{color:#fff}
+.pp-rev p{font-size:16px;line-height:1.5;margin:0 0 18px}
+.pp-rev::before{content:"“";font:900 64px/0.6 var(--font);color:var(--amber);display:block;margin-bottom:8px}
+@media(min-width:900px){.pp-rev__grid{margin:0;padding-inline:0!important}.pp-rev{flex-basis:360px}.pp-rev--lead{flex-basis:440px}}
+
+/* ---------- Reviews: compact framed strip under 'why choose us' ---------- */
+.pp-reviews{background:#f4f3f1;padding:6px 0 clamp(36px,6vw,72px);border:0}
+.pp-reviews .pp-head{margin-bottom:14px}
+.pp-reviews .pp-display{font-size:clamp(26px,3vw,40px);letter-spacing:0}
+.pp-reviews .pp-script{margin-bottom:6px}
+.pp-why{border-bottom:0;padding-bottom:clamp(24px,4vw,44px)}
+.pp-rev__grid{gap:14px;padding-top:8px!important;padding-bottom:26px!important}
+.pp-rev{flex-basis:min(78vw,300px)!important;min-height:0!important;padding:18px 18px 16px!important;border-radius:20px;box-shadow:0 14px 26px -14px rgba(0,0,0,.3),4px 4px 0 var(--amber)}
+.pp-rev:hover{box-shadow:0 20px 30px -14px rgba(0,0,0,.35),5px 5px 0 var(--amber)}
+.pp-rev::before{font-size:44px;margin-bottom:4px}
+.pp-rev p{font-size:14px;line-height:1.5;margin:0 0 12px}
+.pp-rev figcaption{font-size:12.5px}
+.pp-rev--lead{flex-basis:min(82vw,340px)!important}
+.pp-rev--lead p{font:700 16px/1.4 var(--font)!important}
+.pp-rev__note{margin-top:2px;font-size:12px}
+@media(min-width:900px){.pp-rev{flex-basis:300px!important}.pp-rev--lead{flex-basis:340px!important}}

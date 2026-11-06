@@ -237,15 +237,14 @@
 })();
 
 /* ----- Shelf rail: mouse drag-to-scroll (touch and trackpad scroll natively) ----- */
-(function () {
-	var r = document.querySelector('[data-pp-rail]'); if (!r) return;
+document.querySelectorAll('[data-pp-drag]').forEach(function (r) {
 	var down = false, moved = false, sx = 0, sl = 0;
 	r.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; sx = e.clientX; sl = r.scrollLeft; });
 	window.addEventListener('pointermove', function (e) { if (!down) return; var dx = e.clientX - sx; if (!moved && Math.abs(dx) > 5) { moved = true; r.classList.add('is-drag'); } if (moved) r.scrollLeft = sl - dx; });
 	window.addEventListener('pointerup', function () { if (!down) return; down = false; if (moved) setTimeout(function () { r.classList.remove('is-drag'); }, 0); });
 	r.addEventListener('click', function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
 	r.addEventListener('keydown', function (e) { if (e.target !== r) return; if (e.key === 'ArrowRight') r.scrollBy({ left: 300, behavior: 'smooth' }); if (e.key === 'ArrowLeft') r.scrollBy({ left: -300, behavior: 'smooth' }); });
-})();
+});
 
 /* ----- Reveal on scroll + pointer tilt (fine pointers only). Content is fully visible without JS. ----- */
 (function () {
