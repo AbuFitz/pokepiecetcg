@@ -2,9 +2,10 @@
 <footer class="pp-footer">
 	<div class="pp-wrap pp-footer__grid">
 		<div class="pp-footer__lead">
-			<p class="pp-script">see you at the next opening</p>
+			<a class="pp-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="260" height="65" loading="lazy"></a>
+			<p class="pp-footer__tag"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></p>
 			<?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), wc_get_page_permalink( 'shop' ), 'yellow' ); ?>
-			<p class="pp-footer__socials"><?php if ( $tt ) : ?><a class="pp-footer__social" href="<?php echo esc_url( $tt ); ?>" rel="noopener">TikTok</a><?php endif; ?><?php if ( $dc ) : ?><a class="pp-footer__social" href="<?php echo esc_url( $dc ); ?>" rel="noopener">Discord</a><?php endif; ?></p>
+			<p class="pp-footer__socials"><?php if ( $tt ) : ?><a class="pp-social" href="<?php echo esc_url( $tt ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'TikTok — @pokepiecetcgg', 'pokepiece' ); ?>"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></a><?php endif; ?><?php if ( $dc ) : ?><a class="pp-social" href="<?php echo esc_url( $dc ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'Discord', 'pokepiece' ); ?>"><?php echo pp_art( 'discord' ); // phpcs:ignore ?></a><?php endif; ?></p>
 			<?php if ( pp_newsletter_enabled() ) : ?><button class="pp-linkbtn" type="button" data-pp-newsletter-open><?php esc_html_e( 'Email updates', 'pokepiece' ); ?></button><?php endif; ?>
 		</div>
 		<nav aria-label="<?php esc_attr_e( 'Shop', 'pokepiece' ); ?>"><h2><?php esc_html_e( 'Shop', 'pokepiece' ); ?></h2><ul>
@@ -17,9 +18,9 @@
 			<?php do_action( 'pokepiece_footer_help_links' ); ?>
 		</ul></nav>
 	</div>
+	<?php $pay = pp_payment_methods(); if ( $pay ) : ?><ul class="pp-pay pp-wrap" aria-label="<?php esc_attr_e( 'Payment methods', 'pokepiece' ); ?>"><?php foreach ( $pay as $slug => $m ) : ?><li><span class="screen-reader-text"><?php echo esc_html( $m[0] ); ?></span><?php echo pp_pay_icon( $slug, $m[1] ); // phpcs:ignore ?></li><?php endforeach; ?></ul><?php endif; ?>
 	<p class="pp-footer__legal pp-wrap"><?php echo esc_html( pp_dispatch_text() ); ?> © <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'Pokémon, One Piece and Dragon Ball are trademarks of their respective owners; this shop is not affiliated with them.', 'pokepiece' ); ?>
 	<?php $td = trim( (string) get_option( 'pokepiece_trading_details', '' ) ); if ( $td ) { echo '<br>' . nl2br( esc_html( $td ) ); } ?></p>
-	<p class="pp-footer__mark" aria-hidden="true">PokePiece</p>
 </footer>
 
 <div class="pp-modal" id="pp-qv" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Quick view', 'pokepiece' ); ?>" hidden><div class="pp-modal__panel"><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close quick view', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button><div class="pp-modal__body" aria-live="polite"></div></div></div>

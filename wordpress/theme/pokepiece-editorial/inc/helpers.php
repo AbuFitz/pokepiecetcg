@@ -103,7 +103,7 @@ function pp_game_groups() {
 
 function pp_dispatch_text() {
 	// PROVISIONAL: wording published in the shipping policy (1–3 working days); owner must reconfirm.
-	return apply_filters( 'pokepiece_dispatch_text', get_option( 'pokepiece_dispatch_text', __( 'Dispatched normally within 1–3 working days.', 'pokepiece' ) ) );
+	return apply_filters( 'pokepiece_dispatch_text', get_option( 'pokepiece_dispatch_text', __( 'Orders are usually dispatched within 1 to 3 working days unless stated otherwise.', 'pokepiece' ) ) );
 }
 
 /** Products for discovery rows: purchasable catalogue only, service products excluded. */
@@ -145,3 +145,21 @@ function pp_testimonials() {
 		array( 'q' => 'Excellent seller, friendly and great communication. Items were very well packaged. Would recommend and would buy from this seller again.', 'n' => 'noon626' ),
 	) );
 }
+
+/** Payment methods shown in the footer, as brand marks. MUST be matched to the gateways actually enabled in WooCommerce before launch (filter `pokepiece_payment_methods`, return array() to hide the row). slug => array( label, brand colour ). */
+function pp_payment_methods() {
+	return apply_filters( 'pokepiece_payment_methods', array(
+		'visa' => array( 'Visa', '#1A1F71' ), 'mastercard' => array( 'Mastercard', '#EB001B' ), 'americanexpress' => array( 'American Express', '#2E77BC' ),
+		'applepay' => array( 'Apple Pay', '#000000' ), 'googlepay' => array( 'Google Pay', '#4285F4' ),
+	) );
+}
+function pp_pay_icon( $slug, $colour ) {
+	$f = PP_DIR . '/assets/img/pay/' . sanitize_file_name( $slug ) . '.svg';
+	if ( ! is_readable( $f ) ) { return ''; }
+	$svg = file_get_contents( $f );
+	$svg = preg_replace( '#<title>.*?</title>#', '', $svg );
+	return str_replace( '<svg ', '<svg fill="' . esc_attr( $colour ) . '" aria-hidden="true" focusable="false" ', $svg );
+}
+
+/** Published on the existing Contact page (owner's site). */
+function pp_contact_email() { return sanitize_email( get_option( 'pokepiece_contact_email', 'info@pokepiecetcg.co.uk' ) ); }

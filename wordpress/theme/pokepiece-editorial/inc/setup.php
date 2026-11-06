@@ -25,7 +25,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_localize_script( 'pokepiece', 'PP', array(
 		'rest'  => esc_url_raw( rest_url( 'pokepiece/v1/' ) ),
 		'ajax'  => admin_url( 'admin-ajax.php' ),
-		'nonce' => wp_create_nonce( 'pp_cart' ),
+		'nonce' => wp_create_nonce( 'pp_cart' ), 'accNonce' => wp_create_nonce( 'pp_account' ),
 		'newsletter' => pp_newsletter_enabled(),
 		'i18n'  => array(
 			'searching' => __( 'Searching…', 'pokepiece' ), 'noMatch' => __( 'No products match that search.', 'pokepiece' ),

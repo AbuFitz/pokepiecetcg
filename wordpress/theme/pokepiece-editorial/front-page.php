@@ -12,12 +12,10 @@ $pool    = array_merge( $stocked, pp_discovery_products( array( 'limit' => 12 ) 
 $stage = array(); $seen = array();
 foreach ( $pool as $p ) { if ( isset( $seen[ $p->get_id() ] ) || ! $p->get_image_id() ) { continue; } $seen[ $p->get_id() ] = 1; $stage[] = $p; if ( count( $stage ) === 2 ) { break; } }
 $tt = pp_social( 'tiktok' ); $dc = pp_social( 'discord' ); $reviews = pp_testimonials();
-$mode_counts = array();
-foreach ( array( 'sealed', 'no_shrink', 'live' ) as $m ) { $mode_counts[ $m ] = pp_option_counts( '_pp_mode', $m ); }
 $world = array(
-	'pokemon'     => array( 'blurb' => __( 'Booster boxes, packs and live rip and ship.', 'pokepiece' ) ),
-	'one-piece'   => array( 'blurb' => __( 'Japanese and English boxes and packs.', 'pokepiece' ) ),
-	'dragon-ball' => array( 'blurb' => __( 'Fusion World boxes, live rip and ship.', 'pokepiece' ) ),
+	'pokemon'     => array( 'blurb' => __( 'Japanese and English Pokémon releases.', 'pokepiece' ) ),
+	'one-piece'   => array( 'blurb' => __( 'Japanese and English One Piece releases.', 'pokepiece' ) ),
+	'dragon-ball' => array( 'blurb' => __( 'Dragon Ball card game boxes.', 'pokepiece' ) ),
 );
 
 /** Up to three real product photos per game (WooCommerce data): in-stock first, never the service product, only products that actually have an image. */
@@ -36,10 +34,10 @@ function pp_world_products( $items, $game = '' ) {
 	<section class="pp-hero" aria-labelledby="pp-hero-h">
 		<div class="pp-hero__field">
 			<div class="pp-wrap pp-hero__inner">
-				<p class="pp-script pp-hero__script"><?php esc_html_e( 'sealed boxes · live rip & ship', 'pokepiece' ); ?></p>
+				<p class="pp-script pp-hero__script"><?php esc_html_e( 'driven by adventure', 'pokepiece' ); ?></p>
 				<h1 id="pp-hero-h" class="pp-hero__title"><span><?php esc_html_e( 'Built for', 'pokepiece' ); ?></span> <span><?php esc_html_e( 'collectors.', 'pokepiece' ); ?></span></h1>
-				<p class="pp-hero__lead"><?php esc_html_e( 'Pokémon, One Piece and Dragon Ball — and every product tells you plainly whether it’s sealed, no shrink or opened live.', 'pokepiece' ); ?></p>
-				<p class="pp-hero__ctas"><?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), $shop, 'light' ); ?><a class="pp-ulink" href="#live"><?php esc_html_e( 'How live opening works', 'pokepiece' ); ?></a></p>
+				<p class="pp-hero__lead"><?php esc_html_e( 'PokePieceTCG is an online trading card store specialising in sealed Pokémon and One Piece TCG products.', 'pokepiece' ); ?></p>
+				<p class="pp-hero__ctas"><?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), $shop, 'light' ); ?><a class="pp-ulink" href="#why"><?php esc_html_e( 'Why collectors choose us', 'pokepiece' ); ?></a></p>
 				<div class="pp-hero__stage">
 					<?php foreach ( $stage as $i => $p ) : [ $sk, $st ] = pp_stock_state( $p ); ?>
 					<a class="pp-tile pp-tile--<?php echo (int) $i; ?>" href="<?php echo esc_url( $p->get_permalink() ); ?>">
@@ -53,7 +51,7 @@ function pp_world_products( $items, $game = '' ) {
 		</div>
 	</section>
 
-	<div class="pp-ticker" aria-hidden="true"><div class="pp-ticker__track"><?php for ( $i = 0; $i < 2; $i++ ) : ?><ul><?php foreach ( array( 'Pokémon', 'Sealed', 'One Piece', 'No shrink', 'Dragon Ball', 'Live rip & ship' ) as $w ) : ?><li><?php echo esc_html( $w ); ?></li><?php endforeach; ?></ul><?php endfor; ?></div></div>
+	<div class="pp-ticker" aria-hidden="true"><div class="pp-ticker__track"><?php for ( $i = 0; $i < 2; $i++ ) : ?><ul><?php foreach ( array( 'Pokémon', 'One Piece', 'Booster boxes', 'Elite trainer boxes', 'Collection boxes', 'Sealed TCG' ) as $w ) : ?><li><?php echo esc_html( $w ); ?></li><?php endforeach; ?></ul><?php endfor; ?></div></div>
 
 	<section class="pp-worlds" aria-labelledby="pp-worlds-h">
 		<div class="pp-wrap">
@@ -62,7 +60,7 @@ function pp_world_products( $items, $game = '' ) {
 		<ul class="pp-worlds__rail">
 			<?php foreach ( $groups as $k => $g ) : $w = $world[ $k ] ?? array( 'blurb' => '' ); $total = array_sum( array_column( $g['items'], 'count' ) ); ?>
 			<li class="pp-world pp-game-<?php echo esc_attr( $k ); ?>">
-				<div class="pp-world__stack" aria-hidden="true"><?php foreach ( pp_world_products( $g['items'], $k ) as $i => $wp ) : ?><span class="pp-wt pp-wt--<?php echo (int) $i; ?>" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'pp-plate', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></span><?php endforeach; ?></div>
+				<?php $custom = esc_url( (string) get_option( 'pokepiece_world_img_' . $k, '' ) ); if ( $custom ) : ?><div class="pp-world__photo pp-world__photo--custom" aria-hidden="true"><img src="<?php echo $custom; ?>" alt="" loading="lazy" decoding="async"></div><?php elseif ( ( $wp = pp_world_products( $g['items'], $k )[0] ?? null ) ) : ?><div class="pp-world__photo" aria-hidden="true" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'large', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></div><?php endif; ?>
 				<h3><?php echo esc_html( $g['name'] ); ?></h3>
 				<p><?php echo esc_html( $w['blurb'] ); ?></p>
 				<ul class="pp-world__links">
@@ -91,50 +89,25 @@ function pp_world_products( $items, $game = '' ) {
 		<div class="pp-wrap pp-shelf__foot"><?php echo pp_cta( __( 'View everything', 'pokepiece' ), $shop . ( $stocked ? '?pp_stock=1' : '' ), 'ink' ); ?></div>
 	</section>
 
-	<section class="pp-live" id="live" aria-labelledby="pp-live-h">
-		<div class="pp-wrap pp-live__grid">
-			<div class="pp-live__copy">
-				<p class="pp-script"><?php esc_html_e( 'opened live. shipped to you.', 'pokepiece' ); ?></p>
-				<h2 id="pp-live-h" class="pp-display"><?php esc_html_e( 'Live rip & ship', 'pokepiece' ); ?></h2>
-				<p><?php esc_html_e( 'Some products are opened live and the cards are then shipped to you. They’re labelled “Live opening” everywhere you see them, so you always know which kind you’re buying.', 'pokepiece' ); ?></p>
-				<p class="pp-live__ctas"><?php echo pp_cta( __( 'See live-opening products', 'pokepiece' ), add_query_arg( 'pp_mode', 'live', $shop ), 'yellow' ); ?><?php if ( $tt ) : ?><a class="pp-ulink pp-ulink--light" href="<?php echo esc_url( $tt ); ?>" rel="noopener"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></a><?php endif; ?></p>
-			</div>
-			<ol class="pp-steps">
-				<li><b>1</b><h3><?php esc_html_e( 'Choose a live-opening product', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Look for the Live opening label. It’s on the product card, the product page and in your cart.', 'pokepiece' ); ?></p></li>
-				<li><b>2</b><h3><?php esc_html_e( 'Check out as normal', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Your order goes through the same secure checkout as everything else in the shop.', 'pokepiece' ); ?></p></li>
-				<li><b>3</b><h3><?php esc_html_e( 'Your cards are shipped', 'pokepiece' ); ?></h3><p><?php echo esc_html( pp_dispatch_text() ); ?></p></li>
-			</ol>
+
+	<section class="pp-why" id="why" aria-labelledby="pp-why-h">
+		<div class="pp-wrap">
+			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'built for collectors', 'pokepiece' ); ?></p><h2 id="pp-why-h" class="pp-display"><?php esc_html_e( 'Why choose us', 'pokepiece' ); ?></h2></div>
+			<p class="pp-why__statement"><?php esc_html_e( 'We are collectors ourselves and understand the importance of condition, authenticity and trust when buying trading card products online.', 'pokepiece' ); ?></p>
+			<ul class="pp-why__list">
+				<li><h3><?php esc_html_e( 'Secure packaging', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Carefully packed to protect sealed condition during transit.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Fast UK dispatch', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Dispatched quickly from the UK with secure packaging on every order.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Trusted seller', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Backed by 5.0 ★ reviews from verified customers.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Authentic products', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Genuine sealed products sourced from trusted suppliers.', 'pokepiece' ); ?></p></li>
+			</ul>
+			<p class="pp-why__about"><?php esc_html_e( 'PokePieceTCG is a UK based trading card store specialising in Pokémon booster boxes, One Piece booster boxes, and sealed TCG products. We offer authentic sealed products sourced from trusted suppliers, including Japanese and English Pokémon and One Piece releases.', 'pokepiece' ); ?></p>
 		</div>
 	</section>
 
-	<section class="pp-community" aria-labelledby="pp-comm-h">
-		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'watch · join · collect', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'Where it happens', 'pokepiece' ); ?></h2></div>
-			<ul class="pp-comm__grid">
-				<?php if ( $tt ) : ?><li><a class="pp-comm pp-comm--tiktok" href="<?php echo esc_url( $tt ); ?>" rel="noopener"><span class="pp-comm__k">TikTok</span><span class="pp-comm__h">@pokepiecetcgg</span><span class="pp-comm__t"><?php esc_html_e( 'Live openings and events are run on TikTok. Follow to catch the next one.', 'pokepiece' ); ?></span><span class="pp-comm__go"><?php esc_html_e( 'Open TikTok', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li><?php endif; ?>
-				<?php if ( $dc ) : ?><li><a class="pp-comm pp-comm--discord" href="<?php echo esc_url( $dc ); ?>" rel="noopener"><span class="pp-comm__k">Discord</span><span class="pp-comm__h"><?php esc_html_e( 'Join the community', 'pokepiece' ); ?></span><span class="pp-comm__t"><?php esc_html_e( 'Talk cards with other collectors in the PokePieceTCG Discord.', 'pokepiece' ); ?></span><span class="pp-comm__go"><?php esc_html_e( 'Join the Discord', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li><?php endif; ?>
-			</ul>
-		</div>
-	</section>
-
-	<section class="pp-know" aria-labelledby="pp-know-h">
-		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'no surprises', 'pokepiece' ); ?></p><h2 id="pp-know-h" class="pp-display"><?php esc_html_e( 'Know what’s in the box', 'pokepiece' ); ?></h2></div>
-			<ul class="pp-know__rows">
-				<?php foreach ( array(
-					'sealed'    => array( __( 'Sealed', 'pokepiece' ), __( 'Delivered sealed. Any packaging condition is written on the product page.', 'pokepiece' ) ),
-					'no_shrink' => array( __( 'No shrink', 'pokepiece' ), __( 'Sent without shrink-wrap. The condition is stated plainly beside the price.', 'pokepiece' ) ),
-					'live'      => array( __( 'Live opening', 'pokepiece' ), __( 'Opened live, then the cards are shipped. Not a sealed product.', 'pokepiece' ) ),
-				) as $m => [ $label, $txt ] ) : ?>
-				<li class="pp-know__row pp-know__row--<?php echo esc_attr( $m ); ?>">
-					<a href="<?php echo esc_url( add_query_arg( 'pp_mode', $m, $shop ) ); ?>">
-						<span class="pp-know__label"><?php echo esc_html( $label ); ?></span>
-						<span class="pp-know__txt"><?php echo esc_html( $txt ); ?></span>
-						<span class="pp-know__go"><?php echo $mode_counts[ $m ] ? esc_html( sprintf( _n( '%d product', '%d products', $mode_counts[ $m ], 'pokepiece' ), $mode_counts[ $m ] ) ) : esc_html__( 'Browse', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span>
-					</a>
-				</li>
-				<?php endforeach; ?>
-			</ul>
+	<section class="pp-faq" aria-labelledby="pp-faq-h">
+		<div class="pp-wrap pp-faq__grid">
+			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'good to know', 'pokepiece' ); ?></p><h2 id="pp-faq-h" class="pp-display"><?php esc_html_e( 'Questions, answered', 'pokepiece' ); ?></h2></div>
+			<div class="pp-faq__list"><?php foreach ( pp_faqs() as $q ) : ?><details class="pp-disclose"><summary><?php echo esc_html( $q[0] ); ?><?php echo pp_icon( 'chev' ); // phpcs:ignore ?></summary><div><p><?php echo esc_html( $q[1] ); ?></p></div></details><?php endforeach; ?></div>
 		</div>
 	</section>
 
@@ -153,11 +126,25 @@ function pp_world_products( $items, $game = '' ) {
 	</section>
 	<?php endif; ?>
 
-	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery', 'pokepiece' ); ?>">
+	<section class="pp-community" aria-labelledby="pp-comm-h">
+		<div class="pp-wrap">
+			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'follow along', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2></div>
+		</div>
+		<?php $clips = pp_tiktok_items(); ?>
+		<ul class="pp-clips" tabindex="0" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">
+			<li class="pp-clip pp-clip--profile"><a href="<?php echo esc_url( $tt ); ?>" rel="noopener"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="220" height="55"><span class="pp-clip__h">@pokepiecetcgg</span><span class="pp-clip__t"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Follow on TikTok', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li>
+			<?php foreach ( $clips as $c ) : ?>
+			<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy"><span class="pp-clip__play" aria-hidden="true"></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 12 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
+			<?php endforeach; ?>
+			<?php if ( $dc ) : ?><li class="pp-clip pp-clip--discord"><a href="<?php echo esc_url( $dc ); ?>" rel="noopener"><span class="pp-clip__k">Discord</span><span class="pp-clip__h"><?php esc_html_e( 'Join the community', 'pokepiece' ); ?></span><span class="pp-clip__t"><?php esc_html_e( 'Join the PokePieceTCG Discord community.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Join the Discord', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li><?php endif; ?>
+		</ul>
+	</section>
+	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">
-			<p class="pp-deliver__big"><?php echo esc_html( pp_dispatch_text() ); ?></p>
+			<div><p class="pp-script"><?php esc_html_e( 'shipping', 'pokepiece' ); ?></p><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
 			<p class="pp-deliver__links"><?php $sp = get_page_by_path( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
-			<?php $svc = pp_service_ids(); if ( $svc && get_post_status( $svc[0] ) === 'publish' ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $svc[0] ) ); ?>"><?php esc_html_e( 'Upgrade your postage', 'pokepiece' ); ?></a><?php endif; ?></p>
+			<?php $svc = pp_service_ids(); if ( $svc && get_post_status( $svc[0] ) === 'publish' ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $svc[0] ) ); ?>"><?php esc_html_e( 'Upgrade your postage', 'pokepiece' ); ?></a><?php endif; ?></p></div>
+			<div><p class="pp-script"><?php esc_html_e( 'questions?', 'pokepiece' ); ?></p><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
 		</div>
 	</section>
 </main>

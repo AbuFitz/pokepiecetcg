@@ -27,7 +27,7 @@
 				</ul>
 			</nav>
 			<div class="pp-actions">
-				<a class="pp-iconbtn pp-act-account" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php esc_attr_e( 'My account', 'pokepiece' ); ?>"><?php echo pp_icon( 'user' ); ?></a>
+				<a class="pp-iconbtn pp-act-account" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php echo is_user_logged_in() ? esc_attr__( 'My account', 'pokepiece' ) : esc_attr__( 'Sign in or create account', 'pokepiece' ); ?>"<?php echo is_user_logged_in() ? '' : ' data-pp-account aria-haspopup="dialog"'; ?>><?php echo pp_icon( 'user' ); ?></a>
 				<button class="pp-iconbtn pp-cart-open" type="button" aria-controls="pp-cart-drawer" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'cart' ); ?><?php echo pp_cart_count_html(); // phpcs:ignore ?></button>
 			</div>
 		</div>
@@ -46,7 +46,7 @@
 			<ul><?php foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $it['name'] ); ?> <em>(<?php echo (int) $it['count']; ?>)</em></a></li><?php endforeach; ?></ul></details>
 		<?php endforeach; ?>
 		<hr>
-		<?php foreach ( array( 'my-account' => __( 'My account', 'pokepiece' ), 'about' => __( 'About', 'pokepiece' ), 'contact' => __( 'Contact', 'pokepiece' ), 'shipping-policy' => __( 'Shipping', 'pokepiece' ) ) as $slug => $label ) : $pg = get_page_by_path( $slug ); if ( $pg ) : ?>
+		<?php foreach ( array( 'my-account' => is_user_logged_in() ? __( 'My account', 'pokepiece' ) : __( 'Sign in / Create account', 'pokepiece' ), 'about' => __( 'About', 'pokepiece' ), 'contact' => __( 'Contact', 'pokepiece' ), 'shipping-policy' => __( 'Shipping', 'pokepiece' ) ) as $slug => $label ) : $pg = get_page_by_path( $slug ); if ( $pg ) : ?>
 		<a class="pp-menu__link pp-menu__link--minor" href="<?php echo esc_url( get_permalink( $pg ) ); ?>"><?php echo esc_html( $label ); ?></a>
 		<?php endif; endforeach; ?>
 	</div>

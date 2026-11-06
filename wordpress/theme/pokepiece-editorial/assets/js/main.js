@@ -7,6 +7,10 @@
 	var body = document.body;
 	var backdrop = $('.pp-backdrop');
 	var current = null; // only one layer at a time
+	var lockY = 0, locked = false;
+	// iOS-safe scroll lock: overflow:hidden alone lets the page scroll behind overlays on iOS Safari.
+	function lockScroll() { if (locked) return; locked = true; lockY = window.scrollY; body.style.top = (-lockY) + 'px'; body.classList.add('pp-lock'); }
+	function unlockScroll() { if (!locked) return; locked = false; body.classList.remove('pp-lock'); body.style.top = ''; window.scrollTo(0, lockY); }
 
 	var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])';
 
@@ -17,20 +21,20 @@
 		void el.offsetWidth;
 		el.classList.add('is-open');
 		if (opts.backdrop !== false && backdrop) { backdrop.hidden = false; void backdrop.offsetWidth; backdrop.classList.add('is-open'); }
-		body.classList.add('pp-lock');
+		lockScroll();
 		$$('main,.pp-header,.pp-footer,.pp-service').forEach(function (n) { n.setAttribute('inert', ''); });
 		if (invoker) invoker.setAttribute('aria-expanded', 'true');
 		current = { el: el, invoker: invoker };
-		var f = $(opts.focus || FOCUSABLE, el); if (f) f.focus();
+		var f = $(opts.focus || FOCUSABLE, el); if (f) f.focus({ preventScroll: true });
 	}
 	function closeLayer(immediate) {
 		if (!current) return;
 		var c = current; current = null;
 		c.el.classList.remove('is-open');
 		if (backdrop) backdrop.classList.remove('is-open');
-		body.classList.remove('pp-lock');
+		unlockScroll();
 		$$('[inert]').forEach(function (n) { n.removeAttribute('inert'); });
-		if (c.invoker) { c.invoker.setAttribute('aria-expanded', 'false'); if (!immediate) c.invoker.focus(); }
+		if (c.invoker) { c.invoker.setAttribute('aria-expanded', 'false'); if (!immediate) c.invoker.focus({ preventScroll: true }); }
 		var done = function () { if (!c.el.classList.contains('is-open')) c.el.hidden = true; if (!current && backdrop && !backdrop.classList.contains('is-open')) backdrop.hidden = true; };
 		if (reduce || immediate) done(); else setTimeout(done, 280);
 	}
@@ -187,6 +191,30 @@
 		});
 	}
 
+	/* ----- Account popup (sign in / create account) ----- */
+	var acc = $('#pp-account');
+	if (acc) {
+		var tabs = $$('[role=tab]', acc), panes = $$('form[role=tabpanel]', acc);
+		function showTab(i) { tabs.forEach(function (t, k) { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; }); panes.forEach(function (p, k) { p.hidden = k !== i; }); var f = $('input', panes[i]); if (f) f.focus({ preventScroll: true }); }
+		tabs.forEach(function (t, i) { t.addEventListener('click', function () { showTab(i); }); t.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { var n = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length; showTab(n); tabs[n].focus(); } }); });
+		$('.pp-close', acc).addEventListener('click', function () { closeLayer(); });
+		function openAcc(tab, inv) { openLayer(acc, inv || null, { backdrop: false, focus: 'input' }); showTab(tab || 0); }
+		document.addEventListener('click', function (e) { var a = e.target.closest('[data-pp-account]'); if (!a) return; e.preventDefault(); openAcc(0, a); });
+		var mm = $('.pp-menu a[href*="my-account"]'); if (mm && !document.body.classList.contains('logged-in')) mm.addEventListener('click', function (e) { e.preventDefault(); closeLayer(true); openAcc(0, null); });
+		if (/[?&]account=(login|register)/.test(location.search)) openAcc(/register/.test(location.search) ? 1 : 0, null);
+		$$('.pp-pass__toggle', acc).forEach(function (b) { b.addEventListener('click', function () { var i = document.getElementById(b.getAttribute('aria-controls')), show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.setAttribute('aria-pressed', String(show)); b.textContent = show ? 'Hide' : 'Show'; }); });
+		panes.forEach(function (f) {
+			f.addEventListener('submit', function (e) {
+				e.preventDefault(); var msg = $('.pp-form-msg', f), btn = $('button[type=submit]', f); msg.className = 'pp-form-msg'; msg.textContent = '';
+				var fd = new FormData(f); fd.append('action', f.dataset.action); fd.append('nonce', PP.accNonce); btn.disabled = true; btn.dataset.t = btn.textContent; btn.textContent = PP.i18n.loading;
+				fetch(PP.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+					if (j.success) { msg.className = 'pp-form-msg is-ok'; msg.textContent = 'Success — taking you to your account…'; location.href = j.data.redirect; }
+					else { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = (j.data && j.data.message) || PP.i18n.nlFail; var bad = $('input', f); if (bad) bad.focus({ preventScroll: true }); }
+				}).catch(function () { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = 'Something went wrong. Please try again.'; });
+			});
+		});
+	}
+
 	/* ----- Newsletter (only rendered when a provider handler exists) ----- */
 	var nl = $('#pp-nl');
 	if (nl) {
@@ -242,7 +270,7 @@
 	document.documentElement.classList.add('pp-js');
 	if (!reduce && 'IntersectionObserver' in window) {
 		var io = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
-		document.querySelectorAll('.pp-head,.pp-world,.pp-steps li,.pp-know__row,.pp-rev,.pp-comm,.pp-story__copy').forEach(function (n) { n.classList.add('pp-reveal'); io.observe(n); });
+		document.querySelectorAll('.pp-head,.pp-steps li,.pp-know__row,.pp-rev,.pp-comm').forEach(function (n) { n.classList.add('pp-reveal'); io.observe(n); });
 	}
 	if (!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
 		document.querySelectorAll('.pp-tile').forEach(function (t) {
@@ -250,4 +278,18 @@
 			t.addEventListener('pointerleave', function () { t.style.transform = ''; });
 		});
 	}
+})();
+
+/* ----- Mobile header: hides while scrolling down, returns on scroll up or when the search/menu is used ----- */
+(function () {
+	var h = document.getElementById('pp-header'); if (!h) return;
+	var last = window.scrollY, ticking = false, mq = window.matchMedia('(max-width: 899px)');
+	function upd() {
+		ticking = false; var y = Math.max(0, window.scrollY), dy = y - last;
+		if (!mq.matches || document.body.classList.contains('pp-lock')) { h.classList.remove('is-hidden'); last = y; return; }
+		if (y < 120 || dy < -6) h.classList.remove('is-hidden'); else if (dy > 8) h.classList.add('is-hidden');
+		last = y;
+	}
+	window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
+	h.addEventListener('focusin', function () { h.classList.remove('is-hidden'); });
 })();

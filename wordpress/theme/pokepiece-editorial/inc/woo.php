@@ -19,7 +19,7 @@ remove_action( 'woocommerce_archive_description', 'woocommerce_product_archive_d
 /** Full-bleed archive band in the colour world of the current game; plain ink on /shop/ and search. */
 function pp_archive_band() {
 	$game = ''; $desc = ''; $kicker = __( 'the shop', 'pokepiece' );
-	if ( is_tax( 'product_cat' ) ) { $t = get_queried_object(); $game = pp_game_of_slug( $t->slug ); $desc = term_description( $t->term_id, 'product_cat' ); $kicker = $game ? ucwords( str_replace( '-', ' ', $game ) ) : $kicker; }
+	if ( is_tax( 'product_cat' ) ) { $t = get_queried_object(); $game = pp_game_of_slug( $t->slug ); $desc = apply_filters( 'pp_band_description', term_description( $t->term_id, 'product_cat' ) ); $kicker = $game ? ucwords( str_replace( '-', ' ', $game ) ) : $kicker; }
 	if ( is_search() ) { $kicker = __( 'search', 'pokepiece' ); }
 	$title = is_search() ? sprintf( __( '“%s”', 'pokepiece' ), get_search_query() ) : woocommerce_page_title( false );
 	echo '<header class="pp-band pp-game-' . esc_attr( $game ?: 'all' ) . '"><div class="pp-wrap pp-band__in">';
@@ -105,7 +105,7 @@ function pp_mode_callout( $product ) {
 	$msg = array(
 		'sealed'    => __( 'This product is delivered sealed.', 'pokepiece' ),
 		'no_shrink' => __( 'Sent without shrink-wrap. Read the condition note before you buy.', 'pokepiece' ),
-		'live'      => __( 'Opened live on stream; the cards are then shipped to you. This is not a sealed product.', 'pokepiece' ),
+		'live'      => __( 'Opened live, then the cards are shipped to you.', 'pokepiece' ),
 		'preorder'  => __( 'This is a preorder.', 'pokepiece' ),
 	);
 	echo '<div class="pp-callout pp-callout--' . esc_attr( $mode ) . '" role="note"><strong>' . esc_html( pp_modes()[ $mode ]['label'] ) . '</strong><span>' . esc_html( $msg[ $mode ] ) . '</span></div>';
