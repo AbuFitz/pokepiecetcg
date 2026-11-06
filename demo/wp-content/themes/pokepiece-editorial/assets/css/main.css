@@ -982,3 +982,16 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 	.pp-world{flex:none;width:100%;scroll-snap-align:none}
 }
 @media(max-width:899px){.pp-world__photo{height:210px}.pp-world{padding-top:232px}}
+
+/* fewer competing words: no section kickers, lighter supporting copy on phones */
+.pp-worlds .pp-script,.pp-shelf .pp-script,.pp-why .pp-script,.pp-faq .pp-script,.pp-reviews .pp-script,.pp-community .pp-script,.pp-deliver .pp-script,.pp-band .pp-script{display:none}
+.pp-head{margin-bottom:clamp(18px,3vw,36px)}
+@media(max-width:899px){
+	.pp-display{font-size:clamp(30px,9vw,48px)}
+	.pp-world>p,.pp-comm__bio,.pp-rev__note,.pp-deliver__sub{display:none}
+	.pp-world h3{font-size:clamp(34px,9vw,48px)}
+	.pp-why__list li p{display:none}
+	.pp-why__list li{padding:14px 0}
+	.pp-deliver__big{font-size:clamp(22px,6.4vw,32px)}
+	.pp-faq,.pp-why,.pp-worlds,.pp-shelf,.pp-reviews,.pp-community,.pp-deliver{padding-block:34px}
+}

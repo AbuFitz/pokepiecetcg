@@ -49,7 +49,7 @@ function pp_world_products( $items, $game = '' ) {
 
 	<section class="pp-worlds" aria-labelledby="pp-worlds-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'pick a world', 'pokepiece' ); ?></p><h2 id="pp-worlds-h" class="pp-display"><?php esc_html_e( 'Three worlds. One counter.', 'pokepiece' ); ?></h2></div>
+			<div class="pp-head"><h2 id="pp-worlds-h" class="pp-display"><?php esc_html_e( 'Three worlds. One counter.', 'pokepiece' ); ?></h2></div>
 		</div>
 		<ul class="pp-worlds__rail">
 			<?php foreach ( $groups as $k => $g ) : $w = $world[ $k ] ?? array( 'blurb' => '' ); $total = array_sum( array_column( $g['items'], 'count' ) ); ?>
@@ -68,7 +68,7 @@ function pp_world_products( $items, $game = '' ) {
 	<section class="pp-shelf" aria-labelledby="pp-shelf-h">
 		<div class="pp-wrap">
 			<div class="pp-shelf__head">
-				<div class="pp-head"><p class="pp-script"><?php echo $all_in ? esc_html__( 'ready to ship', 'pokepiece' ) : esc_html__( 'the full range', 'pokepiece' ); ?></p><h2 id="pp-shelf-h" class="pp-display"><?php echo $all_in ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
+				<div class="pp-head"><h2 id="pp-shelf-h" class="pp-display"><?php echo $all_in ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
 				
 			</div>
 			<?php if ( ! $stocked ) : ?>
@@ -88,7 +88,7 @@ function pp_world_products( $items, $game = '' ) {
 
 	<section class="pp-why" id="why" aria-labelledby="pp-why-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'built for collectors', 'pokepiece' ); ?></p><h2 id="pp-why-h" class="pp-display"><?php esc_html_e( 'Why choose us', 'pokepiece' ); ?></h2></div>
+			<div class="pp-head"><h2 id="pp-why-h" class="pp-display"><?php esc_html_e( 'Why choose us', 'pokepiece' ); ?></h2></div>
 			<ul class="pp-why__list">
 				<li><h3><?php esc_html_e( 'Secure packaging', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Packed to protect sealed condition.', 'pokepiece' ); ?></p></li>
 				<li><h3><?php esc_html_e( 'Fast UK dispatch', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Quick from the UK, every order.', 'pokepiece' ); ?></p></li>
@@ -100,7 +100,7 @@ function pp_world_products( $items, $game = '' ) {
 	</section>
 	<section class="pp-faq" aria-labelledby="pp-faq-h">
 		<div class="pp-wrap pp-faq__grid">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'good to know', 'pokepiece' ); ?></p><h2 id="pp-faq-h" class="pp-display"><?php esc_html_e( 'Questions, answered', 'pokepiece' ); ?></h2></div>
+			<div class="pp-head"><h2 id="pp-faq-h" class="pp-display"><?php esc_html_e( 'Questions, answered', 'pokepiece' ); ?></h2></div>
 			<div class="pp-faq__list"><?php foreach ( pp_faqs() as $q ) : ?><details class="pp-disclose"><summary><?php echo esc_html( $q[0] ); ?><?php echo pp_icon( 'chev' ); // phpcs:ignore ?></summary><div><p><?php echo esc_html( $q[1] ); ?></p></div></details><?php endforeach; ?></div>
 		</div>
 	</section>
@@ -108,7 +108,7 @@ function pp_world_products( $items, $game = '' ) {
 	<?php if ( $reviews ) : $first = array_shift( $reviews ); ?>
 	<section class="pp-reviews" aria-labelledby="pp-rev-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'from the people who bought', 'pokepiece' ); ?></p><h2 id="pp-rev-h" class="pp-display"><?php esc_html_e( 'Collector reviews', 'pokepiece' ); ?></h2></div>
+			<div class="pp-head"><h2 id="pp-rev-h" class="pp-display"><?php esc_html_e( 'Collector reviews', 'pokepiece' ); ?></h2></div>
 			<div class="pp-rev__grid" data-pp-drag tabindex="0" aria-label="<?php esc_attr_e( 'Customer reviews', 'pokepiece' ); ?>">
 				<figure class="pp-rev pp-rev--lead"><blockquote><p><?php echo esc_html( $first['q'] ); ?></p></blockquote><figcaption><b><?php echo esc_html( $first['n'] ); ?></b> <?php esc_html_e( 'Vinted customer', 'pokepiece' ); ?></figcaption></figure>
 				<?php foreach ( $reviews as $r ) : ?>
@@ -122,7 +122,7 @@ function pp_world_products( $items, $game = '' ) {
 
 	<section class="pp-community" aria-labelledby="pp-comm-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'follow along', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2>
+			<div class="pp-head"><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2>
 			<p class="pp-comm__bio"><?php esc_html_e( 'Live TCG Rip & Ship · Big pulls · Trusted stock · Multiple TCGs', 'pokepiece' ); ?></p></div>
 		</div>
 		<?php $clips = pp_tiktok_items(); if ( $clips ) : ?>
@@ -150,10 +150,10 @@ function pp_world_products( $items, $game = '' ) {
 	
 	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">
-			<div><p class="pp-script"><?php esc_html_e( 'shipping', 'pokepiece' ); ?></p><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
+			<div><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
 			<p class="pp-deliver__links"><?php $sp = get_page_by_path( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
 			</p></div>
-			<div><p class="pp-script"><?php esc_html_e( 'questions?', 'pokepiece' ); ?></p><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
+			<div><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
 		</div>
 	</section>
 </main>

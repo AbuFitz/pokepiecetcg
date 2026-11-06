@@ -23,7 +23,7 @@ function pp_archive_band() {
 	if ( is_search() ) { $kicker = __( 'search', 'pokepiece' ); }
 	$title = is_search() ? sprintf( __( '“%s”', 'pokepiece' ), get_search_query() ) : woocommerce_page_title( false );
 	echo '<header class="pp-band pp-game-' . esc_attr( $game ?: 'all' ) . '"><div class="pp-wrap pp-band__in">';
-	echo '<p class="pp-script">' . esc_html( $kicker ) . '</p><h1 class="pp-band__title">' . esc_html( $title ) . '</h1>';
+	echo '<h1 class="pp-band__title">' . esc_html( $title ) . '</h1>';
 	if ( $desc ) { echo '<div class="pp-band__desc">' . wp_kses_post( $desc ) . '</div>'; }
 	echo '</div></header>';
 }
