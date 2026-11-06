@@ -57,5 +57,5 @@ if ( getenv( 'PP_INSTOCK_FIXTURE' ) ) {
 		update_post_meta( $id, '_pp_mode', $m ); update_post_meta( $id, '_pp_format', $f );
 	}
 }
-wp_set_current_user( 0 ); switch_theme( 'pokepiece' ); flush_rewrite_rules();
+wp_set_current_user( 0 ); switch_theme( 'pokepiece-editorial' ); flush_rewrite_rules();
 WP_CLI::success( 'Seeded local fixture site.' );

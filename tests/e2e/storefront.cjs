@@ -34,7 +34,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
 
   await t('service product is excluded from home rows, hero stage, related and predictive search, yet its direct URL works', async () => {
     const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
-    assert.equal(await p.locator('.pp-home a[href*="' + SERVICE_SLUG + '"]').count(), 0);
+    assert.equal(await p.locator('.pp-home li.product a[href*="' + SERVICE_SLUG + '"], .pp-home .pp-tile[href*="' + SERVICE_SLUG + '"]').count(), 0); /* only the explicit, labelled postage text link may point at the service */
     const r = await p.goto(BASE + '/product/' + SERVICE_SLUG + '/'); assert.equal(r.status(), 200);
     assert.ok((await p.textContent('.pp-callout--service')).includes('order notes'));
     const j = await (await p.request.get(BASE + '/wp-json/pokepiece/v1/search?q=shipping')).json(); assert.equal(j.items.length, 0);

@@ -27,7 +27,7 @@ if(!defined('ABSPATH'))define('ABSPATH',__DIR__.'/');
 require_once ABSPATH.'wp-settings.php';
 PHP
 fi
-ln -sfn "$REPO/wordpress/theme/pokepiece" "$DIR/wp/wp-content/themes/pokepiece"
+ln -sfn "$REPO/wordpress/theme/pokepiece-editorial" "$DIR/wp/wp-content/themes/pokepiece-editorial"
 WP="php $DL/wp-cli.phar --path=$DIR/wp --allow-root"
 $WP core is-installed 2>/dev/null || {
   $WP core install --url="http://localhost:$PORT" --title="PokePieceTCG DEV FIXTURE" --admin_user=dev --admin_password=dev-only-local --admin_email=dev@example.invalid --skip-email

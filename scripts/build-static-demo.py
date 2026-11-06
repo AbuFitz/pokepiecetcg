@@ -9,7 +9,7 @@ get = lambda u: urllib.request.urlopen(urllib.request.Request(u)).read()
 def fetch(path):
     try: return get(base + path)
     except urllib.error.HTTPError as e: return e.read()
-pages = ['/', '/shop/', '/shop/page/2/', '/cart/', '/checkout/', '/my-account/', '/about/', '/contact/', '/shipping-policy/', '/refund-return-policy/', '/terms-conditions/', '/privacy-policy/']
+pages = ['/', '/shop/', '/cart/', '/checkout/', '/my-account/', '/about/', '/contact/', '/shipping-policy/', '/refund-return-policy/', '/terms-conditions/', '/privacy-policy/']
 for t in json.loads(get(base + '/wp-json/wc/store/v1/products/categories?per_page=100')): pages.append(urllib.parse.urlparse(t['permalink']).path)
 for pr in json.loads(get(base + '/wp-json/wc/store/v1/products?per_page=100')): pages.append(urllib.parse.urlparse(pr['permalink']).path)
 assets, seen = set(), set()

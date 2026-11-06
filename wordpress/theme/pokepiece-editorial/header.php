@@ -1,40 +1,61 @@
-<?php defined('ABSPATH') || exit; ?>
+<?php defined( 'ABSPATH' ) || exit; $groups = pp_game_groups(); $cur = is_tax( 'product_cat' ) ? get_queried_object()->slug : ''; ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
-<meta charset="<?php bloginfo('charset'); ?>">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="<?php bloginfo( 'charset' ); ?>">
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
-<a class="pp-skip" href="#pp-main">Skip to content</a>
-<div class="pp-topline">POKÉMON · ONE PIECE · DRAGON BALL <span aria-hidden="true">/</span> THE COLLECTOR'S EDIT</div>
+<a class="pp-skip" href="#main"><?php esc_html_e( 'Skip to content', 'pokepiece' ); ?></a>
 <header class="pp-header" id="pp-header">
-<div class="pp-nav-shell">
-<button class="pp-menutoggle" type="button" aria-controls="pp-mobilemenu" aria-expanded="false" data-pp-menu-open>☰ <span class="screen-reader-text">Open menu</span></button>
-<a class="pp-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="PokePieceTCG home"><img src="<?php echo esc_url(get_stylesheet_directory_uri().'/assets/pokepiece-logo.svg'); ?>" alt="PokePieceTCG" onerror="this.style.display='none';this.parentNode.append(document.createTextNode('POKEPIECETCG'))"></a>
-<nav class="pp-navlinks" aria-label="Primary navigation">
-<a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">Shop all</a>
-<a href="<?php echo esc_url(pp_cat_link('Pokémon')); ?>">Pokémon</a>
-<a href="<?php echo esc_url(pp_cat_link('One Piece')); ?>">One Piece</a>
-<a href="<?php echo esc_url(pp_cat_link('Dragon Ball')); ?>">Dragon Ball</a>
-</nav>
-<form class="pp-search" role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>"><label class="screen-reader-text" for="pp-search-field">Search products</label><input id="pp-search-field" name="s" type="search" placeholder="Search cards, sets, boxes…" value="<?php echo esc_attr(get_search_query()); ?>"><input name="post_type" type="hidden" value="product"><button type="submit" aria-label="Search products">⌕</button></form>
-<div class="pp-tools">
-<a href="<?php echo esc_url(get_permalink(get_option('woocommerce_myaccount_page_id'))); ?>">Account</a>
-<a href="<?php echo esc_url(wc_get_cart_url()); ?>">Bag <span class="pp-cartcount"><?php echo WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0; ?></span></a>
+	<div class="pp-frame">
+		<div class="pp-frame__top">
+			<button class="pp-iconbtn pp-menu-open" type="button" aria-controls="pp-menu" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open menu', 'pokepiece' ); ?>"><?php echo pp_icon( 'menu' ); ?></button>
+			<a class="pp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> — <?php esc_attr_e( 'home', 'pokepiece' ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="50"></a>
+			<nav class="pp-nav" aria-label="<?php esc_attr_e( 'Main', 'pokepiece' ); ?>">
+				<ul>
+					<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"<?php echo is_shop() ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a></li>
+					<?php foreach ( $groups as $k => $g ) : $active = $cur && str_starts_with( $cur, $g['prefix'] ); ?>
+					<li class="pp-nav__group">
+						<button type="button" class="pp-nav__btn" aria-expanded="false" aria-controls="pp-sub-<?php echo esc_attr( $k ); ?>"<?php echo $active ? ' data-active="1"' : ''; ?>><?php echo esc_html( $g['name'] ); ?><?php echo pp_icon( 'chev' ); ?></button>
+						<ul class="pp-nav__sub" id="pp-sub-<?php echo esc_attr( $k ); ?>" hidden>
+							<?php foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"<?php echo $cur === $it['slug'] ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $it['name'] ); ?> <em>(<?php echo (int) $it['count']; ?>)</em></a></li><?php endforeach; ?>
+						</ul>
+					</li>
+					<?php endforeach; ?>
+				</ul>
+			</nav>
+			<div class="pp-actions">
+				<a class="pp-iconbtn pp-act-account" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php esc_attr_e( 'My account', 'pokepiece' ); ?>"><?php echo pp_icon( 'user' ); ?></a>
+				<button class="pp-iconbtn pp-cart-open" type="button" aria-controls="pp-cart-drawer" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'cart' ); ?><?php echo pp_cart_count_html(); // phpcs:ignore ?></button>
+			</div>
+		</div>
+		<div class="pp-frame__search">
+			<?php get_search_form(); ?>
+		</div>
+	</div>
+</header>
+
+<div class="pp-menu" id="pp-menu" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Menu', 'pokepiece' ); ?>" hidden>
+	<div class="pp-menu__head"><span class="pp-menu__title"><?php esc_html_e( 'Menu', 'pokepiece' ); ?></span><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close menu', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button></div>
+	<div class="pp-menu__body">
+		<a class="pp-menu__link" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a>
+		<?php foreach ( $groups as $k => $g ) : ?>
+		<details class="pp-menu__group"<?php echo ( $cur && str_starts_with( $cur, $g['prefix'] ) ) ? ' open' : ''; ?>><summary><?php echo esc_html( $g['name'] ); ?><?php echo pp_icon( 'chev' ); ?></summary>
+			<ul><?php foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $it['name'] ); ?> <em>(<?php echo (int) $it['count']; ?>)</em></a></li><?php endforeach; ?></ul></details>
+		<?php endforeach; ?>
+		<hr>
+		<?php foreach ( array( 'my-account' => __( 'My account', 'pokepiece' ), 'about' => __( 'About', 'pokepiece' ), 'contact' => __( 'Contact', 'pokepiece' ), 'shipping-policy' => __( 'Shipping', 'pokepiece' ) ) as $slug => $label ) : $pg = get_page_by_path( $slug ); if ( $pg ) : ?>
+		<a class="pp-menu__link pp-menu__link--minor" href="<?php echo esc_url( get_permalink( $pg ) ); ?>"><?php echo esc_html( $label ); ?></a>
+		<?php endif; endforeach; ?>
+	</div>
 </div>
-</div></header>
-<div class="pp-backdrop" data-pp-menu-close></div>
-<aside class="pp-mobilemenu" id="pp-mobilemenu" role="dialog" aria-modal="true" aria-label="Navigation" aria-hidden="true">
-<div class="pp-menuhead"><strong>Explore PokePiece</strong><button type="button" data-pp-menu-close aria-label="Close menu">✕</button></div>
-<nav aria-label="Mobile navigation">
-<a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">Shop all ↗</a>
-<a href="<?php echo esc_url(pp_cat_link('Pokémon')); ?>">Pokémon ↗</a>
-<a href="<?php echo esc_url(pp_cat_link('One Piece')); ?>">One Piece ↗</a>
-<a href="<?php echo esc_url(pp_cat_link('Dragon Ball')); ?>">Dragon Ball ↗</a>
-<a href="<?php echo esc_url(pp_page_link('about')); ?>">Our story ↗</a>
-<a href="<?php echo esc_url(pp_page_link('contact')); ?>">Contact ↗</a>
-<a href="<?php echo esc_url(get_permalink(get_option('woocommerce_myaccount_page_id'))); ?>">My account ↗</a>
-</nav></aside>
+
+<div class="pp-backdrop" hidden></div>
+
+<aside class="pp-drawer" id="pp-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="pp-cart-title" hidden>
+	<div class="pp-drawer__head"><h2 id="pp-cart-title"><?php esc_html_e( 'Your cart', 'pokepiece' ); ?></h2><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button></div>
+	<p class="pp-drawer__status" role="status" aria-live="polite"></p>
+	<?php echo pp_cart_drawer_body(); // phpcs:ignore ?>
+</aside>
