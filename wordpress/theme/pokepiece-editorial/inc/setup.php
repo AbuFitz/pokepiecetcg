@@ -38,7 +38,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // Preload only the faces used above the fold. Fonts are self-hosted WOFF2 (SIL OFL, licences in assets/fonts).
 add_action( 'wp_head', function () {
-	foreach ( array( 'archivo-latin-wdth-normal.woff2' ) as $f ) {
+	foreach ( array( 'inter-latin-wght-normal.woff2', 'barlow-condensed-latin-800-normal.woff2' ) as $f ) {
 		printf( '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n", esc_url( PP_URI . '/assets/fonts/' . $f ) );
 	}
 	if ( has_site_icon() ) {
@@ -66,7 +66,7 @@ add_filter( 'body_class', function ( $c ) {
 	$c[] = 'pp';
 	$bar = 'ink';
 	if ( is_front_page() ) { $bar = 'red'; }
-	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'blue', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
+	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'red', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
 	$c[] = 'pp-bar-' . $bar;
 	return $c;
 } );
@@ -83,7 +83,7 @@ add_filter( 'woocommerce_enqueue_styles', function ( $s ) {
 
 /** Colour of the area behind the phone status bar / notch: matches the top of the page (hero colour). */
 function pp_top_colour() {
-	$map = array( 'red' => '#c1232c', 'blue' => '#2447b3', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#14171a' );
+	$map = array( 'red' => '#33271f', 'blue' => '#b5262d', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#1f1814' );
 	foreach ( get_body_class() as $c ) { if ( str_starts_with( $c, 'pp-bar-' ) ) { return $map[ substr( $c, 7 ) ] ?? $map['ink']; } }
 	return $map['ink'];
 }
