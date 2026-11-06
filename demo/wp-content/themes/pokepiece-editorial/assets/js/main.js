@@ -252,7 +252,7 @@ document.querySelectorAll('[data-pp-drag]').forEach(function (r) {
 	document.documentElement.classList.add('pp-js');
 	if (!reduce && 'IntersectionObserver' in window) {
 		var io = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
-		document.querySelectorAll('.pp-head,.pp-steps li,.pp-know__row,.pp-rev,.pp-comm').forEach(function (n) { n.classList.add('pp-reveal'); io.observe(n); });
+		document.querySelectorAll('.pp-steps li,.pp-know__row').forEach(function (n) { n.classList.add('pp-reveal'); io.observe(n); });
 	}
 	if (!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
 		document.querySelectorAll('.pp-tile').forEach(function (t) {

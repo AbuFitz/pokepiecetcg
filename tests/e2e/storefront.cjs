@@ -82,6 +82,12 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     assert.equal(r.length, 4); assert.ok(r.every(x => x.inside), JSON.stringify(r)); await p.context().close();
   });
 
+  await t('phone: worlds heading and panels visible on load, stacked, no sideways scroll', async () => {
+    const p = await mk(390); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    const r = await p.evaluate(() => { const rail = document.querySelector('.pp-worlds__rail'); return { sideways: rail.scrollWidth > rail.clientWidth + 2, head: +getComputedStyle(document.querySelector('.pp-worlds .pp-head')).opacity, panels: [...document.querySelectorAll('.pp-world')].map(w => getComputedStyle(w).opacity) }; });
+    assert.equal(r.sideways, false); assert.equal(r.head, 1); assert.ok(r.panels.every(o => o === '1')); await p.context().close();
+  });
+
   await t('404 returns real 404 status and offers search + categories', async () => {
     const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
     assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();

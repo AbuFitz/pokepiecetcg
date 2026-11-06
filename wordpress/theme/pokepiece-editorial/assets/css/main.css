@@ -975,3 +975,10 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 .pp-hero__inner{padding-top:118px}
 @media(min-width:900px){.pp-hero__inner{padding-top:176px}}
 @media(max-width:899px){.pp-hero__inner{padding-top:122px}.pp-hero .pp-script{margin-bottom:8px}}
+/* headings are always visible; worlds stack on phones (no sideways scroll) */
+.pp-js .pp-head.pp-reveal,.pp-js .pp-rev.pp-reveal,.pp-js .pp-comm.pp-reveal{opacity:1;transform:none}
+@media(max-width:899px){
+	.pp-worlds__rail{display:grid;grid-template-columns:1fr;gap:18px;overflow:visible;scroll-snap-type:none;padding:0 var(--gut)}
+	.pp-world{flex:none;width:100%;scroll-snap-align:none}
+}
+@media(max-width:899px){.pp-world__photo{height:210px}.pp-world{padding-top:232px}}
