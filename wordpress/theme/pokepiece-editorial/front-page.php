@@ -136,7 +136,7 @@ function pp_world_products( $items, $game = '' ) {
 				<?php for ( $loop = 0; $loop < 2; $loop++ ) : ?>
 				<ul class="pp-reel__set"<?php echo $loop ? ' aria-hidden="true"' : ''; ?>>
 					<?php foreach ( $clips as $c ) : ?>
-					<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"<?php echo $loop ? ' tabindex="-1"' : ''; ?>><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy" decoding="async" draggable="false"><span class="pp-clip__tt"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 14 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
+					<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"<?php echo $loop ? ' tabindex="-1"' : ''; ?>><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" width="360" height="640" decoding="async" draggable="false"><span class="pp-clip__tt"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 14 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
 					<?php endforeach; ?>
 				</ul>
 				<?php endfor; ?>
