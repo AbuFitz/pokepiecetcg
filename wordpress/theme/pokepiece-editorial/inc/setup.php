@@ -38,7 +38,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // Preload only the faces used above the fold. Fonts are self-hosted WOFF2 (SIL OFL, licences in assets/fonts).
 add_action( 'wp_head', function () {
-	foreach ( array( 'inter-latin-wght-normal.woff2', 'barlow-condensed-latin-700-normal.woff2' ) as $f ) {
+	foreach ( array( 'archivo-latin-wdth-normal.woff2' ) as $f ) {
 		printf( '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n", esc_url( PP_URI . '/assets/fonts/' . $f ) );
 	}
 	if ( has_site_icon() ) {
