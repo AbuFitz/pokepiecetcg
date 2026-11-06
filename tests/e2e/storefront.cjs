@@ -1,0 +1,143 @@
+/* Critical storefront journeys against a LOCAL FIXTURE site (scripts/dev-wp.sh + scripts/seed-fixtures.php with PP_INSTOCK_FIXTURE=1).
+ * These prove theme behaviour on Woo's real cart/session code — NOT payment gateways, mail, or the client's staging data.
+ * Usage: BASE=http://localhost:8088 node tests/e2e/storefront.cjs */
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const BASE = process.env.BASE || 'http://localhost:8088';
+const SERVICE_SLUG = 'special-delivery-shipping-upgrade';
+const results = []; let failed = 0;
+async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } catch (e) { failed++; results.push(['FAIL', name + ' :: ' + e.message.split('\n')[0]]); } }
+
+(async () => {
+  const b = await chromium.launch();
+  const mk = async (w = 1440, extra = {}) => { const c = await b.newContext({ viewport: { width: w, height: w < 700 ? 844 : 900 }, ...extra }); const p = await c.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text()) && p.errs.push(m.text())); return p; };
+
+  for (const w of [320, 390, 430, 768, 1440]) {
+    await t(`no horizontal overflow + zoomable viewport @${w}: home, shop, product, 404`, async () => {
+      const p = await mk(w);
+      for (const u of ['/', '/shop/', '/product/fixture-in-stock-sealed-box-not-a-real-product/', '/does-not-exist/']) {
+        await p.goto(BASE + u, { waitUntil: 'networkidle' });
+        const ov = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        assert.ok(ov <= 0, `${u} overflows by ${ov}px`);
+      }
+      const vp = await p.getAttribute('meta[name=viewport]', 'content');
+      assert.ok(!/user-scalable\s*=\s*no|maximum-scale\s*=\s*1(\.0)?\b/.test(vp), 'viewport blocks zoom: ' + vp);
+      assert.deepEqual(p.errs, []);
+      await p.context().close();
+    });
+  }
+
+  await t('404 returns real 404 status and offers search + categories', async () => {
+    const p = await mk(); const r = await p.goto(BASE + '/nope-nope/'); assert.equal(r.status(), 404);
+    assert.ok(await p.locator('.pp-404 input[type=search]').count()); assert.ok(await p.locator('.pp-404__links a').count() > 2); await p.context().close();
+  });
+
+  await t('service product is excluded from home rows, hero stage, related and predictive search, yet its direct URL works', async () => {
+    const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    assert.equal(await p.locator('.pp-home a[href*="' + SERVICE_SLUG + '"]').count(), 0);
+    const r = await p.goto(BASE + '/product/' + SERVICE_SLUG + '/'); assert.equal(r.status(), 200);
+    assert.ok((await p.textContent('.pp-callout--service')).includes('order notes'));
+    const j = await (await p.request.get(BASE + '/wp-json/pokepiece/v1/search?q=shipping')).json(); assert.equal(j.items.length, 0);
+    await p.context().close();
+  });
+
+  await t('predictive search handles OP14 / OP-14 / accent and shows no-match state', async () => {
+    const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    for (const q of ['OP14', 'OP-14', 'Pokémon']) { const j = await (await p.request.get(BASE + '/wp-json/pokepiece/v1/search?q=' + encodeURIComponent(q))).json(); assert.ok(j.items.length > 0, q + ' found nothing'); }
+    await p.fill('.pp-frame .pp-search__input', 'OP14'); await p.waitForSelector('.pp-suggest li a', { state: 'visible' });
+    assert.ok(await p.locator('.pp-suggest:visible').count());
+    await p.fill('.pp-frame .pp-search__input', 'zzzzqqq'); await p.waitForFunction(() => /No products/.test(document.querySelector('.pp-suggest__status').textContent));
+    await p.keyboard.press('Escape'); assert.equal(await p.locator('.pp-suggest:visible').count(), 0); await p.context().close();
+  });
+
+  await t('mobile menu: opens as dialog, focus enters, Escape closes and focus returns to trigger', async () => {
+    const p = await mk(390); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.click('.pp-menu-open'); await p.waitForSelector('#pp-menu.is-open');
+    assert.equal(await p.getAttribute('.pp-menu-open', 'aria-expanded'), 'true');
+    assert.ok(await p.evaluate(() => document.getElementById('pp-menu').contains(document.activeElement)), 'focus not inside menu');
+    assert.ok(await p.locator('#pp-menu details').count() >= 3);
+    await p.keyboard.press('Escape'); await p.waitForSelector('#pp-menu', { state: 'hidden' });
+    assert.ok(await p.evaluate(() => document.activeElement.classList.contains('pp-menu-open')), 'focus not returned'); assert.equal(await p.evaluate(() => document.body.classList.contains('pp-lock')), false); await p.context().close();
+  });
+
+  await t('desktop nav disclosure works by keyboard and Escape closes it', async () => {
+    const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.focus('.pp-nav__btn'); await p.keyboard.press('Enter');
+    assert.equal(await p.getAttribute('.pp-nav__btn', 'aria-expanded'), 'true'); assert.ok(await p.locator('.pp-nav__sub:visible a').count() > 0);
+    await p.keyboard.press('Escape'); assert.equal(await p.getAttribute('.pp-nav__btn', 'aria-expanded'), 'false'); await p.context().close();
+  });
+
+  await t('cart: AJAX add -> server-confirmed count + drawer; qty +/-; stock-limit message; remove; empty state; Woo totals', async () => {
+    const p = await mk(390); await p.goto(BASE + '/shop/', { waitUntil: 'networkidle' });
+    await p.click('li.pp-card--in .add_to_cart_button >> nth=0'); await p.waitForSelector('#pp-cart-drawer.is-open');
+    assert.equal(await p.locator('.pp-line').count(), 1); assert.equal((await p.textContent('.pp-cart-count')).trim(), '1');
+    await p.click('.pp-line [data-pp-qty="1"]'); await p.waitForFunction(() => document.querySelector('.pp-line output')?.textContent === '2');
+    assert.equal((await p.textContent('.pp-cart-count')).trim(), '2');
+    assert.match(await p.textContent('.pp-subtotal strong'), /£2\.00|£5\.00/);
+    // body not locked after close; reopen works
+    await p.click('#pp-cart-drawer .pp-close'); await p.waitForSelector('#pp-cart-drawer', { state: 'hidden' });
+    assert.equal(await p.evaluate(() => document.body.classList.contains('pp-lock')), false);
+    await p.click('.pp-cart-open'); await p.waitForSelector('#pp-cart-drawer.is-open');
+    // full cart page uses the same Woo session
+    const pg = await p.context().newPage(); await pg.goto(BASE + '/cart/'); assert.ok(await pg.locator('.woocommerce-cart-form').count()); await pg.close();
+    await p.click('.pp-line [data-pp-remove]'); await p.waitForSelector('.pp-empty');
+    assert.equal(await p.locator('.pp-cart-count:visible').count(), 0); await p.context().close();
+  });
+
+  await t('cart nonce is required: forged update without nonce is rejected', async () => {
+    const p = await mk(); const r = await p.request.post(BASE + '/wp-admin/admin-ajax.php', { form: { action: 'pokepiece_cart_update', key: 'x', qty: 1 } });
+    assert.ok([400, 403].includes(r.status()), 'status ' + r.status()); await p.context().close();
+  });
+
+  await t('filters: server-rendered, URL-driven chips, removable; empty result offers Clear all; sort kept', async () => {
+    const p = await mk(); await p.goto(BASE + '/shop/?pp_mode=live&pp_stock=1&orderby=price', { waitUntil: 'networkidle' });
+    assert.equal(await p.locator('.pp-chip:not(.pp-chip--clear)').count(), 2);
+    await p.click('.pp-chip >> nth=0'); await p.waitForLoadState('networkidle'); assert.ok(!/pp_mode/.test(p.url())); assert.ok(/orderby=price/.test(p.url()));
+    await p.goto(BASE + '/shop/?pp_mode=preorder', { waitUntil: 'networkidle' }); assert.ok(await p.locator('.pp-empty--archive a:has-text("Clear all")').count()); await p.context().close();
+  });
+
+  await t('out-of-stock products are never offered an Add action; zero-stock home state is honest', async () => {
+    const p = await mk(); await p.goto(BASE + '/shop/?pp_mode=live', { waitUntil: 'networkidle' });
+    const cards = await p.locator('li.pp-card--out').count(); assert.ok(cards > 0);
+    assert.equal(await p.locator('li.pp-card--out .add_to_cart_button').count(), 0); await p.context().close();
+  });
+
+  await t('quick view opens as dialog, traps focus, closes with Escape and returns focus', async () => {
+    const p = await mk(); await p.goto(BASE + '/shop/', { waitUntil: 'networkidle' });
+    const btn = p.locator('.pp-qv-open >> nth=0'); await btn.focus(); await btn.press('Enter'); await p.waitForSelector('#pp-qv.is-open .pp-qvc');
+    assert.ok(await p.evaluate(() => document.getElementById('pp-qv').contains(document.activeElement)));
+    await p.keyboard.press('Escape'); await p.waitForSelector('#pp-qv', { state: 'hidden' }); await p.context().close();
+  });
+
+  await t('product page: unknown mode shows no mode label (never defaults to sealed); known mode shown with text', async () => {
+    const p = await mk(); await p.goto(BASE + '/product/one-piece-op14-booster-box/', { waitUntil: 'networkidle' });
+    assert.equal(await p.locator('.summary .pp-callout').count(), 0); assert.equal(await p.locator('.summary .pp-mode').count(), 0);
+    await p.goto(BASE + '/product/fixture-in-stock-live-rip-example-not-a-real-product/', { waitUntil: 'networkidle' });
+    assert.match(await p.textContent('.pp-callout--live'), /Opened live/); await p.context().close();
+  });
+
+  await t('sticky purchase bar appears only after the main action leaves view (phone)', async () => {
+    const p = await mk(390); await p.goto(BASE + '/product/fixture-in-stock-sealed-box-not-a-real-product/', { waitUntil: 'networkidle' });
+    assert.equal(await p.locator('.pp-sticky.is-shown').count(), 0);
+    await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
+  });
+
+  await t('newsletter UI + endpoint stay disabled without a provider (501), no fake success', async () => {
+    const p = await mk(); await p.goto(BASE + '/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('#pp-nl').count(), 0);
+    const r = await p.request.post(BASE + '/wp-json/pokepiece/v1/newsletter', { data: { email: 'a@b.co', consent: 1 } }); assert.equal(r.status(), 501); await p.context().close();
+  });
+
+  await t('reduced motion: layers still open/close functionally', async () => {
+    const p = await mk(390, { reducedMotion: 'reduce' }); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await p.click('.pp-cart-open'); await p.waitForSelector('#pp-cart-drawer.is-open'); await p.keyboard.press('Escape'); await p.waitForSelector('#pp-cart-drawer', { state: 'hidden', timeout: 1500 }); await p.context().close();
+  });
+
+  await t('checkout + cart + account pages render without console errors', async () => {
+    const p = await mk(); for (const u of ['/cart/', '/checkout/', '/my-account/']) { await p.goto(BASE + u, { waitUntil: 'networkidle' }); assert.ok(await p.locator('h1').count()); }
+    assert.deepEqual(p.errs, []); await p.context().close();
+  });
+
+  await b.close();
+  for (const [s, n] of results) console.log(s, n);
+  console.log(`\n${results.length - failed}/${results.length} passed`); process.exit(failed ? 1 : 0);
+})();

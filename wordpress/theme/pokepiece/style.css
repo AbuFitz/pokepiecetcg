@@ -1,0 +1,12 @@
+/*
+Theme Name: PokePieceTCG
+Theme URI: https://github.com/AbuFitz/pokepiecetcg
+Author: OneSimpleSite
+Description: Native classic WooCommerce theme for PokePieceTCG - "The Collector's Counter". Woo stays the authority for prices, tax, stock, cart and orders. Replaces the presentation layer only; no data is stored by the theme except optional product-meta labels.
+Version: 0.1.0
+Requires at least: 6.4
+Requires PHP: 8.0
+License: Proprietary - client work (fonts are SIL OFL 1.1, see assets/fonts)
+Text Domain: pokepiece
+*/
+/* Styles are enqueued from assets/css/main.css. This file only carries the theme header. */
