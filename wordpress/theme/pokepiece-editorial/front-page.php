@@ -4,7 +4,10 @@ get_header();
 $groups  = pp_game_groups();
 $shop    = wc_get_page_permalink( 'shop' );
 $stocked = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => 10 ) );
-$range   = $stocked ?: pp_discovery_products( array( 'limit' => 10 ) );
+// Wheel content: in-stock first, then the rest of the range (each card states its real stock). Never fewer than the catalogue allows.
+$range = $stocked;
+if ( count( $range ) < 8 ) { $ids = wp_list_pluck( $range, 'id' ); foreach ( pp_discovery_products( array( 'limit' => 12 ) ) as $p ) { if ( ! in_array( $p->get_id(), $ids, true ) ) { $range[] = $p; } if ( count( $range ) >= 10 ) { break; } } }
+$all_in = $stocked && count( $stocked ) === count( $range );
 $pool    = array_merge( $stocked, pp_discovery_products( array( 'limit' => 12 ) ) );
 $stage = array(); $seen = array();
 foreach ( $pool as $p ) { if ( isset( $seen[ $p->get_id() ] ) || ! $p->get_image_id() ) { continue; } $seen[ $p->get_id() ] = 1; $stage[] = $p; if ( count( $stage ) === 2 ) { break; } }
@@ -61,15 +64,15 @@ $world = array(
 	<section class="pp-shelf" aria-labelledby="pp-shelf-h">
 		<div class="pp-wrap">
 			<div class="pp-shelf__head">
-				<div class="pp-head"><p class="pp-script"><?php echo $stocked ? esc_html__( 'ready to ship', 'pokepiece' ) : esc_html__( 'the full range', 'pokepiece' ); ?></p><h2 id="pp-shelf-h" class="pp-display"><?php echo $stocked ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
-				<div class="pp-rail-ctl"><button type="button" class="pp-round" data-rail="-1" aria-label="<?php esc_attr_e( 'Previous products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-rail="1" aria-label="<?php esc_attr_e( 'Next products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
+				<div class="pp-head"><p class="pp-script"><?php echo $all_in ? esc_html__( 'ready to ship', 'pokepiece' ) : esc_html__( 'the full range', 'pokepiece' ); ?></p><h2 id="pp-shelf-h" class="pp-display"><?php echo $all_in ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
+				<div class="pp-rail-ctl"><button type="button" class="pp-round pp-round--play" data-rail-play aria-pressed="true" aria-label="<?php esc_attr_e( 'Pause auto-scroll', 'pokepiece' ); ?>"><span class="pp-play__pause" aria-hidden="true"></span></button><button type="button" class="pp-round" data-rail="-1" aria-label="<?php esc_attr_e( 'Previous products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-rail="1" aria-label="<?php esc_attr_e( 'Next products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
 			</div>
 			<?php if ( ! $stocked ) : ?>
 			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'Everything we list is out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry — each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
 			<?php endif; ?>
 		</div>
 		<?php if ( $range ) : ?>
-		<ul class="products pp-rail" data-pp-rail tabindex="0" aria-label="<?php esc_attr_e( 'Products', 'pokepiece' ); ?>">
+		<ul class="products pp-rail pp-wheel" data-pp-rail data-pp-wheel tabindex="0" aria-roledescription="carousel" aria-label="<?php esc_attr_e( 'Products', 'pokepiece' ); ?>">
 			<?php foreach ( $range as $p ) { $GLOBALS['post'] = get_post( $p->get_id() ); setup_postdata( $GLOBALS['post'] ); $GLOBALS['product'] = $p; wc_get_template_part( 'content', 'product' ); } wp_reset_postdata(); ?>
 		</ul>
 		<?php endif; ?>
@@ -120,19 +123,6 @@ $world = array(
 				</li>
 				<?php endforeach; ?>
 			</ul>
-		</div>
-	</section>
-
-	<section class="pp-story" aria-labelledby="pp-story-h">
-		<div class="pp-wrap pp-story__grid">
-			<div class="pp-story__copy">
-				<p class="pp-script"><?php esc_html_e( 'a very old habit', 'pokepiece' ); ?></p>
-				<h2 id="pp-story-h" class="pp-display"><?php esc_html_e( 'Collecting is older than booster boxes', 'pokepiece' ); ?></h2>
-				<p><?php esc_html_e( 'People have been collecting and swapping little printed cards for well over a century. The cards pictured are Liebig trade cards from the 1880s to 1910s. They are not our products — just a reminder of where this hobby comes from.', 'pokepiece' ); ?></p>
-			</div>
-			<div class="pp-story__collage" data-pp-tilt-group>
-				<?php foreach ( array( 1, 2, 3, 4 ) as $n ) : ?><img class="pp-story__img pp-story__img--<?php echo (int) $n; ?>" src="<?php echo esc_url( PP_URI . '/assets/img/story-' . $n . '.jpg' ); ?>" alt="" loading="lazy" width="<?php echo $n < 3 ? 485 : 760; ?>" height="<?php echo $n < 3 ? 760 : 510; ?>"><?php endforeach; ?>
-			</div>
 		</div>
 	</section>
 
