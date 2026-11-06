@@ -173,7 +173,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
   await t('sticky purchase bar appears only after the main action leaves view (phone)', async () => {
     const p = await mk(390); const live = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?per_page=30')).json(); const ins = live.find(x => x.is_in_stock && x.id !== 686); await p.goto(ins.permalink, { waitUntil: 'networkidle' });
     assert.equal(await p.locator('.pp-sticky.is-shown').count(), 0);
-    await p.evaluate(() => { const b = document.querySelector('.single_add_to_cart_button').getBoundingClientRect(); window.scrollTo(0, window.scrollY + b.bottom + 200); }); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
+    await p.evaluate(() => { const b = document.querySelector('.single_add_to_cart_button').getBoundingClientRect(); window.scrollTo(0, window.scrollY + b.bottom + 40); }); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
   });
 
   await t('newsletter UI + endpoint stay disabled without a provider (501), no fake success', async () => {

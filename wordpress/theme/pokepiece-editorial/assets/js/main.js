@@ -175,7 +175,7 @@
 		// Shown only once the real purchase button has scrolled ABOVE the viewport (not while it is still below the fold).
 		var check = function () {
 			ticking = false;
-			var end = document.querySelector('.related, .pp-footer'); var past = end && end.getBoundingClientRect().top < window.innerHeight * 0.9;
+			var end = document.querySelector('.related, .pp-footer'); var past = end && end.getBoundingClientRect().top < window.innerHeight * 0.45;
 			var gone = target.getBoundingClientRect().bottom < 0 && !past;
 			if (gone === shown) return;
 			shown = gone; clearTimeout(hideT);
