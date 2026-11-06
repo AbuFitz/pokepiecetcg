@@ -78,7 +78,7 @@ function pp_world_products( $items, $game = '' ) {
 				<div class="pp-rail-ctl"><button type="button" class="pp-round pp-round--play" data-rail-play aria-pressed="true" aria-label="<?php esc_attr_e( 'Pause auto-scroll', 'pokepiece' ); ?>"><span class="pp-play__pause" aria-hidden="true"></span></button><button type="button" class="pp-round" data-rail="-1" aria-label="<?php esc_attr_e( 'Previous products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-rail="1" aria-label="<?php esc_attr_e( 'Next products', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
 			</div>
 			<?php if ( ! $stocked ) : ?>
-			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'Everything we list is out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry — each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
+			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'Everything we list is out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry, each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
 			<?php endif; ?>
 		</div>
 		<?php if ( $range ) : ?>
@@ -93,14 +93,13 @@ function pp_world_products( $items, $game = '' ) {
 	<section class="pp-why" id="why" aria-labelledby="pp-why-h">
 		<div class="pp-wrap">
 			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'built for collectors', 'pokepiece' ); ?></p><h2 id="pp-why-h" class="pp-display"><?php esc_html_e( 'Why choose us', 'pokepiece' ); ?></h2></div>
-			<p class="pp-why__statement"><?php esc_html_e( 'We are collectors ourselves and understand the importance of condition, authenticity and trust when buying trading card products online.', 'pokepiece' ); ?></p>
 			<ul class="pp-why__list">
-				<li><h3><?php esc_html_e( 'Secure packaging', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Carefully packed to protect sealed condition during transit.', 'pokepiece' ); ?></p></li>
-				<li><h3><?php esc_html_e( 'Fast UK dispatch', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Dispatched quickly from the UK with secure packaging on every order.', 'pokepiece' ); ?></p></li>
-				<li><h3><?php esc_html_e( 'Trusted seller', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Backed by 5.0 ★ reviews from verified customers.', 'pokepiece' ); ?></p></li>
-				<li><h3><?php esc_html_e( 'Authentic products', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Genuine sealed products sourced from trusted suppliers.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Secure packaging', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Packed to protect sealed condition.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Fast UK dispatch', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Quick from the UK, every order.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Trusted seller', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Backed by 5.0 ★ reviews.', 'pokepiece' ); ?></p></li>
+				<li><h3><?php esc_html_e( 'Authentic products', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Sealed, from trusted suppliers.', 'pokepiece' ); ?></p></li>
 			</ul>
-			<p class="pp-why__about"><?php esc_html_e( 'PokePieceTCG is a UK based trading card store specialising in Pokémon booster boxes, One Piece booster boxes, and sealed TCG products. We offer authentic sealed products sourced from trusted suppliers, including Japanese and English Pokémon and One Piece releases.', 'pokepiece' ); ?></p>
+			<?php $ab = get_page_by_path( 'about' ); if ( $ab ) : ?><p class="pp-why__cta"><?php echo pp_cta( __( 'Our story', 'pokepiece' ), get_permalink( $ab ), 'ink' ); // phpcs:ignore ?></p><?php endif; ?>
 		</div>
 	</section>
 
@@ -127,20 +126,27 @@ function pp_world_products( $items, $game = '' ) {
 	<?php endif; ?>
 
 	<section class="pp-community" aria-labelledby="pp-comm-h">
-		<div class="pp-wrap pp-comm__head">
+		<div class="pp-wrap">
 			<div class="pp-head"><p class="pp-script"><?php esc_html_e( 'follow along', 'pokepiece' ); ?></p><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2>
 			<p class="pp-comm__bio"><?php esc_html_e( 'Live TCG Rip & Ship · Big pulls · Trusted stock · Multiple TCGs', 'pokepiece' ); ?></p></div>
-			<div class="pp-rail-ctl"><button type="button" class="pp-round" data-clips="-1" aria-label="<?php esc_attr_e( 'Previous videos', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button><button type="button" class="pp-round" data-clips="1" aria-label="<?php esc_attr_e( 'Next videos', 'pokepiece' ); ?>"><?php echo pp_icon( 'arrow' ); ?></button></div>
 		</div>
-		<?php $clips = pp_tiktok_items(); ?>
-		<ul class="pp-clips" data-pp-clips tabindex="0" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">
-			<li class="pp-clip pp-clip--profile"><a href="<?php echo esc_url( $tt ); ?>" rel="noopener"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="220" height="55"><span class="pp-clip__h">@pokepiecetcgg</span><span class="pp-clip__t"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Follow on TikTok', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li>
-			<?php foreach ( $clips as $c ) : ?>
-			<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy" decoding="async"><span class="pp-clip__play" aria-hidden="true"></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 16 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
-			<?php endforeach; ?>
-			<?php if ( $dc ) : ?><li class="pp-clip pp-clip--discord"><a href="<?php echo esc_url( $dc ); ?>" rel="noopener"><span class="pp-clip__k">Discord</span><span class="pp-clip__h"><?php esc_html_e( 'Join the community', 'pokepiece' ); ?></span><span class="pp-clip__t"><?php esc_html_e( 'Join the PokePieceTCG Discord community.', 'pokepiece' ); ?></span><span class="pp-clip__go"><?php esc_html_e( 'Join the Discord', 'pokepiece' ); ?><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></span></a></li><?php endif; ?>
-		</ul>
-		<div class="pp-wrap"><div class="pp-prog" aria-hidden="true"><span data-pp-prog></span></div></div>
+		<?php $clips = pp_tiktok_items(); if ( $clips ) : ?>
+		<div class="pp-reel" style="--n:<?php echo (int) count( $clips ); ?>" role="region" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">
+			<div class="pp-reel__track">
+				<?php for ( $loop = 0; $loop < 2; $loop++ ) : ?>
+				<ul class="pp-reel__set"<?php echo $loop ? ' aria-hidden="true"' : ''; ?>>
+					<?php foreach ( $clips as $c ) : ?>
+					<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"<?php echo $loop ? ' tabindex="-1"' : ''; ?>><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" loading="lazy" decoding="async" draggable="false"><span class="pp-clip__tt"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 14 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
+					<?php endforeach; ?>
+				</ul>
+				<?php endfor; ?>
+			</div>
+		</div>
+		<?php endif; ?>
+		<div class="pp-wrap pp-comm__ctas">
+			<?php echo pp_cta( __( 'Follow on TikTok', 'pokepiece' ), $tt, 'light', ' rel="noopener"' ); // phpcs:ignore ?>
+			<?php if ( $dc ) { echo pp_cta( __( 'Join the community', 'pokepiece' ), $dc, 'yellow', ' rel="noopener"' ); } // phpcs:ignore ?>
+		</div>
 	</section>
 	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">

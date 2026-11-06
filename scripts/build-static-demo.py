@@ -12,7 +12,14 @@ def fetch(path):
 pages = ['/', '/shop/', '/cart/', '/checkout/', '/my-account/', '/about/', '/contact/', '/shipping-policy/', '/refund-return-policy/', '/terms-conditions/', '/privacy-policy/']
 for t in json.loads(get(base + '/wp-json/wc/store/v1/products/categories?per_page=100')): pages.append(urllib.parse.urlparse(t['permalink']).path)
 for pr in json.loads(get(base + '/wp-json/wc/store/v1/products?per_page=100')): pages.append(urllib.parse.urlparse(pr['permalink']).path)
+cat = []
+for pr in json.loads(get(base + '/wp-json/wc/store/v1/products?per_page=100')):
+    if pr['id'] == 686: continue
+    th = (pr['images'][0].get('thumbnail') or pr['images'][0]['src']).replace(base, '') if pr['images'] else ''
+    cat.append({'id': pr['id'], 'title': pr['name'], 'name': pr['name'], 'url': urllib.parse.urlparse(pr['permalink']).path, 'img': th, 'price': '£' + ('%.2f' % (int(pr['prices']['price']) / 100)), 'stock': 'In stock' if pr['is_in_stock'] else 'Out of stock', 'stockKey': 'in' if pr['is_in_stock'] else 'out', 'mode': ''})
 assets, seen = set(), set()
+for c in cat:
+    if c['img'].startswith('/wp-content'): assets.add(c['img'].split('?')[0])
 def clean(html):
     html = re.sub(r'<link[^>]+(wp-json|EditURI|xmlrpc|shortlink|rel=["\']alternate|rel=["\']canonical|oembed)[^>]*>\s*', '', html)
     html = html.replace('http://localhost:8088', '').replace('http:\\/\\/localhost:8088', '').replace('localhost:8088', '')
@@ -60,6 +67,7 @@ for root, _, fs in os.walk(os.path.join(out, 'wp-content/uploads')):
             if f.lower().endswith('.png'): im = im.convert('RGBA').quantize(256, method=Image.Quantize.FASTOCTREE); im.save(p, optimize=True)
             else: im.save(p, quality=72, optimize=True)
         except Exception: pass
+json.dump(cat, open(os.path.join(out, 'demo-catalogue.json'), 'w'), ensure_ascii=False)
 shutil.copy(os.path.join(os.path.dirname(__file__), 'demo-shim.js'), os.path.join(out, 'demo-shim.js'))
 json.dump({"cleanUrls": False, "trailingSlash": True, "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}]}, open(os.path.join(out, 'vercel.json'), 'w'))
 print(len(pages), 'pages', len(seen), 'assets')

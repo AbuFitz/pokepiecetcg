@@ -5,7 +5,7 @@
 			<a class="pp-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="260" height="65" loading="lazy"></a>
 			<p class="pp-footer__tag"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></p>
 			<?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), wc_get_page_permalink( 'shop' ), 'yellow' ); ?>
-			<p class="pp-footer__socials"><?php if ( $tt ) : ?><a class="pp-social" href="<?php echo esc_url( $tt ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'TikTok — @pokepiecetcgg', 'pokepiece' ); ?>"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></a><?php endif; ?><?php if ( $dc ) : ?><a class="pp-social" href="<?php echo esc_url( $dc ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'Discord', 'pokepiece' ); ?>"><?php echo pp_art( 'discord' ); // phpcs:ignore ?></a><?php endif; ?></p>
+			<p class="pp-footer__socials"><?php if ( $tt ) : ?><a class="pp-social" href="<?php echo esc_url( $tt ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'TikTok, @pokepiecetcgg', 'pokepiece' ); ?>"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></a><?php endif; ?><?php if ( $dc ) : ?><a class="pp-social" href="<?php echo esc_url( $dc ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'Discord', 'pokepiece' ); ?>"><?php echo pp_art( 'discord' ); // phpcs:ignore ?></a><?php endif; ?></p>
 			<?php if ( pp_newsletter_enabled() ) : ?><button class="pp-linkbtn" type="button" data-pp-newsletter-open><?php esc_html_e( 'Email updates', 'pokepiece' ); ?></button><?php endif; ?>
 		</div>
 		<nav aria-label="<?php esc_attr_e( 'Shop', 'pokepiece' ); ?>"><h2><?php esc_html_e( 'Shop', 'pokepiece' ); ?></h2><ul>
@@ -22,6 +22,31 @@
 	<p class="pp-footer__legal pp-wrap"><?php echo esc_html( pp_dispatch_text() ); ?> © <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'Pokémon, One Piece and Dragon Ball are trademarks of their respective owners; this shop is not affiliated with them.', 'pokepiece' ); ?>
 	<?php $td = trim( (string) get_option( 'pokepiece_trading_details', '' ) ); if ( $td ) { echo '<br>' . nl2br( esc_html( $td ) ); } ?></p>
 </footer>
+
+
+<div class="pp-modal pp-modal--search" id="pp-search-pop" role="dialog" aria-modal="true" aria-labelledby="pp-sp-title" hidden>
+	<div class="pp-modal__panel pp-sp">
+		<button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close search', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button>
+		<h2 id="pp-sp-title" class="screen-reader-text"><?php esc_html_e( 'Search products', 'pokepiece' ); ?></h2>
+		<form class="pp-sp__form" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<span class="pp-sp__icon"><?php echo pp_icon( 'search' ); ?></span>
+			<label class="screen-reader-text" for="pp-sp-input"><?php esc_html_e( 'Search sets, codes or products', 'pokepiece' ); ?></label>
+			<input id="pp-sp-input" name="s" type="search" placeholder="<?php esc_attr_e( 'Search sets, codes or products', 'pokepiece' ); ?>" autocomplete="off" enterkeyhint="search">
+			<input type="hidden" name="post_type" value="product">
+			<button class="pp-btn pp-btn--primary" type="submit"><?php esc_html_e( 'Search', 'pokepiece' ); ?></button>
+		</form>
+		<div class="pp-sp__body">
+			<p class="pp-sp__status" role="status" aria-live="polite" hidden></p>
+			<div class="pp-sp__res" hidden><ul class="pp-sp__grid"></ul><a class="pp-btn pp-btn--ghost pp-sp__all" href="#" hidden><?php esc_html_e( 'See all results', 'pokepiece' ); ?></a></div>
+			<div class="pp-sp__feat">
+				<p class="pp-sp__label"><?php esc_html_e( 'Browse', 'pokepiece' ); ?></p>
+				<p class="pp-sp__cats"><?php foreach ( pp_game_groups() as $g ) : foreach ( $g['items'] as $it ) : ?><a class="pp-sp__cat" href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $g['name'] . ' ' . $it['name'] ); ?></a><?php endforeach; endforeach; ?></p>
+				<p class="pp-sp__label"><?php esc_html_e( 'In the shop', 'pokepiece' ); ?></p>
+				<ul class="pp-sp__grid"><?php foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } ?></ul>
+			</div>
+		</div>
+	</div>
+</div>
 
 <div class="pp-modal" id="pp-qv" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Quick view', 'pokepiece' ); ?>" hidden><div class="pp-modal__panel"><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close quick view', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button><div class="pp-modal__body" aria-live="polite"></div></div></div>
 

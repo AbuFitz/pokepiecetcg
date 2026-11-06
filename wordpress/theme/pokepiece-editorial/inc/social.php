@@ -21,7 +21,7 @@ add_action( 'admin_menu', function () {
 		$v = fn( $k, $d = '' ) => esc_attr( get_option( 'pokepiece_' . $k, $d ) );
 		echo '<div class="wrap"><h1>PokePiece storefront</h1><form method="post">'; wp_nonce_field( 'pp_settings', 'pp_settings_nonce' );
 		echo '<table class="form-table"><tr><th>TikTok video links</th><td><textarea name="tiktok_videos" rows="8" class="large-text code" placeholder="https://www.tiktok.com/@pokepiecetcgg/video/…">' . esc_textarea( get_option( 'pokepiece_tiktok_videos', '' ) ) . '</textarea><p class="description">One per line (max 12). Either a public video URL (cover and title are fetched from TikTok oEmbed), or `video URL | cover image URL | caption` to use your own snapshot from the Media Library. Shown as a swipe on the home page; cards link to TikTok.</p></td></tr>';
-		foreach ( array( 'pokemon' => 'Pokémon', 'one-piece' => 'One Piece', 'dragon-ball' => 'Dragon Ball' ) as $gk => $gn ) { echo '<tr><th>' . esc_html( $gn ) . ' panel image URL</th><td><input class="large-text" name="world_' . esc_attr( $gk ) . '" value="' . $v( 'world_img_' . $gk ) . '" placeholder="Optional — a licensed image. Empty = crop of a product photo"></td></tr>'; }
+		foreach ( array( 'pokemon' => 'Pokémon', 'one-piece' => 'One Piece', 'dragon-ball' => 'Dragon Ball' ) as $gk => $gn ) { echo '<tr><th>' . esc_html( $gn ) . ' panel image URL</th><td><input class="large-text" name="world_' . esc_attr( $gk ) . '" value="' . $v( 'world_img_' . $gk ) . '" placeholder="Optional, a licensed image. Empty = crop of a product photo"></td></tr>'; }
 		echo '<tr><th>TikTok profile</th><td><input class="regular-text" name="tiktok_url" value="' . $v( 'tiktok_url', 'https://www.tiktok.com/@pokepiecetcgg' ) . '"></td></tr>';
 		echo '<tr><th>Discord invite</th><td><input class="regular-text" name="discord_url" value="' . $v( 'discord_url', 'https://discord.com/invite/54bNErEDb' ) . '"></td></tr>';
 		echo '<tr><th>Contact email</th><td><input class="regular-text" name="contact_email" value="' . $v( 'contact_email', 'info@pokepiecetcg.co.uk' ) . '"></td></tr>';
@@ -49,7 +49,7 @@ function pp_tiktok_items() {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$up = wp_upload_dir(); $dir = trailingslashit( $up['basedir'] ) . 'pokepiece-tiktok'; wp_mkdir_p( $dir );
 		foreach ( $urls as $line ) {
-			// Manual mode: `video URL | image URL (media library) | caption` — no request to TikTok needed.
+			// Manual mode: `video URL | image URL (media library) | caption`, no request to TikTok needed.
 			if ( str_contains( $line, '|' ) ) { $p = array_map( 'trim', explode( '|', $line ) ); if ( preg_match( '#^https://(www\.)?tiktok\.com/#', $p[0] ) && ! empty( $p[1] ) ) { $items[] = array( 'url' => $p[0], 'title' => sanitize_text_field( $p[2] ?? '' ), 'thumb' => esc_url_raw( $p[1] ) ); } continue; }
 			$u = $line;
 			if ( ! preg_match( '#^https://(www\.)?tiktok\.com/@[\w.\-]+/video/\d+#', $u ) ) { continue; }

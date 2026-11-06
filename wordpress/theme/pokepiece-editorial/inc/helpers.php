@@ -6,7 +6,7 @@ function pp_modes() {
 	return array(
 		'sealed'    => array( 'label' => __( 'Delivered sealed', 'pokepiece' ), 'short' => __( 'Sealed', 'pokepiece' ) ),
 		'no_shrink' => array( 'label' => __( 'No shrink', 'pokepiece' ), 'short' => __( 'No shrink', 'pokepiece' ) ),
-		'live'      => array( 'label' => __( 'Opened live — cards shipped', 'pokepiece' ), 'short' => __( 'Live opening', 'pokepiece' ) ),
+		'live'      => array( 'label' => __( 'Opened live, cards shipped', 'pokepiece' ), 'short' => __( 'Live opening', 'pokepiece' ) ),
 		'preorder'  => array( 'label' => __( 'Preorder', 'pokepiece' ), 'short' => __( 'Preorder', 'pokepiece' ) ),
 	);
 }
@@ -62,7 +62,7 @@ function pp_formats() {
 	return array( 'box' => __( 'Booster box', 'pokepiece' ), 'pack' => __( 'Booster pack', 'pokepiece' ), 'etb' => __( 'Elite Trainer Box', 'pokepiece' ), 'bundle' => __( 'Bundle', 'pokepiece' ), 'collection' => __( 'Collection', 'pokepiece' ), 'other' => __( 'Other', 'pokepiece' ) );
 }
 
-/** Stock state as text — never colour alone. */
+/** Stock state as text, never colour alone. */
 function pp_stock_state( $product ) {
 	if ( $product->is_on_backorder() ) {
 		return array( 'backorder', __( 'Available on backorder', 'pokepiece' ) );
@@ -102,7 +102,7 @@ function pp_game_groups() {
 }
 
 function pp_dispatch_text() {
-	// PROVISIONAL: wording published in the shipping policy (1–3 working days); owner must reconfirm.
+	// PROVISIONAL: wording published in the shipping policy (1 to 3 working days); owner must reconfirm.
 	return apply_filters( 'pokepiece_dispatch_text', get_option( 'pokepiece_dispatch_text', __( 'Orders are usually dispatched within 1 to 3 working days unless stated otherwise.', 'pokepiece' ) ) );
 }
 
@@ -163,3 +163,32 @@ function pp_pay_icon( $slug, $colour ) {
 
 /** Published on the existing Contact page (owner's site). */
 function pp_contact_email() { return sanitize_email( get_option( 'pokepiece_contact_email', 'info@pokepiecetcg.co.uk' ) ); }
+
+/** About page imagery: the owner's own TikTok snapshots + real product photos (no stock imagery). */
+function pp_about_gallery() {
+	$clips = array_slice( pp_tiktok_bundled(), 0, 4 );
+	$prods = array_slice( array_values( array_filter( pp_discovery_products( array( 'limit' => 12, 'stock_status' => 'instock' ) ) ?: pp_discovery_products( array( 'limit' => 12 ) ), fn( $p ) => $p->get_image_id() ) ), 0, 4 );
+	if ( $clips ) {
+		echo '<section class="pp-about-gal" aria-labelledby="pp-ag1"><h2 id="pp-ag1">' . esc_html__( 'From the community', 'pokepiece' ) . '</h2><ul class="pp-about-gal__grid">';
+		foreach ( $clips as $c ) { echo '<li><a href="' . esc_url( $c['url'] ) . '" rel="noopener"><img src="' . esc_url( $c['thumb'] ) . '" alt="' . esc_attr( $c['title'] ) . '" loading="lazy"></a></li>'; }
+		echo '</ul></section>';
+	}
+	if ( $prods ) {
+		echo '<section class="pp-about-gal" aria-labelledby="pp-ag2"><h2 id="pp-ag2">' . esc_html__( 'In the shop', 'pokepiece' ) . '</h2><ul class="pp-about-gal__grid pp-about-gal__prod">';
+		foreach ( $prods as $p ) { echo '<li><a href="' . esc_url( $p->get_permalink() ) . '" aria-label="' . esc_attr( $p->get_name() ) . '">' . $p->get_image( 'pp-plate', array( 'alt' => $p->get_name(), 'loading' => 'lazy' ) ) . '</a></li>'; }
+		echo '</ul></section>';
+	}
+}
+
+/** Popup search: products first (in stock first), never the service product. */
+function pp_search_featured( $n = 8 ) {
+	$in = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => $n ) );
+	$out = count( $in ) < $n ? pp_discovery_products( array( 'limit' => $n * 2 ) ) : array();
+	$have = wp_list_pluck( $in, 'id' ); $list = $in;
+	foreach ( $out as $p ) { if ( count( $list ) >= $n ) { break; } if ( ! in_array( $p->get_id(), $have, true ) && $p->get_image_id() ) { $list[] = $p; } }
+	return array_filter( $list, fn( $p ) => $p->get_image_id() );
+}
+function pp_search_tile( $p ) {
+	[ $k, $t ] = pp_stock_state( $p ); $mode = pp_product_mode( $p );
+	echo '<li><a class="pp-sp__tile" href="' . esc_url( $p->get_permalink() ) . '"><span class="pp-sp__img">' . $p->get_image( 'pp-plate', array( 'alt' => '', 'loading' => 'lazy' ) ) . ( $mode ? '<span class="pp-mode pp-mode--' . esc_attr( $mode ) . '">' . esc_html( pp_modes()[ $mode ]['short'] ) . '</span>' : '' ) . '</span><span class="pp-sp__t">' . esc_html( $p->get_name() ) . '</span><span class="pp-sp__p">' . wp_kses_post( $p->get_price_html() ) . '</span><span class="pp-stock pp-stock--' . esc_attr( $k ) . '"><span class="pp-stock__dot" aria-hidden="true"></span>' . esc_html( $t ) . '</span></a></li>';
+}

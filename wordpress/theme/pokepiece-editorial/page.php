@@ -4,6 +4,7 @@
 	<article <?php post_class( 'pp-page' . ( $woo ? ' pp-page--woo' : '' ) ); ?>>
 		<h1 class="pp-page__title"><?php the_title(); ?></h1>
 		<div class="<?php echo $woo ? 'pp-woo-content' : 'pp-prose'; ?>"><?php the_content(); ?></div>
+		<?php if ( is_page( 'about' ) ) { pp_about_gallery(); } ?>
 	</article>
 <?php endwhile; ?>
 </div></main>

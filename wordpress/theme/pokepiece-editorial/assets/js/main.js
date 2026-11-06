@@ -27,6 +27,7 @@
 		current = { el: el, invoker: invoker };
 		var f = $(opts.focus || FOCUSABLE, el); if (f) f.focus({ preventScroll: true });
 	}
+	window.ppOpenLayer = function () { return openLayer.apply(null, arguments); };
 	function closeLayer(immediate) {
 		if (!current) return;
 		var c = current; current = null;
@@ -38,6 +39,7 @@
 		var done = function () { if (!c.el.classList.contains('is-open')) c.el.hidden = true; if (!current && backdrop && !backdrop.classList.contains('is-open')) backdrop.hidden = true; };
 		if (reduce || immediate) done(); else setTimeout(done, 280);
 	}
+	window.ppCloseLayer = function () { return closeLayer.apply(null, arguments); };
 	document.addEventListener('keydown', function (e) {
 		if (e.key === 'Escape') { if (current) { e.preventDefault(); closeLayer(); } closeNav(); closeSuggest(); }
 		if (e.key === 'Tab' && current) {
@@ -208,7 +210,7 @@
 				e.preventDefault(); var msg = $('.pp-form-msg', f), btn = $('button[type=submit]', f); msg.className = 'pp-form-msg'; msg.textContent = '';
 				var fd = new FormData(f); fd.append('action', f.dataset.action); fd.append('nonce', PP.accNonce); btn.disabled = true; btn.dataset.t = btn.textContent; btn.textContent = PP.i18n.loading;
 				fetch(PP.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
-					if (j.success) { msg.className = 'pp-form-msg is-ok'; msg.textContent = 'Success — taking you to your account…'; location.href = j.data.redirect; }
+					if (j.success) { msg.className = 'pp-form-msg is-ok'; msg.textContent = 'Success, taking you to your account…'; location.href = j.data.redirect; }
 					else { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = (j.data && j.data.message) || PP.i18n.nlFail; var bad = $('input', f); if (bad) bad.focus({ preventScroll: true }); }
 				}).catch(function () { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = 'Something went wrong. Please try again.'; });
 			});
@@ -238,7 +240,7 @@
 	var rail = document.querySelector('[data-pp-wheel]'); if (!rail) return;
 	var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	var items = Array.prototype.slice.call(rail.children), btn = document.querySelector('[data-rail-play]');
-	var playing = !reduce, hold = false, offscreen = false, timer = null, raf = 0, lastUser = 0;
+	var startIdx = 0, playing = !reduce, hold = false, offscreen = false, timer = null, raf = 0, lastUser = 0;
 	function centreOf(li) { return li.offsetLeft + li.offsetWidth / 2; }
 	function nearest() { var mid = rail.scrollLeft + rail.clientWidth / 2, best = 0, bd = 1e9; items.forEach(function (li, i) { var d = Math.abs(centreOf(li) - mid); if (d < bd) { bd = d; best = i; } }); return best; }
 	function paint() {
@@ -246,7 +248,7 @@
 		items.forEach(function (li, i) { var w = li.offsetWidth + 20, off = (centreOf(li) - mid) / w, d = Math.min(Math.abs(off), 2); li.style.setProperty('--d', d.toFixed(3)); li.style.setProperty('--s', off < 0 ? -1 : 1); li.classList.toggle('is-center', i === n); });
 	}
 	function go(i, smooth) { i = (i + items.length) % items.length; rail.scrollTo({ left: centreOf(items[i]) - rail.clientWidth / 2, behavior: smooth && !reduce ? 'smooth' : 'auto' }); }
-	function tick() { if (!playing || hold || offscreen || document.hidden || items.length < 3) return; if (Date.now() - lastUser < 6000) return; go(nearest() + 1, true); }
+	function tick() { if (!playing || hold || offscreen || document.hidden || items.length < 3) return; if (Date.now() - lastUser < 6000) return; go(nearest() + 1 >= items.length ? startIdx : nearest() + 1, true); }
 	function setPlaying(p) { playing = p; if (btn) { btn.setAttribute('aria-pressed', String(p)); btn.setAttribute('aria-label', p ? 'Pause auto-scroll' : 'Start auto-scroll'); } }
 	rail.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true });
 	['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(function (ev) { rail.addEventListener(ev, function () { lastUser = Date.now(); }, { passive: true }); });
@@ -261,7 +263,9 @@
 	if (reduce) setPlaying(false);
 	timer = setInterval(tick, 3200);
 	window.addEventListener('resize', function () { go(nearest(), false); paint(); });
-	go(0, false); paint();
+	var start = items.length >= 5 ? 2 : 0; // open with neighbours on both sides, not an empty half-screen
+	go(start, false); paint();
+	startIdx = start;
 })();
 
 /* ----- Reveal on scroll + pointer tilt (fine pointers only). Content is fully visible without JS. ----- */
@@ -294,12 +298,27 @@
 	h.addEventListener('focusin', function () { h.classList.remove('is-hidden'); });
 })();
 
-/* ----- TikTok swipe: prev/next + progress bar ----- */
+/* ----- Search popup: product tiles ----- */
 (function () {
-	var r = document.querySelector('[data-pp-clips]'); if (!r) return;
-	var bar = document.querySelector('[data-pp-prog]'), reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-	function prog() { var max = r.scrollWidth - r.clientWidth; var vis = r.clientWidth / r.scrollWidth; if (bar) { bar.style.width = Math.max(12, vis * 100) + '%'; bar.style.marginLeft = (max > 0 ? (r.scrollLeft / max) * (100 - Math.max(12, vis * 100)) : 0) + '%'; } }
-	r.addEventListener('scroll', function () { requestAnimationFrame(prog); }, { passive: true }); window.addEventListener('resize', prog); prog();
-	document.addEventListener('click', function (e) { var b = e.target.closest('[data-clips]'); if (!b) return; var li = r.querySelector('li'); var step = (li ? li.getBoundingClientRect().width + 16 : 300) * 2; r.scrollBy({ left: step * parseInt(b.dataset.clips, 10), behavior: reduce ? 'auto' : 'smooth' }); });
-	r.addEventListener('keydown', function (e) { if (e.target !== r) return; if (e.key === 'ArrowRight') r.scrollBy({ left: 300 }); if (e.key === 'ArrowLeft') r.scrollBy({ left: -300 }); });
+	var pop = document.getElementById('pp-search-pop'); if (!pop) return;
+	var $ = function (s, c) { return (c || document).querySelector(s); };
+	var input = $('#pp-sp-input', pop), res = $('.pp-sp__res', pop), grid = $('.pp-sp__grid', res), feat = $('.pp-sp__feat', pop), st = $('.pp-sp__status', pop), all = $('.pp-sp__all', pop);
+	var timer, ctrl;
+	function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+	function tile(it) { return '<li><a class="pp-sp__tile" href="' + esc(it.url) + '"><span class="pp-sp__img">' + (it.img ? '<img src="' + esc(it.img) + '" alt="" loading="lazy">' : '') + (it.mode ? '<span class="pp-mode pp-mode--' + esc(it.modeKey || '') + '">' + esc(it.mode) + '</span>' : '') + '</span><span class="pp-sp__t">' + esc(it.title) + '</span><span class="pp-sp__p">' + esc(it.price) + '</span><span class="pp-stock pp-stock--' + esc(it.stockKey || 'out') + '"><span class="pp-stock__dot" aria-hidden="true"></span>' + esc(it.stock) + '</span></a></li>'; }
+	function reset() { res.hidden = true; st.hidden = true; feat.hidden = false; }
+	document.addEventListener('click', function (e) { var b = e.target.closest('[data-pp-search]'); if (!b) return; e.preventDefault(); if (window.ppOpenLayer) window.ppOpenLayer(pop, b, { backdrop: false, focus: '#pp-sp-input' }); });
+	$('.pp-close', pop).addEventListener('click', function () { if (window.ppCloseLayer) window.ppCloseLayer(); });
+	document.addEventListener('keydown', function (e) { if (e.key === '/' && !/input|textarea|select/i.test((e.target.tagName || '')) && !e.metaKey && !e.ctrlKey) { e.preventDefault(); var b = $('[data-pp-search]'); if (b) b.click(); } });
+	input.addEventListener('input', function () {
+		clearTimeout(timer); if (ctrl) ctrl.abort(); var q = input.value.trim();
+		if (q.length < 2) { reset(); return; }
+		timer = setTimeout(function () {
+			ctrl = new AbortController(); st.hidden = false; st.textContent = PP.i18n.searching;
+			fetch(PP.rest + 'search?q=' + encodeURIComponent(q), { signal: ctrl.signal, credentials: 'same-origin' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+				if (!j.items.length) { res.hidden = true; feat.hidden = false; st.textContent = PP.i18n.noMatch + ' Here is what is in the shop:'; return; }
+				feat.hidden = true; res.hidden = false; st.textContent = j.total + (j.total === 1 ? ' result' : ' results'); grid.innerHTML = j.items.map(tile).join(''); all.href = j.all; all.hidden = j.total <= j.items.length;
+			}).catch(function (err) { if (err && err.name === 'AbortError') return; st.hidden = false; st.textContent = PP.i18n.searchFail; });
+		}, 220);
+	});
 })();

@@ -21,12 +21,12 @@ add_action( 'rest_api_init', function () {
 			$ids = array_slice( array_values( array_unique( $ids ) ), 0, 12 );
 			$total = count( $ids );
 			$items = array();
-			foreach ( array_slice( $ids, 0, 6 ) as $id ) {
+			foreach ( array_slice( $ids, 0, 8 ) as $id ) {
 				$p = wc_get_product( $id ); if ( ! $p || ! $p->is_visible() ) { continue; }
 				[ $k, $t ] = pp_stock_state( $p );
 				$mode = pp_product_mode( $p );
-				$items[] = array( 'id' => $id, 'title' => $p->get_name(), 'url' => get_permalink( $id ), 'img' => wp_get_attachment_image_url( $p->get_image_id(), 'thumbnail' ) ?: '',
-					'price' => wp_strip_all_tags( html_entity_decode( $p->get_price_html() ) ), 'stock' => $t, 'stockKey' => $k, 'mode' => $mode ? pp_modes()[ $mode ]['short'] : '' );
+				$items[] = array( 'id' => $id, 'title' => $p->get_name(), 'url' => get_permalink( $id ), 'img' => wp_get_attachment_image_url( $p->get_image_id(), 'pp-plate' ) ?: wp_get_attachment_image_url( $p->get_image_id(), 'medium' ) ?: '',
+					'price' => wp_strip_all_tags( html_entity_decode( $p->get_price_html() ) ), 'stock' => $t, 'stockKey' => $k, 'mode' => $mode ? pp_modes()[ $mode ]['short'] : '', 'modeKey' => $mode );
 			}
 			return array( 'items' => $items, 'total' => $total, 'all' => esc_url_raw( add_query_arg( array( 's' => $q, 'post_type' => 'product' ), home_url( '/' ) ) ) );
 		},

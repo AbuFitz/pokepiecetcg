@@ -27,7 +27,7 @@ function pp_facts_box( $post ) {
 	}
 	echo '</select></p>';
 	if ( ! $mode && $sug ) {
-		printf( '<p class="description">%s <strong>%s</strong>. %s</p>', esc_html__( 'The product title suggests:', 'pokepiece' ), esc_html( pp_modes()[ $sug ]['label'] ), esc_html__( 'Not applied automatically — confirm and select it above.', 'pokepiece' ) );
+		printf( '<p class="description">%s <strong>%s</strong>. %s</p>', esc_html__( 'The product title suggests:', 'pokepiece' ), esc_html( pp_modes()[ $sug ]['label'] ), esc_html__( 'Not applied automatically, confirm and select it above.', 'pokepiece' ) );
 	}
 	echo '<p><label for="pp_format"><strong>' . esc_html__( 'Format', 'pokepiece' ) . '</strong></label><br><select name="pp_format" id="pp_format" style="width:100%"><option value="">' . esc_html__( 'Not set', 'pokepiece' ) . '</option>';
 	foreach ( pp_formats() as $k => $l ) {

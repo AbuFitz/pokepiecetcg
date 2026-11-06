@@ -41,7 +41,7 @@ add_action( 'woocommerce_after_main_content', function () { echo '</div></main>'
 add_filter( 'woocommerce_breadcrumb_defaults', function ( $d ) { $d['home'] = __( 'Home', 'pokepiece' ); return $d; } );
 add_filter( 'loop_shop_columns', fn() => 3 );
 add_filter( 'body_class', function ( $c ) { if ( is_singular( 'product' ) ) { $c[] = 'pp-game-' . ( pp_product_game( get_the_ID() ) ?: 'all' ); } return $c; } );
-add_filter( 'loop_shop_per_page', fn() => 12 );
+add_filter( 'loop_shop_per_page', fn() => defined( 'PP_PER_PAGE' ) ? (int) PP_PER_PAGE : 12 ); // wp-config.php may set PP_PER_PAGE
 
 /* ---- Facts + mode rendering -------------------------------------------------- */
 function pp_render_mode_chip( $product ) {
@@ -114,7 +114,7 @@ function pp_mode_callout( $product ) {
 // Descriptions come after the purchase decision; related products exclude services and unavailable stock-less noise.
 add_filter( 'woocommerce_related_products', function ( $ids ) { return array_values( array_diff( (array) $ids, pp_service_ids() ) ); } );
 add_filter( 'woocommerce_output_related_products_args', function ( $a ) { $a['posts_per_page'] = 4; $a['columns'] = 4; return $a; } );
-add_filter( 'woocommerce_product_tabs', function ( $t ) { unset( $t['additional_information'] ); return $t; } );
+add_filter( 'woocommerce_product_tabs', function ( $t ) { unset( $t['additional_information'], $t['reviews'] ); return $t; } ); // product reviews off: the shop's reviews are Vinted seller reviews, not verified product ratings
 
 /* ---- Cart / misc ------------------------------------------------------------- */
 add_filter( 'woocommerce_loop_add_to_cart_args', function ( $a ) { $a['class'] .= ' pp-btn pp-btn--primary'; return $a; } );
@@ -149,3 +149,20 @@ add_action( 'woocommerce_after_single_product', function () {
 
 // The theme prints its own stock line (text + dot) for simple products; suppress Woo's duplicate. Variation availability text is untouched.
 add_filter( 'woocommerce_get_stock_html', fn( $html, $product ) => $product->is_type( 'simple' ) ? '' : $html, 10, 2 );
+
+// Empty cart: a useful next step instead of a bare notice.
+add_action( 'woocommerce_cart_is_empty', function () {
+	echo '<div class="pp-cart-empty__links">';
+	foreach ( pp_game_groups() as $g ) { foreach ( $g['items'] as $it ) { echo '<a class="pp-btn pp-btn--ghost" href="' . esc_url( $it['url'] ) . '">' . esc_html( $g['name'] . ' ' . $it['name'] ) . '</a>'; } }
+	echo '</div>';
+}, 20 );
+
+// Out-of-stock simple product: show an explicit disabled state instead of nothing.
+add_action( 'woocommerce_single_product_summary', function () {
+	global $product;
+	if ( $product->is_type( 'simple' ) && ! $product->is_in_stock() && ! $product->is_on_backorder() ) {
+		echo '<div class="pp-oos"><button type="button" class="pp-btn" disabled aria-disabled="true">' . esc_html__( 'Currently out of stock', 'pokepiece' ) . '</button>';
+		$c = get_page_by_path( 'contact' ); if ( $c ) { echo '<a class="pp-ulink" href="' . esc_url( get_permalink( $c ) ) . '">' . esc_html__( 'Ask about availability', 'pokepiece' ) . '</a>'; }
+		echo '</div>';
+	}
+}, 31 );

@@ -14,13 +14,13 @@ foreach ( array( 'pokemon-english' => 'Pokémon English', 'pokemon-japanese' => 
 $pages = array(
 	'about' => array( 'About', "<h2>FIXTURE TEXT</h2><p>Placeholder copy for layout review only. The real About content is supplied and approved by the merchant.</p>" ),
 	'contact' => array( 'Contact', "<p>FIXTURE: the existing contact form/plugin output is preserved on staging; this page only demonstrates layout.</p><form><p><label>Name<br><input type='text'></label></p><p><label>Email<br><input type='email'></label></p><p><label>Message<br><textarea></textarea></label></p><p><button class='pp-btn pp-btn--primary' type='button'>Send (fixture)</button></p></form>" ),
-	'shipping-policy' => array( 'Shipping policy', "<h2>FIXTURE TEXT</h2><p>Dispatched normally within 1–3 working days is the published wording to be reconfirmed by the owner. Replace with the approved policy.</p><h3>Heading three</h3><p>" . str_repeat( 'Policy body paragraph to test measure and rhythm. ', 18 ) . "</p><ul><li>List item</li><li>List item</li></ul>" ),
+	'shipping-policy' => array( 'Shipping policy', "<h2>FIXTURE TEXT</h2><p>Dispatched normally within 1 to 3 working days is the published wording to be reconfirmed by the owner. Replace with the approved policy.</p><h3>Heading three</h3><p>" . str_repeat( 'Policy body paragraph to test measure and rhythm. ', 18 ) . "</p><ul><li>List item</li><li>List item</li></ul>" ),
 	'refund-return-policy' => array( 'Returns policy', '<p>FIXTURE TEXT.</p>' ), 'terms-conditions' => array( 'Terms &amp; conditions', '<p>FIXTURE TEXT.</p>' ), 'privacy-policy' => array( 'Privacy policy', '<p>FIXTURE TEXT.</p>' ),
 );
 foreach ( $pages as $slug => [ $title, $content ] ) { if ( ! get_page_by_path( $slug ) ) { wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => $title, 'post_name' => $slug, 'post_content' => $content ) ); } }
 $hp = get_page_by_path( 'home-2' ); $home = $hp ? $hp->ID : wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Home', 'post_name' => 'home-2', 'post_content' => '' ) );
 update_option( 'show_on_front', 'page' ); update_option( 'page_on_front', $home );
-// Classic cart/checkout shortcodes in the fixture (the live store type — classic or Blocks — is a discovery item).
+// Classic cart/checkout shortcodes in the fixture (the live store type, classic or Blocks, is a discovery item).
 foreach ( array( 'cart' => '[woocommerce_cart]', 'checkout' => '[woocommerce_checkout]', 'my-account' => '[woocommerce_my_account]' ) as $slug => $sc ) {
 	$pg = get_page_by_path( $slug ); $id = $pg ? $pg->ID : wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => ucwords( str_replace( '-', ' ', $slug ) ), 'post_name' => $slug, 'post_content' => $sc ) );
 	wp_update_post( array( 'ID' => $id, 'post_content' => $sc ) ); update_option( 'woocommerce_' . ( 'my-account' === $slug ? 'myaccount' : $slug ) . '_page_id', $id );
@@ -52,7 +52,7 @@ foreach ( array_reverse( $snap ) as $p ) {
 }
 update_option( 'pokepiece_service_product_ids', array( 686 ) );
 if ( getenv( 'PP_INSTOCK_FIXTURE' ) ) {
-	foreach ( array( array( 'FIXTURE — in-stock sealed box (not a real product)', 'sealed', 'box', 'pokemon-english', '1.00' ), array( 'FIXTURE — in-stock live rip example (not a real product)', 'live', 'pack', 'one-piece-english', '2.50' ) ) as [ $t, $m, $f, $c, $pr ] ) {
+	foreach ( array( array( 'FIXTURE, in-stock sealed box (not a real product)', 'sealed', 'box', 'pokemon-english', '1.00' ), array( 'FIXTURE, in-stock live rip example (not a real product)', 'live', 'pack', 'one-piece-english', '2.50' ) ) as [ $t, $m, $f, $c, $pr ] ) {
 		$prod = new WC_Product_Simple(); $prod->set_name( $t ); $prod->set_regular_price( $pr ); $prod->set_stock_status( 'instock' ); $prod->set_category_ids( array( get_term_by( 'slug', $c, 'product_cat' )->term_id ) ); $prod->set_description( 'FIXTURE ONLY.' ); $id = $prod->save();
 		update_post_meta( $id, '_pp_mode', $m ); update_post_meta( $id, '_pp_format', $f );
 	}

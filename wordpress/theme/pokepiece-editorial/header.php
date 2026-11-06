@@ -12,7 +12,7 @@
 	<div class="pp-frame">
 		<div class="pp-frame__top">
 			<button class="pp-iconbtn pp-menu-open" type="button" aria-controls="pp-menu" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open menu', 'pokepiece' ); ?>"><?php echo pp_icon( 'menu' ); ?></button>
-			<a class="pp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> — <?php esc_attr_e( 'home', 'pokepiece' ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="50"></a>
+			<a class="pp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>, <?php esc_attr_e( 'home', 'pokepiece' ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="50"></a>
 			<nav class="pp-nav" aria-label="<?php esc_attr_e( 'Main', 'pokepiece' ); ?>">
 				<ul>
 					<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"<?php echo is_shop() ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a></li>
@@ -27,12 +27,10 @@
 				</ul>
 			</nav>
 			<div class="pp-actions">
+				<button class="pp-searchbtn" type="button" data-pp-search aria-haspopup="dialog" aria-controls="pp-search-pop"><?php echo pp_icon( 'search' ); ?><span><?php esc_html_e( 'Search', 'pokepiece' ); ?></span></button>
 				<a class="pp-iconbtn pp-act-account" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php echo is_user_logged_in() ? esc_attr__( 'My account', 'pokepiece' ) : esc_attr__( 'Sign in or create account', 'pokepiece' ); ?>"<?php echo is_user_logged_in() ? '' : ' data-pp-account aria-haspopup="dialog"'; ?>><?php echo pp_icon( 'user' ); ?></a>
 				<button class="pp-iconbtn pp-cart-open" type="button" aria-controls="pp-cart-drawer" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'cart' ); ?><?php echo pp_cart_count_html(); // phpcs:ignore ?></button>
 			</div>
-		</div>
-		<div class="pp-frame__search">
-			<?php get_search_form(); ?>
 		</div>
 	</div>
 </header>

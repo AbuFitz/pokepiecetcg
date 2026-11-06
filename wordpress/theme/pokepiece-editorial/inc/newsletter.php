@@ -20,7 +20,7 @@ add_action( 'rest_api_init', function () {
 			$res = apply_filters( 'pokepiece_newsletter_subscribe', null, $email, true );
 			if ( is_wp_error( $res ) ) { return new WP_Error( $res->get_error_code(), $res->get_error_message(), array( 'status' => 502 ) ); }
 			if ( true !== $res ) { return new WP_Error( 'pp_nl_fail', __( 'Sign-up failed. Please try again later.', 'pokepiece' ), array( 'status' => 502 ) ); }
-			return array( 'status' => 'ok', 'message' => __( 'Thanks — check your inbox if the provider asks you to confirm.', 'pokepiece' ) );
+			return array( 'status' => 'ok', 'message' => __( 'Thanks, check your inbox if the provider asks you to confirm.', 'pokepiece' ) );
 		},
 	) );
 } );

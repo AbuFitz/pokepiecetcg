@@ -30,7 +30,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'i18n'  => array(
 			'searching' => __( 'Searching…', 'pokepiece' ), 'noMatch' => __( 'No products match that search.', 'pokepiece' ),
 			'searchFail' => __( 'Live search is unavailable. Press Enter to see full results.', 'pokepiece' ),
-			'cartFail' => __( 'The cart could not be updated. Nothing was changed — please try again.', 'pokepiece' ),
+			'cartFail' => __( 'The cart could not be updated. Nothing was changed, please try again.', 'pokepiece' ),
 			'nlFail' => __( 'Sign-up is not available right now.', 'pokepiece' ), 'loading' => __( 'Loading…', 'pokepiece' ),
 		),
 	) );
@@ -54,7 +54,7 @@ add_action( 'wp_head', function () {
 	echo '<meta name="theme-color" content="#f7f5ef">' . "\n";
 }, 0 );
 
-// Staging must never be indexed. Define PP_STAGING in wp-config.php on staging only. (robots is not access control — protect staging too.)
+// Staging must never be indexed. Define PP_STAGING in wp-config.php on staging only. (robots is not access control, protect staging too.)
 add_filter( 'wp_robots', function ( $r ) {
 	if ( defined( 'PP_STAGING' ) && PP_STAGING ) {
 		$r['noindex'] = true; $r['nofollow'] = true; unset( $r['max-image-preview'] );
