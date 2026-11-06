@@ -962,3 +962,12 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 	.pp-hero__stage{margin:2px 0 -4px}
 	.pp-hero__lead{font-size:14.5px;margin-bottom:12px}
 }
+/* phone hero: minimal copy, modest artwork */
+@media(max-width:899px){
+	.pp-hero__lead,.pp-hero__ctas .pp-ulink{display:none}
+	.pp-hero__title{font-size:min(11.4vw,56px)}
+	.pp-hero__art{width:74%;margin:0 auto}
+	.pp-hero__stage{margin:10px 0 6px}
+	.pp-hero__ctas{margin:6px 0 26px}
+}
+@media(max-width:899px){.pp-hero__title{font-size:min(10.6vw,54px)}}
