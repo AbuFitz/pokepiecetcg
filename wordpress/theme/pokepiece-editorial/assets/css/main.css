@@ -804,3 +804,119 @@ ul.products{align-items:stretch}
 .pp-card__action .button,.pp-card__action .add_to_cart_button{display:flex!important;align-items:center;justify-content:center;text-align:center;padding:0 16px!important;min-height:44px;line-height:1.1;width:100%}
 .pp-card__action .added_to_cart{display:none}
 .pp-card__title{min-height:0}
+
+/* ---------- Hero artwork (replaces product tiles) ---------- */
+.pp-hero__stage{height:auto;min-height:0;margin-top:14px;display:block}
+.pp-hero__art{display:block;width:min(100%,560px);height:auto;margin:0 auto;filter:drop-shadow(0 22px 26px rgba(20,23,26,.35))}
+@media(min-width:900px){
+	.pp-hero__stage{position:absolute;right:var(--gut);bottom:24px;width:min(54%,760px);height:auto;margin:0}
+	.pp-hero__art{width:100%}
+	.pp-hero__inner{min-height:min(88vh,780px)}
+}
+/* ---------- Rotating announcement banner ---------- */
+.pp-bar{background:var(--ink);color:#fff;text-align:center;height:38px;overflow:hidden;position:relative}
+.pp-bar__line{position:relative;margin:0;height:38px;font:700 13px/38px var(--font);letter-spacing:.04em;text-transform:uppercase}
+.pp-bar__msg{position:absolute;inset:0;padding:0 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(100%);transition:transform .45s var(--ease),opacity .35s ease}
+.pp-bar__msg.is-on{opacity:1;transform:none}
+.pp-bar__msg.is-out{opacity:0;transform:translateY(-100%)}
+.pp-bar__msg::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--yellow);margin-right:10px;vertical-align:1px}
+@media(prefers-reduced-motion:reduce){.pp-bar__msg{transition:none}}
+
+/* ---------- Hero composition v3 ---------- */
+.pp-header{margin:0 0 -76px;padding-top:10px}
+@media(min-width:900px){.pp-header{margin:0 0 -86px;padding-top:14px;top:0}}
+.pp-hero__inner{padding-top:104px;padding-bottom:28px;display:grid;gap:0}
+.pp-hero__title{font-size:clamp(44px,13vw,84px);line-height:.9}
+.pp-hero__lead{margin:16px 0 18px;font-size:16px}
+.pp-hero__ctas{gap:12px 22px}
+.pp-hero__stage{margin:8px -4px 0;order:5}
+.pp-hero__art{width:min(112%,520px);margin-left:-6%;transform:rotate(-2deg)}
+.pp-iconbtn svg{width:26px;height:26px}
+@media(min-width:900px){
+	.pp-hero__inner{display:block;padding-top:150px;padding-bottom:40px;min-height:min(86vh,760px)}
+	.pp-hero__title,.pp-hero__lead,.pp-hero__ctas,.pp-hero .pp-script{max-width:47%}
+	.pp-hero__title{font-size:clamp(48px,6.2vw,112px)}
+	.pp-hero__stage{position:absolute;right:calc(var(--gut) - 10px);bottom:-6px;top:auto;width:min(56%,800px);margin:0}
+	.pp-hero__art{width:100%;margin:0;transform:rotate(-2.5deg) translateY(2%)}
+}
+@media(min-width:1500px){.pp-hero__title{font-size:112px}}
+.pp-header{margin-bottom:-84px}
+.pp-hero__title{font-size:clamp(34px,10.4vw,80px);font-stretch:112%}
+@media(min-width:900px){.pp-header{margin-bottom:-94px}.pp-hero__title{font-size:clamp(44px,4.7vw,84px);font-stretch:125%}.pp-hero__title,.pp-hero__lead,.pp-hero__ctas,.pp-hero .pp-script{max-width:49%}}
+.pp-iconbtn{flex:none}
+@media(min-width:900px){.pp-hero__lead{max-width:min(40ch,45%)}}
+
+/* shipping option: checkbox row + cart line (not a listing) */
+.pp-opt{order:-1;flex:1 0 100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,23,26,.2);cursor:pointer;font-size:14px;transition:box-shadow .15s}
+.pp-opt:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.pp-opt input{position:absolute;opacity:0;pointer-events:none}
+.pp-opt__box{flex:none;width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 2px var(--ink);background:#fff;display:grid;place-items:center}
+.pp-opt input:checked+.pp-opt__box{background:var(--ink)}
+.pp-opt input:checked+.pp-opt__box::after{content:"";width:10px;height:6px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;rotate:-45deg;translate:0 -1px}
+.pp-opt input:focus-visible+.pp-opt__box{outline:3px solid var(--focus);outline-offset:2px}
+.pp-opt__txt{flex:1;line-height:1.3}.pp-opt__txt em{font-style:normal;font-weight:700;color:var(--muted)}
+.pp-opt__info{font-weight:700;font-size:13px;color:var(--muted);text-decoration:underline}
+.single-product form.cart:has(.pp-opt){flex-wrap:wrap}
+.pp-upgrade-line{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 12px;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#fff6d6;font-size:14px}
+.pp-upgrade-line a{font-weight:800;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.pp-upgrade-line--cart{margin-top:16px}
+
+/* ---------- Hero v4: calmer, smaller, dimmer artwork ---------- */
+.pp-hero__inner{padding-top:96px;padding-bottom:36px}
+.pp-hero__lead{margin:14px 0 22px;max-width:30ch}
+.pp-hero__ctas{display:grid;gap:14px;justify-items:start}
+.pp-hero__ctas .pp-cta{width:100%;justify-content:space-between}
+.pp-hero__stage{margin:40px auto 0;width:84%;max-width:380px;position:relative}
+.pp-hero__art{width:100%;margin:0;transform:none;opacity:.9;filter:saturate(.92) drop-shadow(0 16px 20px rgba(20,23,26,.28))}
+@media(min-width:900px){
+	.pp-hero__ctas{display:flex;justify-items:initial}
+	.pp-hero__ctas .pp-cta{width:auto}
+	.pp-hero__inner{min-height:min(80vh,700px);padding-bottom:48px}
+	.pp-hero__stage{position:absolute;right:calc(var(--gut) + 20px);bottom:34px;top:auto;margin:0;width:min(44%,600px);max-width:none}
+	.pp-hero__art{transform:rotate(-2deg)}
+}
+@media(min-width:900px){.pp-hero__inner{padding-top:168px}}
+@media(max-width:899px){.pp-logo{margin-inline:6px auto}.pp-logo img{height:34px}.pp-frame__top{gap:4px}.pp-hero__ctas .pp-cta{padding-left:22px}}
+@media(max-width:380px){.pp-header{padding-inline:8px}.pp-frame{padding:4px 6px}.pp-logo{margin-inline:2px auto;min-width:0}.pp-logo img{height:26px;max-width:100%}.pp-frame__top{gap:0}.pp-iconbtn,.pp-searchbtn{width:38px;height:38px;min-height:38px}}
+
+/* banner takes the hero colour, no line */
+.pp-bar{background:var(--ink);border:0}
+.pp-bar-red .pp-bar{background:var(--red)}.pp-bar-blue .pp-bar{background:var(--blue)}.pp-bar-yellow .pp-bar{background:var(--yellow)}.pp-bar-orange .pp-bar{background:var(--orange)}
+.pp-bar-yellow .pp-bar,.pp-bar-orange .pp-bar{color:var(--ink)}.pp-bar-yellow .pp-bar__msg,.pp-bar-orange .pp-bar__msg{color:var(--ink)}.pp-bar-yellow .pp-bar__msg::before,.pp-bar-orange .pp-bar__msg::before{background:var(--ink)}
+.pp-bar-red .pp-bar__msg::before{background:var(--yellow)}
+.pp-bar__msg{color:#fff;text-decoration:none;display:block}
+.pp-bar__msg:hover{text-decoration:underline;text-underline-offset:4px;color:inherit}
+.pp-bar__msg:not(.is-on){pointer-events:none}
+.pp-header{margin-top:-1px}
+
+/* ---------- Search popup: X in line with the search box ---------- */
+.pp-sp>.pp-close{position:static}
+.pp-sp__form{margin:14px 14px 8px;padding:5px 5px 5px 16px}
+.pp-sp__x{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,23,26,.3);display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.pp-sp__x:hover{background:var(--ink);color:#fff}
+.pp-sp__cancel{display:none}
+@media(max-width:699px){
+	.pp-modal--search{padding:10px 10px 0;align-items:end}
+	.pp-sp{height:auto;max-height:calc(100dvh - 20px);border-radius:26px 26px 0 0;border-bottom:0;box-shadow:none}
+	.pp-sp__form{margin:12px 12px 6px;padding:4px 4px 4px 14px}
+	.pp-sp__form .pp-sp__go{display:none}
+	.pp-sp__body{padding:6px 12px calc(20px + env(safe-area-inset-bottom))}
+	.pp-sp__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+	.pp-sp__cats{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px;padding:0 12px 4px;scrollbar-width:none}
+	.pp-sp__cats::-webkit-scrollbar{display:none}.pp-sp__cat{flex:none}
+	.pp-sp__img{box-shadow:none}
+	.pp-sp__img .pp-mode{left:8px;top:8px;rotate:0deg;font-size:10px;padding:5px 8px;border:0;box-shadow:0 2px 6px rgba(20,23,26,.15)}
+}
+
+/* banner stays dark everywhere */
+.pp-bar,.pp-bar-red .pp-bar,.pp-bar-blue .pp-bar,.pp-bar-yellow .pp-bar,.pp-bar-orange .pp-bar{background:var(--ink);color:#fff}
+.pp-bar-yellow .pp-bar__msg,.pp-bar-orange .pp-bar__msg{color:#fff}
+.pp-bar-yellow .pp-bar__msg::before,.pp-bar-orange .pp-bar__msg::before,.pp-bar-red .pp-bar__msg::before{background:var(--yellow)}
+/* phone status-bar / overscroll area takes the page's top colour */
+html{background:#14171a}
+html:has(.pp-bar-red){background:var(--red)}html:has(.pp-bar-blue){background:var(--blue)}html:has(.pp-bar-yellow){background:var(--yellow)}html:has(.pp-bar-orange){background:var(--orange)}
+body{background:var(--paper)}
+@supports not selector(:has(*)){html{background:#14171a}}
+/* notch / status-bar inset shows the page's top colour (html background), banner sits below it */
+body{padding-top:env(safe-area-inset-top)}
+html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) body,html:has(.pp-bar-orange) body,html:has(.pp-bar-ink) body{background-clip:padding-box}

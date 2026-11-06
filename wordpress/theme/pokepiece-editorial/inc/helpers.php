@@ -166,13 +166,7 @@ function pp_contact_email() { return sanitize_email( get_option( 'pokepiece_cont
 
 /** About page imagery: the owner's own TikTok snapshots + real product photos (no stock imagery). */
 function pp_about_gallery() {
-	$clips = array_slice( pp_tiktok_bundled(), 0, 4 );
 	$prods = array_slice( array_values( array_filter( pp_discovery_products( array( 'limit' => 12, 'stock_status' => 'instock' ) ) ?: pp_discovery_products( array( 'limit' => 12 ) ), fn( $p ) => $p->get_image_id() ) ), 0, 4 );
-	if ( $clips ) {
-		echo '<section class="pp-about-gal" aria-labelledby="pp-ag1"><h2 id="pp-ag1">' . esc_html__( 'From the community', 'pokepiece' ) . '</h2><ul class="pp-about-gal__grid">';
-		foreach ( $clips as $c ) { echo '<li><a href="' . esc_url( $c['url'] ) . '" rel="noopener"><img src="' . esc_url( $c['thumb'] ) . '" alt="' . esc_attr( $c['title'] ) . '" loading="lazy"></a></li>'; }
-		echo '</ul></section>';
-	}
 	if ( $prods ) {
 		echo '<section class="pp-about-gal" aria-labelledby="pp-ag2"><h2 id="pp-ag2">' . esc_html__( 'In the shop', 'pokepiece' ) . '</h2><ul class="pp-about-gal__grid pp-about-gal__prod">';
 		foreach ( $prods as $p ) { echo '<li><a href="' . esc_url( $p->get_permalink() ) . '" aria-label="' . esc_attr( $p->get_name() ) . '">' . $p->get_image( 'pp-plate', array( 'alt' => $p->get_name(), 'loading' => 'lazy' ) ) . '</a></li>'; }
@@ -197,4 +191,18 @@ function pp_search_tile( $p ) {
 function pp_term_product_count( $t ) {
 	$ids = get_posts( array( 'post_type' => 'product', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1, 'no_found_rows' => true, 'post__not_in' => pp_service_ids(), 'tax_query' => array( array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => $t->term_id ) ) ) );
 	return count( $ids );
+}
+
+/** Rotating banner: array( text, url ). Only wording the owner already publishes. Filter `pokepiece_banner_messages` to edit. */
+function pp_banner_messages() {
+	$svc = pp_service_ids(); $svc_url = ( $svc && 'publish' === get_post_status( $svc[0] ) ) ? get_permalink( $svc[0] ) : wc_get_page_permalink( 'shop' );
+	$page = fn( $slug, $fallback ) => ( $p = get_page_by_path( $slug ) ) ? get_permalink( $p ) : $fallback;
+	return apply_filters( 'pokepiece_banner_messages', array(
+		array( __( 'Special Delivery available', 'pokepiece' ), $svc_url ),
+		array( __( 'Fast UK dispatch on every order', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
+		array( __( 'Authentic sealed Pokémon and One Piece products', 'pokepiece' ), $page( 'about', home_url( '/' ) ) ),
+		array( __( 'Live TCG Rip & Ship on TikTok @pokepiecetcgg', 'pokepiece' ), pp_social( 'tiktok' ) ),
+		array( __( 'Secure packaging to protect sealed condition', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
+		array( __( 'Join the PokePieceTCG Discord community', 'pokepiece' ), pp_social( 'discord' ) ),
+	) );
 }

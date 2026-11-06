@@ -175,7 +175,7 @@
 		// Shown only once the real purchase button has scrolled ABOVE the viewport (not while it is still below the fold).
 		var check = function () {
 			ticking = false;
-			var end = document.querySelector('.related, .pp-footer'); var past = end && end.getBoundingClientRect().top < window.innerHeight * 0.45;
+			var end = document.querySelector('.related, .pp-footer'); var past = end && end.getBoundingClientRect().top < window.innerHeight * 0.3;
 			var gone = target.getBoundingClientRect().bottom < 0 && !past;
 			if (gone === shown) return;
 			shown = gone; clearTimeout(hideT);
@@ -287,7 +287,7 @@
 	function tile(it) { return '<li><a class="pp-sp__tile" href="' + esc(it.url) + '"><span class="pp-sp__img">' + (it.img ? '<img src="' + esc(it.img) + '" alt="" loading="lazy">' : '') + (it.mode ? '<span class="pp-mode pp-mode--' + esc(it.modeKey || '') + '">' + esc(it.mode) + '</span>' : '') + '</span><span class="pp-sp__t">' + esc(it.title) + '</span><span class="pp-sp__p">' + esc(it.price) + '</span><span class="pp-stock pp-stock--' + esc(it.stockKey || 'out') + '"><span class="pp-stock__dot" aria-hidden="true"></span>' + esc(it.stock) + '</span></a></li>'; }
 	function reset() { res.hidden = true; st.hidden = true; feat.hidden = false; }
 	document.addEventListener('click', function (e) { var b = e.target.closest('[data-pp-search]'); if (!b) return; e.preventDefault(); if (window.ppOpenLayer) window.ppOpenLayer(pop, b, { backdrop: false, focus: '#pp-sp-input' }); });
-	$('.pp-close', pop).addEventListener('click', function () { if (window.ppCloseLayer) window.ppCloseLayer(); });
+	var cc = $('.pp-sp__x', pop); if (cc) cc.addEventListener('click', function () { if (window.ppCloseLayer) window.ppCloseLayer(); });
 	document.addEventListener('keydown', function (e) { if (e.key === '/' && !/input|textarea|select/i.test((e.target.tagName || '')) && !e.metaKey && !e.ctrlKey) { e.preventDefault(); var b = $('[data-pp-search]'); if (b) b.click(); } });
 	input.addEventListener('input', function () {
 		clearTimeout(timer); if (ctrl) ctrl.abort(); var q = input.value.trim();
@@ -309,4 +309,11 @@
 		var mk = function (t, d, l) { var b = document.createElement('button'); b.type = 'button'; b.className = 'pp-step'; b.textContent = t; b.setAttribute('aria-label', l); b.addEventListener('click', function () { var min = parseInt(i.min || '1', 10), max = parseInt(i.max || '', 10), v = (parseInt(i.value, 10) || 1) + d; v = Math.max(min, isNaN(max) ? v : Math.min(max, v)); i.value = v; i.dispatchEvent(new Event('change', { bubbles: true })); }); return b; };
 		q.insertBefore(mk('−', -1, 'Decrease quantity'), i); q.appendChild(mk('+', 1, 'Increase quantity'));
 	});
+})();
+
+/* ----- Announcement banner: words change through the messages (static first message for reduced motion) ----- */
+(function () {
+	var l = document.querySelector('[data-pp-bar]'); if (!l) return;
+	var m = Array.prototype.slice.call(l.children), i = 0; if (m.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+	setInterval(function () { if (document.hidden) return; var cur = m[i]; i = (i + 1) % m.length; var nx = m[i]; cur.classList.remove('is-on'); cur.classList.add('is-out'); nx.classList.remove('is-out'); nx.classList.add('is-on'); setTimeout(function () { cur.classList.remove('is-out'); cur.style.transition = 'none'; void cur.offsetWidth; cur.style.transition = ''; }, 500); }, 3200);
 })();

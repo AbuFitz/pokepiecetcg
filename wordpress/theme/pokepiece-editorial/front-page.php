@@ -39,13 +39,7 @@ function pp_world_products( $items, $game = '' ) {
 				<p class="pp-hero__lead"><?php esc_html_e( 'PokePieceTCG is an online trading card store specialising in sealed Pokémon and One Piece TCG products.', 'pokepiece' ); ?></p>
 				<p class="pp-hero__ctas"><?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), $shop, 'light' ); ?><a class="pp-ulink" href="#why"><?php esc_html_e( 'Why collectors choose us', 'pokepiece' ); ?></a></p>
 				<div class="pp-hero__stage">
-					<?php foreach ( $stage as $i => $p ) : [ $sk, $st ] = pp_stock_state( $p ); ?>
-					<a class="pp-tile pp-tile--<?php echo (int) $i; ?>" href="<?php echo esc_url( $p->get_permalink() ); ?>">
-						<span class="pp-tile__img"><?php echo $p->get_image( 'pp-plate', array( 'loading' => $i ? 'lazy' : 'eager', 'fetchpriority' => $i ? 'low' : 'high', 'alt' => '' ) ); // phpcs:ignore ?></span>
-						<span class="pp-tile__cap"><b><?php echo esc_html( $p->get_name() ); ?></b><span><?php echo wp_kses_post( $p->get_price_html() ); ?> <em class="pp-tag pp-tag--<?php echo esc_attr( $sk ); ?>"><?php echo esc_html( $st ); ?></em></span></span>
-					</a>
-					<?php endforeach; ?>
-					<?php if ( ! $stage ) : ?><img class="pp-hero__mark" src="<?php echo esc_url( PP_URI . '/assets/brand/symbol-colour.svg' ); ?>" alt="" width="220" height="220"><?php endif; ?>
+					<img class="pp-hero__art" src="<?php echo esc_url( PP_URI . '/assets/img/hero-collection.webp' ); ?>" srcset="<?php echo esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ); ?> 768w, <?php echo esc_url( PP_URI . '/assets/img/hero-collection.webp' ); ?> 1536w" sizes="(min-width: 900px) 56vw, 92vw" width="1536" height="1024" alt="<?php esc_attr_e( 'A One Piece booster box, a Pokémon booster pack and a Pokémon booster bundle', 'pokepiece' ); ?>" fetchpriority="high" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -152,7 +146,7 @@ function pp_world_products( $items, $game = '' ) {
 		<div class="pp-wrap pp-deliver__inner">
 			<div><p class="pp-script"><?php esc_html_e( 'shipping', 'pokepiece' ); ?></p><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
 			<p class="pp-deliver__links"><?php $sp = get_page_by_path( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
-			<?php echo pp_upgrade_card( 'listing' ); // phpcs:ignore ?></p></div>
+			</p></div>
 			<div><p class="pp-script"><?php esc_html_e( 'questions?', 'pokepiece' ); ?></p><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
 		</div>
 	</section>

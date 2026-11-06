@@ -8,6 +8,9 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <a class="pp-skip" href="#main"><?php esc_html_e( 'Skip to content', 'pokepiece' ); ?></a>
+<div class="pp-bar" role="region" aria-label="<?php esc_attr_e( 'Announcements', 'pokepiece' ); ?>">
+	<p class="pp-bar__line" data-pp-bar aria-live="off"><?php foreach ( pp_banner_messages() as $i => $m ) : ?><a class="pp-bar__msg<?php echo 0 === $i ? ' is-on' : ''; ?>" href="<?php echo esc_url( $m[1] ); ?>"<?php echo 0 === $i ? '' : ' tabindex="-1"'; ?>><?php echo esc_html( $m[0] ); ?></a><?php endforeach; ?></p>
+</div>
 <header class="pp-header" id="pp-header">
 	<div class="pp-frame">
 		<div class="pp-frame__top">

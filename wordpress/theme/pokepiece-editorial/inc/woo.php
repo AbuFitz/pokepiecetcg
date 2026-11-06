@@ -168,3 +168,5 @@ add_action( 'woocommerce_single_product_summary', function () {
 }, 31 );
 
 add_filter( 'woocommerce_product_description_heading', fn() => __( 'About this product', 'pokepiece' ) );
+
+add_action( 'woocommerce_before_add_to_cart_button', function () { global $product; if ( $product && ! pp_is_service( $product->get_id() ) && $product->is_type( 'simple' ) ) { echo pp_upgrade_option_pdp(); } } ); // phpcs:ignore

@@ -26,23 +26,23 @@
 
 <div class="pp-modal pp-modal--search" id="pp-search-pop" role="dialog" aria-modal="true" aria-labelledby="pp-sp-title" hidden>
 	<div class="pp-modal__panel pp-sp">
-		<button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close search', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button>
 		<h2 id="pp-sp-title" class="screen-reader-text"><?php esc_html_e( 'Search products', 'pokepiece' ); ?></h2>
 		<form class="pp-sp__form" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 			<span class="pp-sp__icon"><?php echo pp_icon( 'search' ); ?></span>
 			<label class="screen-reader-text" for="pp-sp-input"><?php esc_html_e( 'Search sets, codes or products', 'pokepiece' ); ?></label>
 			<input id="pp-sp-input" name="s" type="search" placeholder="<?php esc_attr_e( 'Search sets, codes or products', 'pokepiece' ); ?>" autocomplete="off" enterkeyhint="search">
 			<input type="hidden" name="post_type" value="product">
-			<button class="pp-btn pp-btn--primary" type="submit"><?php esc_html_e( 'Search', 'pokepiece' ); ?></button>
+			<button class="pp-btn pp-btn--primary pp-sp__go" type="submit"><?php esc_html_e( 'Search', 'pokepiece' ); ?></button>
+			<button class="pp-sp__x" type="button" aria-label="<?php esc_attr_e( 'Close search', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button>
 		</form>
 		<div class="pp-sp__body">
 			<p class="pp-sp__status" role="status" aria-live="polite" hidden></p>
 			<div class="pp-sp__res" hidden><ul class="pp-sp__grid"></ul><a class="pp-btn pp-btn--ghost pp-sp__all" href="#" hidden><?php esc_html_e( 'See all results', 'pokepiece' ); ?></a></div>
 			<div class="pp-sp__feat">
+				<p class="pp-sp__label"><?php esc_html_e( 'Popular right now', 'pokepiece' ); ?></p>
+				<ul class="pp-sp__grid"><?php foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } ?></ul>
 				<p class="pp-sp__label"><?php esc_html_e( 'Browse', 'pokepiece' ); ?></p>
 				<p class="pp-sp__cats"><?php foreach ( pp_game_groups() as $g ) : foreach ( $g['items'] as $it ) : ?><a class="pp-sp__cat" href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $g['name'] . ' ' . $it['name'] ); ?></a><?php endforeach; endforeach; ?></p>
-				<p class="pp-sp__label"><?php esc_html_e( 'In the shop', 'pokepiece' ); ?></p>
-				<ul class="pp-sp__grid"><?php foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } ?></ul>
 			</div>
 		</div>
 	</div>

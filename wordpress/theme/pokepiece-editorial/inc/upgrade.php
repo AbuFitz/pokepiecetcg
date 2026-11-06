@@ -21,31 +21,28 @@ function pp_upgrade_in_cart( $p ) {
 	return false;
 }
 
-/** @param string $ctx drawer|pdp|cart|listing */
-function pp_upgrade_card( $ctx = 'pdp' ) {
+/** Product page: a checkbox option inside the purchase form. Cart/drawer: one compact line. */
+function pp_upgrade_option_pdp() {
 	$p = pp_upgrade_product(); if ( ! $p ) { return ''; }
-	$listing = ( 'listing' === $ctx );
-	if ( ! $listing && pp_upgrade_in_cart( $p ) ) { return ''; }
-	$img = wp_get_attachment_image_url( $p->get_image_id(), 'thumbnail' ) ?: '';
-	$h = '<div class="pp-upgrade pp-upgrade--' . esc_attr( $ctx ) . '" data-pid="' . (int) $p->get_id() . '" data-name="' . esc_attr( $p->get_name() ) . '" data-price="' . esc_attr( (float) $p->get_price() ) . '" data-img="' . esc_url( $img ) . '" data-url="' . esc_url( $p->get_permalink() ) . '">';
-	if ( $img ) { $h .= '<span class="pp-upgrade__img"><img src="' . esc_url( $img ) . '" alt="" width="64" height="64" loading="lazy"></span>'; }
-	$h .= '<div class="pp-upgrade__txt"><strong>' . esc_html__( 'Upgrade your postage', 'pokepiece' ) . '</strong><span>' . esc_html__( 'Add Special Delivery to your order. Put your TikTok username or order reference in the order notes at checkout.', 'pokepiece' ) . '</span></div>';
-	if ( $listing ) {
-		$h .= '<a class="pp-btn pp-btn--ghost" href="' . esc_url( $p->get_permalink() ) . '">' . esc_html__( 'Details', 'pokepiece' ) . ' · ' . wp_kses_post( $p->get_price_html() ) . '</a>';
-	} else {
-		$h .= '<a class="pp-btn pp-btn--primary ajax_add_to_cart add_to_cart_button" href="' . esc_url( $p->add_to_cart_url() ) . '" data-product_id="' . (int) $p->get_id() . '" data-quantity="1" rel="nofollow">' . esc_html__( 'Add', 'pokepiece' ) . ' · ' . wp_kses_post( $p->get_price_html() ) . '</a>';
-	}
-	return $h . '</div>';
+	return '<label class="pp-opt"><input type="checkbox" name="pp_upgrade" value="1"><span class="pp-opt__box" aria-hidden="true"></span><span class="pp-opt__txt"><strong>' . esc_html__( 'Add Special Delivery', 'pokepiece' ) . '</strong> <em>+' . wp_kses_post( $p->get_price_html() ) . '</em></span><a class="pp-opt__info" href="' . esc_url( $p->get_permalink() ) . '">' . esc_html__( 'Info', 'pokepiece' ) . '</a></label>';
 }
+function pp_upgrade_card( $ctx = 'cart' ) {
+	$p = pp_upgrade_product(); if ( ! $p || pp_upgrade_in_cart( $p ) ) { return ''; }
+	return '<div class="pp-upgrade-line pp-upgrade-line--' . esc_attr( $ctx ) . '"><span>' . esc_html__( 'Need it faster?', 'pokepiece' ) . '</span><a class="ajax_add_to_cart add_to_cart_button" href="' . esc_url( $p->add_to_cart_url() ) . '" data-product_id="' . (int) $p->get_id() . '" data-quantity="1" rel="nofollow">' . esc_html__( 'Add Special Delivery', 'pokepiece' ) . ' · ' . wp_kses_post( $p->get_price_html() ) . '</a></div>';
+}
+
+// Option ticked on the product page: add the existing service product alongside, through WooCommerce's own cart (same line item as before).
+add_action( 'woocommerce_add_to_cart', function ( $key, $pid ) {
+	static $busy = false;
+	if ( $busy || empty( $_POST['pp_upgrade'] ) || pp_is_service( $pid ) ) { return; } // phpcs:ignore WordPress.Security.NonceVerification
+	$p = pp_upgrade_product(); if ( ! $p || pp_upgrade_in_cart( $p ) ) { return; }
+	$busy = true; WC()->cart->add_to_cart( $p->get_id(), 1 ); $busy = false;
+}, 10, 2 );
 
 // Not a catalogue product: gone from shop/category/search listings (page, price, stock and order flow unchanged).
 add_action( 'woocommerce_product_query', function ( $q ) {
 	$q->set( 'post__not_in', array_values( array_unique( array_merge( (array) $q->get( 'post__not_in' ), pp_service_ids() ) ) ) );
 }, 20 );
 
-// Promo placements.
-add_action( 'woocommerce_single_product_summary', function () {
-	global $product; if ( $product && ! pp_is_service( $product->get_id() ) && $product->is_in_stock() ) { echo pp_upgrade_card( 'pdp' ); } // phpcs:ignore
-}, 36 );
+// Placement: cart page only; product page option is injected in the purchase form.
 add_action( 'woocommerce_after_cart_table', function () { echo pp_upgrade_card( 'cart' ); } ); // phpcs:ignore
-add_action( 'woocommerce_after_shop_loop', function () { echo '<div class="pp-upgrade-wrap">' . pp_upgrade_card( 'listing' ) . '</div>'; }, 15 ); // phpcs:ignore

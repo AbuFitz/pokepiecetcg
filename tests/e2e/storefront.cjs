@@ -64,16 +64,15 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     assert.ok(await p.evaluate(() => document.querySelector('[data-pp-rail]').scrollLeft) > sl0 + 100, 'drag did not scroll'); assert.ok(/localhost/.test(p.url()) && !/\/product\//.test(p.url()), 'drag opened a product'); await p.context().close();
   });
 
-  await t('shipping upgrade is an option, not a listing: absent from shop/category/search, offered on PDP, cart drawer and cart page, adds the same service product', async () => {
+  await t('shipping upgrade is an option, not a listing: absent from shop/category/search/home; checkbox on PDP adds the same service product; cart shows one compact line', async () => {
     const p = await mk(); const SVC = '/product/' + SERVICE_SLUG + '/';
-    await p.goto(BASE + '/shop/?post_type=product', { waitUntil: 'networkidle' }); assert.equal(await p.locator('li.product a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'service in shop listing');
-    await p.goto(BASE + '/product-category/pokemon-english/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('li.product a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'service in category listing');
-    assert.ok(await p.locator('.pp-upgrade--listing').count() >= 1, 'no listing promo');
+    await p.goto(BASE + '/shop/?post_type=product', { waitUntil: 'networkidle' }); assert.equal(await p.locator('li.product a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'service in shop listing'); assert.equal(await p.locator('.pp-upgrade,.pp-upgrade-line').count(), 0, 'no promo on listings');
+    await p.goto(BASE + '/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-upgrade,.pp-upgrade-line,.pp-main a[href*="' + SERVICE_SLUG + '"]').count(), 0, 'upgrade must not appear on home');
     const j = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?per_page=40')).json(); const ins = j.find(x => x.is_in_stock && x.id !== 686);
-    await p.goto(ins.permalink, { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-upgrade--pdp').count(), 1, 'no PDP upgrade option');
-    await p.click('.pp-upgrade--pdp .add_to_cart_button'); await p.waitForSelector('#pp-cart-drawer.is-open'); await p.waitForFunction(() => document.querySelectorAll('.pp-line').length >= 1);
-    assert.ok(await p.locator('.pp-line a[href*="' + SERVICE_SLUG + '"]').count() >= 1, 'service line not in cart');
-    assert.equal(await p.locator('#pp-cart-drawer .pp-upgrade').count(), 0, 'upgrade card must disappear once added');
+    await p.goto(ins.permalink, { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-opt').count(), 1, 'no PDP option');
+    await p.locator('.pp-opt').click(); assert.ok(await p.isChecked('.pp-opt input'), 'checkbox not ticked');
+    await Promise.all([p.waitForNavigation(), p.click('.single_add_to_cart_button')]);
+    await p.goto(BASE + '/cart/', { waitUntil: 'networkidle' }); assert.ok(await p.locator('.woocommerce-cart-form a[href*="' + SERVICE_SLUG + '"]').count() >= 1, 'service line not added with product'); assert.ok(await p.locator('.woocommerce-cart-form a[href*="' + ins.slug + '"]').count() >= 1);
     const r = await p.goto(BASE + SVC); assert.equal(r.status(), 200); assert.ok((await p.textContent('.pp-callout--service')).includes('order notes')); await p.context().close();
   });
 
@@ -173,7 +172,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
   await t('sticky purchase bar appears only after the main action leaves view (phone)', async () => {
     const p = await mk(390); const live = await (await p.request.get(BASE + '/wp-json/wc/store/v1/products?per_page=30')).json(); const ins = live.find(x => x.is_in_stock && x.id !== 686); await p.goto(ins.permalink, { waitUntil: 'networkidle' });
     assert.equal(await p.locator('.pp-sticky.is-shown').count(), 0);
-    await p.evaluate(() => { const b = document.querySelector('.single_add_to_cart_button').getBoundingClientRect(); window.scrollTo(0, window.scrollY + b.bottom + 40); }); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
+    await p.evaluate(() => { const b = document.querySelector('.single_add_to_cart_button').getBoundingClientRect(); window.scrollTo(0, window.scrollY + b.bottom + 8); }); await p.waitForSelector('.pp-sticky.is-shown', { timeout: 3000 }); await p.context().close();
   });
 
   await t('newsletter UI + endpoint stay disabled without a provider (501), no fake success', async () => {

@@ -50,8 +50,8 @@ add_action( 'wp_head', function () {
 
 // Viewport: allow zoom (the current live site disables it).
 add_action( 'wp_head', function () {
-	echo '<meta name="viewport" content="width=device-width, initial-scale=1">' . "\n";
-	echo '<meta name="theme-color" content="#f7f5ef">' . "\n";
+	echo '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">' . "\n";
+	echo '<meta name="theme-color" content="' . esc_attr( pp_top_colour() ) . '">' . "\n";
 }, 0 );
 
 // Staging must never be indexed. Define PP_STAGING in wp-config.php on staging only. (robots is not access control, protect staging too.)
@@ -64,6 +64,10 @@ add_filter( 'wp_robots', function ( $r ) {
 
 add_filter( 'body_class', function ( $c ) {
 	$c[] = 'pp';
+	$bar = 'ink';
+	if ( is_front_page() ) { $bar = 'red'; }
+	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'blue', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
+	$c[] = 'pp-bar-' . $bar;
 	return $c;
 } );
 
@@ -76,3 +80,10 @@ add_filter( 'woocommerce_enqueue_styles', function ( $s ) {
 	unset( $s['woocommerce-layout'], $s['woocommerce-smallscreen'] );
 	return $s;
 } );
+
+/** Colour of the area behind the phone status bar / notch: matches the top of the page (hero colour). */
+function pp_top_colour() {
+	$map = array( 'red' => '#c1232c', 'blue' => '#2447b3', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#14171a' );
+	foreach ( get_body_class() as $c ) { if ( str_starts_with( $c, 'pp-bar-' ) ) { return $map[ substr( $c, 7 ) ] ?? $map['ink']; } }
+	return $map['ink'];
+}
