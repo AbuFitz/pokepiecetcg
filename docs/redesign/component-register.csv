@@ -1,0 +1,25 @@
+component,scope,authority,required_states,designed,connected,enabled,verified,blocker
+global-header,core,WP/theme,top;sticky;menu;search;active-route,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+mobile-menu,core,WP menu,closed;open;subgroup;long-content,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+product-search,core,Woo/theme search,idle;loading;results;empty;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+home-merchandising,core,Woo eligible products,normal;sparse;zero-stock;image-failure,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+game-gateway,core,existing categories,default;hover;focus;small-width,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+product-grid,core,Woo query,results;loading;empty;failure;long-title,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+filters-and-sort,core,Woo/theme attributes,open;selected;apply;clear;no-results;history,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+product-card,core,Woo product,in-stock;out;variation;live;no-shrink;service,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+quick-view,preserve-if-active,theme/Woo,open;loading;variation;error;close,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+product-gallery,core,WP media,normal;zoom;swipe;missing;keyboard,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+purchase-controls,core,Woo forms,quantity;variation;pending;success;server-error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+sticky-purchase-bar,design-proposal,Woo state,hidden;visible;options;unavailable;keyboard,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+cart-drawer,preserve-active,Woo session,empty;items;updating;stock-error;coupon-error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+cart-page,core,Woo,empty;full;shipping;coupon;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+checkout,core,existing Woo checkout/gateways,validation;rates;3DS;decline;retry;pending;confirmed,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+account,core,WP/Woo,login;register-if-active;reset;orders;addresses;errors,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+service-pages,core,retained WP pages,normal;print;long-content,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+contact-form,core,existing form/mail,idle;invalid;pending;received;failure;spam,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+newsletter-popup,optional-design,approved mailing provider,idle;invalid;pending;confirm;duplicate;success;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+stock-alert,optional-design,compatible extension/mail,signup;variation;confirmation;unsubscribe;restock;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+cookie-preferences,core-if-needed,CMP/actual tags,initial;reject;accept;customise;withdraw;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+promo-banner,optional-design,merchant offer,enabled;dismissed;expired,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+wishlist-recent,preserve-if-active,existing plugin/storage,saved;removed;empty;error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities
+404-no-results,core,WP/Woo routes,404;zero-search;zero-filter;service-error,specified,not-inspected,not-inspected,not-tested,verify actual installed capabilities

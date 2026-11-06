@@ -1,0 +1,46 @@
+type,id,url,status,note
+page,437,https://pokepiecetcg.co.uk/refund-return-policy/,observed,Preserve ID and permalink
+page,432,https://pokepiecetcg.co.uk/shipping-policy/,observed,Preserve ID and permalink
+page,66,https://pokepiecetcg.co.uk/terms-conditions/,observed,Preserve ID and permalink
+page,65,https://pokepiecetcg.co.uk/my-account/,observed,Preserve ID and permalink
+page,64,https://pokepiecetcg.co.uk/checkout/,observed,Preserve ID and permalink
+page,63,https://pokepiecetcg.co.uk/cart/,observed,Preserve ID and permalink
+page,29,https://pokepiecetcg.co.uk/shop/,observed,Preserve ID and permalink
+page,53,https://pokepiecetcg.co.uk/contact/,observed,Preserve ID and permalink
+page,47,https://pokepiecetcg.co.uk/about/,observed,Preserve ID and permalink
+page,3,https://pokepiecetcg.co.uk/privacy-policy/,observed,Preserve ID and permalink
+page,24,https://pokepiecetcg.co.uk/,observed,Preserve ID and permalink
+category,,https://pokepiecetcg.co.uk/product-category/dragon-ball-english/,observed,Preserve taxonomy
+category,,https://pokepiecetcg.co.uk/product-category/one-piece-english/,observed,Preserve taxonomy
+category,,https://pokepiecetcg.co.uk/product-category/one-piece-japanese/,observed,Preserve taxonomy
+category,,https://pokepiecetcg.co.uk/product-category/pokemon-english/,observed,Preserve taxonomy
+category,,https://pokepiecetcg.co.uk/product-category/pokemon-japanese/,observed,Preserve taxonomy
+product,,https://pokepiecetcg.co.uk/product/dragon-ball-fb08-booster-box-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-op14-booster-box-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-storm-emerald-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-pitch-black-booster-pack-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-pitch-black-booster-box-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-ascended-heroes-booster-bundle-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-abyss-eye-booster-pack-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-abyss-eye-booster-box-no-shrink-japanese-sealed-copy/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-chaos-rising-booster-pack-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-op16-booster-pack-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-op16-booster-box-live-rip-and-ship/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-op14-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-mega-dream-ex-japanese-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-op08-booster-box-sealed/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-the-four-emperors-op-09-japanese-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-ninja-spinner-shrink/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-the-azure-seas-seven-op-14-japanese-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-ascended-heroes-premium-poster-collection-mega-lucario-1-foil-promo-card-1-double-sided-poster-10-booster-packs/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-eb-04-egghead-crisis-booster-box-japanese-sealed/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-prismatic-evolutions-etb/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/pokemon-nihil-zero-japanese-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/one-piece-inherited-will-op-13-japanese-booster-box/,observed,Resolve actual ID privately before changes
+product,,https://pokepiecetcg.co.uk/product/special-delivery-shipping-upgrade/,observed,Resolve actual ID privately before changes
+endpoint,,https://pokepiecetcg.co.uk/my-account/orders/,verify,Confirm configured endpoint and order-key protection
+endpoint,,https://pokepiecetcg.co.uk/my-account/edit-address/,verify,Confirm configured endpoint and order-key protection
+endpoint,,https://pokepiecetcg.co.uk/my-account/lost-password/,verify,Confirm configured endpoint and order-key protection
+endpoint,,https://pokepiecetcg.co.uk/my-account/view-order/{order-id}/,verify,Confirm configured endpoint and order-key protection
+endpoint,,https://pokepiecetcg.co.uk/checkout/order-pay/{order-id}/,verify,Confirm configured endpoint and order-key protection
+endpoint,,https://pokepiecetcg.co.uk/checkout/order-received/{order-id}/,verify,Confirm configured endpoint and order-key protection
