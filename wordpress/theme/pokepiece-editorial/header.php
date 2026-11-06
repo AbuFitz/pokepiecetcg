@@ -13,7 +13,7 @@
 <header class="pp-header" id="pp-header">
 <div class="pp-nav-shell">
 <button class="pp-menutoggle" type="button" aria-controls="pp-mobilemenu" aria-expanded="false" data-pp-menu-open>☰ <span class="screen-reader-text">Open menu</span></button>
-<a class="pp-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="PokePieceTCG home"><img src="<?php echo esc_url(get_stylesheet_directory_uri().'/../../../brand/svg/horizontal-colour.svg'); ?>" alt="PokePieceTCG" onerror="this.style.display='none';this.parentNode.append(document.createTextNode('POKEPIECETCG'))"></a>
+<a class="pp-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="PokePieceTCG home"><img src="<?php echo esc_url(get_stylesheet_directory_uri().'/assets/pokepiece-logo.svg'); ?>" alt="PokePieceTCG" onerror="this.style.display='none';this.parentNode.append(document.createTextNode('POKEPIECETCG'))"></a>
 <nav class="pp-navlinks" aria-label="Primary navigation">
 <a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">Shop all</a>
 <a href="<?php echo esc_url(pp_cat_link('Pokémon')); ?>">Pokémon</a>
