@@ -75,31 +75,48 @@ function pp_stock_state( $product ) {
 
 /** Game → language categories, derived from real product_cat terms (no hard-coded IDs). */
 function pp_game_groups() {
+	static $cache = null; if ( null !== $cache ) { return $cache; }
 	$games = array(
-		'pokemon'    => array( 'name' => 'Pokémon', 'prefix' => 'pokemon-' ),
-		'one-piece'  => array( 'name' => 'One Piece', 'prefix' => 'one-piece-' ),
+		'pokemon'     => array( 'name' => 'Pokémon', 'prefix' => 'pokemon-' ),
+		'one-piece'   => array( 'name' => 'One Piece', 'prefix' => 'one-piece-' ),
 		'dragon-ball' => array( 'name' => 'Dragon Ball', 'prefix' => 'dragon-ball-' ),
 	);
 	$terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false ) );
-	if ( is_wp_error( $terms ) ) {
-		return array();
-	}
-	$out = array();
+	if ( is_wp_error( $terms ) ) { return array(); }
+	$out = array(); $used = array();
+	// 1) The three existing games: categories named <game>-<language>.
 	foreach ( $games as $key => $g ) {
-		$items = array();
+		$items = array(); $slugs = array();
 		foreach ( $terms as $t ) {
 			if ( str_starts_with( $t->slug, $g['prefix'] ) ) {
-				$lang = ucfirst( substr( $t->slug, strlen( $g['prefix'] ) ) );
-				$items[] = array( 'name' => $lang, 'url' => get_term_link( $t ), 'count' => pp_term_product_count( $t ), 'slug' => $t->slug );
+				$items[] = array( 'name' => ucfirst( substr( $t->slug, strlen( $g['prefix'] ) ) ), 'url' => get_term_link( $t ), 'count' => pp_term_product_count( $t ), 'slug' => $t->slug );
+				$slugs[] = $t->slug; $used[ $t->term_id ] = 1;
 			}
 		}
-		if ( $items ) {
-			usort( $items, fn( $a, $b ) => strcmp( $a['name'], $b['name'] ) );
-			$out[ $key ] = $g + array( 'items' => $items );
-		}
+		if ( $items ) { usort( $items, fn( $a, $b ) => strcmp( $a['name'], $b['name'] ) ); $out[ $key ] = array( 'name' => $g['name'], 'items' => $items, 'slugs' => $slugs, 'kind' => 'game' ); }
 	}
-	return $out;
+	// 2) Other TCGs and Accessories: ordinary top-level categories (children become the sub-menu).
+	$special = array( 'other' => array( 'other-tcgs', 'other-tcg', 'other' ), 'accessories' => array( 'accessories', 'accessory' ) );
+	$by_parent = array(); foreach ( $terms as $t ) { $by_parent[ $t->parent ][] = $t; }
+	$build = function ( $root, $key, $kind ) use ( &$out, &$used, $by_parent ) {
+		$kids = $by_parent[ $root->term_id ] ?? array(); $items = array(); $slugs = array( $root->slug ); $used[ $root->term_id ] = 1;
+		if ( $kids ) { $items[] = array( 'name' => sprintf( __( 'All %s', 'pokepiece' ), $root->name ), 'url' => get_term_link( $root ), 'count' => pp_term_product_count( $root ), 'slug' => $root->slug ); }
+		foreach ( $kids as $k ) { $items[] = array( 'name' => $k->name, 'url' => get_term_link( $k ), 'count' => pp_term_product_count( $k ), 'slug' => $k->slug ); $slugs[] = $k->slug; $used[ $k->term_id ] = 1; }
+		$out[ $key ] = array( 'name' => $root->name, 'items' => $items, 'slugs' => $slugs, 'kind' => $kind, 'url' => get_term_link( $root ), 'count' => pp_term_product_count( $root ) );
+	};
+	foreach ( $special as $key => $slugs ) {
+		foreach ( $terms as $t ) { if ( 0 === (int) $t->parent && in_array( $t->slug, $slugs, true ) ) { $build( $t, $key, $key ); break; } }
+	}
+	// 3) Any other top-level category the owner adds later appears automatically.
+	foreach ( $by_parent[0] ?? array() as $t ) {
+		if ( isset( $used[ $t->term_id ] ) || 'uncategorized' === $t->slug ) { continue; }
+		$build( $t, 'cat-' . $t->term_id, 'extra' );
+	}
+	return $cache = $out;
 }
+
+/** Is the current category archive inside this nav group? */
+function pp_group_active( $g, $cur_slug ) { return $cur_slug && in_array( $cur_slug, $g['slugs'] ?? array(), true ); }
 
 function pp_dispatch_text() {
 	// PROVISIONAL: wording published in the shipping policy (1 to 3 working days); owner must reconfirm.
@@ -200,9 +217,34 @@ function pp_banner_messages() {
 	return apply_filters( 'pokepiece_banner_messages', array(
 		array( __( 'Special Delivery available', 'pokepiece' ), $svc_url ),
 		array( __( 'Fast UK dispatch on every order', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
-		array( __( 'Authentic sealed Pokémon and One Piece products', 'pokepiece' ), $page( 'about', home_url( '/' ) ) ),
+		array( __( 'Authentic sealed trading card products', 'pokepiece' ), $page( 'about', home_url( '/' ) ) ),
 		array( __( 'Live TCG Rip & Ship on TikTok @pokepiecetcgg', 'pokepiece' ), pp_social( 'tiktok' ) ),
 		array( __( 'Secure packaging to protect sealed condition', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
 		array( __( 'Join the PokePieceTCG Discord community', 'pokepiece' ), pp_social( 'discord' ) ),
 	) );
+}
+
+/** Flat list of category links (label, url) for search chips, 404 and empty-cart helpers. */
+function pp_category_links() {
+	$o = array();
+	foreach ( pp_game_groups() as $g ) {
+		if ( empty( $g['items'] ) ) { $o[] = array( $g['name'], $g['url'] ); continue; }
+		foreach ( $g['items'] as $it ) { $o[] = array( 'game' === $g['kind'] ? $g['name'] . ' ' . $it['name'] : ( str_starts_with( $it['name'], 'All ' ) ? $it['name'] : $it['name'] ), $it['url'] ); }
+	}
+	return $o;
+}
+
+/** Hero wording (owner-editable in Settings > PokePiece). Default reflects the wider range. */
+function pp_hero_text() {
+	$v = trim( (string) get_option( 'pokepiece_hero_text', '' ) );
+	return $v ?: __( 'An online trading card store for Pokémon, One Piece, Dragon Ball and more, plus collector accessories.', 'pokepiece' );
+}
+/** Hero banner image: owner picks one from the Media Library; falls back to the bundled artwork. */
+function pp_hero_image() {
+	$id = (int) get_option( 'pokepiece_hero_image_id', 0 );
+	$alt = trim( (string) get_option( 'pokepiece_hero_image_alt', '' ) );
+	if ( $id && wp_attachment_is_image( $id ) ) {
+		return wp_get_attachment_image( $id, 'full', false, array( 'class' => 'pp-hero__art', 'alt' => $alt, 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 900px) 56vw, 92vw' ) );
+	}
+	return '<img class="pp-hero__art" src="' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . '" srcset="' . esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ) . ' 768w, ' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . ' 1536w" sizes="(min-width: 900px) 56vw, 92vw" width="1536" height="1024" alt="' . esc_attr( $alt ) . '" fetchpriority="high" decoding="async">';
 }

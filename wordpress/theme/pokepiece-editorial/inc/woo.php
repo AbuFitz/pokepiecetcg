@@ -153,7 +153,7 @@ add_filter( 'woocommerce_get_stock_html', fn( $html, $product ) => $product->is_
 // Empty cart: a useful next step instead of a bare notice.
 add_action( 'woocommerce_cart_is_empty', function () {
 	echo '<div class="pp-cart-empty__links">';
-	foreach ( pp_game_groups() as $g ) { foreach ( $g['items'] as $it ) { echo '<a class="pp-btn pp-btn--ghost" href="' . esc_url( $it['url'] ) . '">' . esc_html( $g['name'] . ' ' . $it['name'] ) . '</a>'; } }
+	foreach ( pp_category_links() as $l ) { echo '<a class="pp-btn pp-btn--ghost" href="' . esc_url( $l[1] ) . '">' . esc_html( $l[0] ) . '</a>'; }
 	echo '</div>';
 }, 20 );
 

@@ -13,6 +13,9 @@ add_action( 'admin_menu', function () {
 			update_option( 'pokepiece_tiktok_videos', sanitize_textarea_field( wp_unslash( $_POST['tiktok_videos'] ?? '' ) ) );
 			foreach ( array( 'tiktok_url', 'discord_url' ) as $k ) { update_option( 'pokepiece_' . $k, esc_url_raw( wp_unslash( $_POST[ $k ] ?? '' ) ) ); }
 			foreach ( array( 'pokemon', 'one-piece', 'dragon-ball' ) as $gk ) { update_option( 'pokepiece_world_img_' . $gk, esc_url_raw( wp_unslash( $_POST[ 'world_' . $gk ] ?? '' ) ) ); }
+			update_option( 'pokepiece_hero_image_id', absint( $_POST['hero_image_id'] ?? 0 ) );
+			update_option( 'pokepiece_hero_image_alt', sanitize_text_field( wp_unslash( $_POST['hero_image_alt'] ?? '' ) ) );
+			update_option( 'pokepiece_hero_text', sanitize_text_field( wp_unslash( $_POST['hero_text'] ?? '' ) ) );
 			update_option( 'pokepiece_contact_email', sanitize_email( wp_unslash( $_POST['contact_email'] ?? '' ) ) );
 			update_option( 'pokepiece_dispatch_text', sanitize_text_field( wp_unslash( $_POST['dispatch_text'] ?? '' ) ) );
 			delete_transient( 'pp_tiktok_items' );
@@ -20,13 +23,18 @@ add_action( 'admin_menu', function () {
 		}
 		$v = fn( $k, $d = '' ) => esc_attr( get_option( 'pokepiece_' . $k, $d ) );
 		echo '<div class="wrap"><h1>PokePiece storefront</h1><form method="post">'; wp_nonce_field( 'pp_settings', 'pp_settings_nonce' );
-		echo '<table class="form-table"><tr><th>TikTok video links</th><td><textarea name="tiktok_videos" rows="8" class="large-text code" placeholder="https://www.tiktok.com/@pokepiecetcgg/video/…">' . esc_textarea( get_option( 'pokepiece_tiktok_videos', '' ) ) . '</textarea><p class="description">One per line (max 12). Either a public video URL (cover and title are fetched from TikTok oEmbed), or `video URL | cover image URL | caption` to use your own snapshot from the Media Library. Shown as a swipe on the home page; cards link to TikTok.</p></td></tr>';
+		$hid = (int) get_option( 'pokepiece_hero_image_id', 0 );
+		echo '<table class="form-table"><tr><th>Home page banner image</th><td><div id="pp-hero-prev" style="margin-bottom:8px">' . ( $hid ? wp_get_attachment_image( $hid, 'medium' ) : '<em>Using the built-in artwork</em>' ) . '</div><input type="hidden" name="hero_image_id" id="pp-hero-id" value="' . esc_attr( $hid ) . '"><button type="button" class="button" id="pp-hero-pick">Choose image</button> <button type="button" class="button-link" id="pp-hero-clear">Use built-in artwork</button><p class="description">Best as a transparent PNG or WebP, about 1500 × 1000 px, with the products centred. Replace it whenever a new set releases.</p><p><label>Image description (for screen readers)<br><input class="large-text" name="hero_image_alt" value="' . $v( 'hero_image_alt' ) . '"></label></p></td></tr>';
+		echo '<tr><th>Home page intro line</th><td><input class="large-text" name="hero_text" value="' . $v( 'hero_text' ) . '" placeholder="' . esc_attr( pp_hero_text() ) . '"></td></tr>';
+		echo '<tr><th>TikTok video links</th><td><textarea name="tiktok_videos" rows="8" class="large-text code" placeholder="https://www.tiktok.com/@pokepiecetcgg/video/…">' . esc_textarea( get_option( 'pokepiece_tiktok_videos', '' ) ) . '</textarea><p class="description">One per line (max 12). Either a public video URL (cover and title are fetched from TikTok oEmbed), or `video URL | cover image URL | caption` to use your own snapshot from the Media Library. Shown as a swipe on the home page; cards link to TikTok.</p></td></tr>';
 		foreach ( array( 'pokemon' => 'Pokémon', 'one-piece' => 'One Piece', 'dragon-ball' => 'Dragon Ball' ) as $gk => $gn ) { echo '<tr><th>' . esc_html( $gn ) . ' panel image URL</th><td><input class="large-text" name="world_' . esc_attr( $gk ) . '" value="' . $v( 'world_img_' . $gk ) . '" placeholder="Optional, a licensed image. Empty = crop of a product photo"></td></tr>'; }
 		echo '<tr><th>TikTok profile</th><td><input class="regular-text" name="tiktok_url" value="' . $v( 'tiktok_url', 'https://www.tiktok.com/@pokepiecetcgg' ) . '"></td></tr>';
 		echo '<tr><th>Discord invite</th><td><input class="regular-text" name="discord_url" value="' . $v( 'discord_url', 'https://discord.com/invite/54bNErEDb' ) . '"></td></tr>';
 		echo '<tr><th>Contact email</th><td><input class="regular-text" name="contact_email" value="' . $v( 'contact_email', 'info@pokepiecetcg.co.uk' ) . '"></td></tr>';
 		echo '<tr><th>Dispatch wording</th><td><input class="large-text" name="dispatch_text" value="' . $v( 'dispatch_text', 'Orders are usually dispatched within 1 to 3 working days unless stated otherwise.' ) . '"></td></tr></table>';
 		submit_button(); echo '</form></div>';
+		wp_enqueue_media();
+		echo '<script>jQuery(function($){var f;$("#pp-hero-pick").on("click",function(e){e.preventDefault();f=f||wp.media({title:"Home page banner",multiple:false,library:{type:"image"}});f.off("select").on("select",function(){var a=f.state().get("selection").first().toJSON();$("#pp-hero-id").val(a.id);$("#pp-hero-prev").html("<img src=\""+(a.sizes&&a.sizes.medium?a.sizes.medium.url:a.url)+"\" style=\"max-width:300px;height:auto\">")});f.open()});$("#pp-hero-clear").on("click",function(){$("#pp-hero-id").val(0);$("#pp-hero-prev").html("<em>Using the built-in artwork</em>")})});</script>';
 	} );
 } );
 

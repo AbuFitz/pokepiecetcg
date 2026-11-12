@@ -21,10 +21,10 @@ function pp_faqs() {
 }
 
 function pp_seo_description() {
-	if ( is_front_page() ) { return __( 'PokePieceTCG is a UK based trading card store specialising in sealed Pokémon and One Piece TCG products: booster boxes, elite trainer boxes and collection boxes. Secure packaging and fast UK dispatch.', 'pokepiece' ); }
+	if ( is_front_page() ) { return __( 'PokePieceTCG is a UK based trading card store for Pokémon, One Piece, Dragon Ball and more: booster boxes, elite trainer boxes, collection boxes and collector accessories. Secure packaging and fast UK dispatch.', 'pokepiece' ); }
 	if ( is_product_category() ) { $t = get_queried_object(); return wp_trim_words( wp_strip_all_tags( term_description( $t->term_id, 'product_cat' ) ?: sprintf( __( 'Shop %s sealed TCG products from PokePieceTCG, a UK based trading card store. Secure packaging and fast UK dispatch.', 'pokepiece' ), $t->name ) ), 30, '' ); }
 	if ( is_singular( 'product' ) ) { $p = wc_get_product( get_the_ID() ); if ( $p ) { $d = wp_strip_all_tags( $p->get_short_description() ?: $p->get_description() ); return $d ? wp_trim_words( $d, 28, '…' ) : sprintf( __( '%1$s from PokePieceTCG, a UK based trading card store. Secure packaging and fast UK dispatch.', 'pokepiece' ), $p->get_name() ); } }
-	if ( is_shop() ) { return __( 'Shop sealed Pokémon, One Piece and Dragon Ball TCG booster boxes and products from PokePieceTCG. Secure packaging and fast UK dispatch.', 'pokepiece' ); }
+	if ( is_shop() ) { return __( 'Shop sealed Pokémon, One Piece, Dragon Ball and other TCG booster boxes, products and accessories from PokePieceTCG. Secure packaging and fast UK dispatch.', 'pokepiece' ); }
 	return '';
 }
 
@@ -48,7 +48,7 @@ add_action( 'wp_head', function () {
 
 add_action( 'wp_head', function () {
 	if ( pp_seo_plugin_active() || ! is_front_page() ) { return; }
-	$org = array( '@type' => array( 'Organization', 'OnlineStore' ), '@id' => home_url( '/#org' ), 'name' => 'PokePieceTCG', 'url' => home_url( '/' ), 'logo' => PP_URI . '/assets/brand/icon-192.png', 'email' => pp_contact_email(), 'areaServed' => 'GB', 'description' => 'PokePieceTCG is a UK based trading card store specialising in Pokémon and One Piece TCG booster boxes, sealed products and collector items. All products are authentic and sourced from trusted suppliers. Fast UK dispatch on all orders.', 'sameAs' => array_values( array_filter( array( pp_social( 'tiktok' ), pp_social( 'discord' ), esc_url( (string) get_option( 'pokepiece_google_profile', 'https://share.google/zSyE11bqZ6OTNXMwk' ) ) ) ) ) );
+	$org = array( '@type' => array( 'Organization', 'OnlineStore' ), '@id' => home_url( '/#org' ), 'name' => 'PokePieceTCG', 'url' => home_url( '/' ), 'logo' => PP_URI . '/assets/brand/icon-192.png', 'email' => pp_contact_email(), 'areaServed' => 'GB', 'description' => 'PokePieceTCG is a UK based trading card store for Pokémon, One Piece, Dragon Ball and other TCG booster boxes, sealed products, collector items and accessories. All products are authentic and sourced from trusted suppliers. Fast UK dispatch on all orders.', 'sameAs' => array_values( array_filter( array( pp_social( 'tiktok' ), pp_social( 'discord' ), esc_url( (string) get_option( 'pokepiece_google_profile', 'https://share.google/zSyE11bqZ6OTNXMwk' ) ) ) ) ) );
 	$site = array( '@type' => 'WebSite', '@id' => home_url( '/#site' ), 'url' => home_url( '/' ), 'name' => 'PokePieceTCG', 'publisher' => array( '@id' => home_url( '/#org' ) ), 'potentialAction' => array( '@type' => 'SearchAction', 'target' => home_url( '/?s={search_term_string}&post_type=product' ), 'query-input' => 'required name=search_term_string' ) );
 	$faq = array( '@type' => 'FAQPage', 'mainEntity' => array_map( fn( $f ) => array( '@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $f[1] ) ), pp_faqs() ) );
 	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@graph' => array( $org, $site, $faq ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";

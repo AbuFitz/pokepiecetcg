@@ -66,7 +66,7 @@ add_filter( 'body_class', function ( $c ) {
 	$c[] = 'pp';
 	$bar = 'ink';
 	if ( is_front_page() ) { $bar = 'red'; }
-	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'blue', 'dragon-ball' => 'orange' )[ $g ] ?? 'ink'; }
+	elseif ( function_exists( 'is_product_category' ) && is_product_category() ) { $g = pp_game_of_slug( get_queried_object()->slug ); $bar = array( 'pokemon' => 'yellow', 'one-piece' => 'blue', 'dragon-ball' => 'orange', 'other' => 'ink', 'accessories' => 'red' )[ $g ] ?? 'ink'; }
 	$c[] = 'pp-bar-' . $bar;
 	return $c;
 } );

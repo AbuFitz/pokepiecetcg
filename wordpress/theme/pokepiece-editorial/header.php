@@ -19,7 +19,9 @@
 			<nav class="pp-nav" aria-label="<?php esc_attr_e( 'Main', 'pokepiece' ); ?>">
 				<ul>
 					<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"<?php echo is_shop() ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a></li>
-					<?php foreach ( $groups as $k => $g ) : $active = $cur && str_starts_with( $cur, $g['prefix'] ); ?>
+					<?php foreach ( $groups as $k => $g ) : $active = pp_group_active( $g, $cur ); if ( empty( $g['items'] ) ) : ?>
+					<li><a href="<?php echo esc_url( $g['url'] ); ?>"<?php echo $active ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $g['name'] ); ?></a></li>
+					<?php continue; endif; ?>
 					<li class="pp-nav__group">
 						<button type="button" class="pp-nav__btn" aria-expanded="false" aria-controls="pp-sub-<?php echo esc_attr( $k ); ?>"<?php echo $active ? ' data-active="1"' : ''; ?>><?php echo esc_html( $g['name'] ); ?><?php echo pp_icon( 'chev' ); ?></button>
 						<ul class="pp-nav__sub" id="pp-sub-<?php echo esc_attr( $k ); ?>" hidden>
@@ -42,8 +44,10 @@
 	<div class="pp-menu__head"><span class="pp-menu__title"><?php esc_html_e( 'Menu', 'pokepiece' ); ?></span><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close menu', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button></div>
 	<div class="pp-menu__body">
 		<a class="pp-menu__link" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a>
-		<?php foreach ( $groups as $k => $g ) : ?>
-		<details class="pp-menu__group"<?php echo ( $cur && str_starts_with( $cur, $g['prefix'] ) ) ? ' open' : ''; ?>><summary><?php echo esc_html( $g['name'] ); ?><?php echo pp_icon( 'chev' ); ?></summary>
+		<?php foreach ( $groups as $k => $g ) : if ( empty( $g['items'] ) ) : ?>
+		<a class="pp-menu__link" href="<?php echo esc_url( $g['url'] ); ?>"><?php echo esc_html( $g['name'] ); ?></a>
+		<?php continue; endif; ?>
+		<details class="pp-menu__group"<?php echo pp_group_active( $g, $cur ) ? ' open' : ''; ?>><summary><?php echo esc_html( $g['name'] ); ?><?php echo pp_icon( 'chev' ); ?></summary>
 			<ul><?php foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $it['name'] ); ?> <em>(<?php echo (int) $it['count']; ?>)</em></a></li><?php endforeach; ?></ul></details>
 		<?php endforeach; ?>
 		<hr>

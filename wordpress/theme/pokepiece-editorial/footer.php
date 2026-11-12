@@ -10,7 +10,7 @@
 		</div>
 		<nav aria-label="<?php esc_attr_e( 'Shop', 'pokepiece' ); ?>"><h2><?php esc_html_e( 'Shop', 'pokepiece' ); ?></h2><ul>
 			<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'All products', 'pokepiece' ); ?></a></li>
-			<?php foreach ( $groups as $g ) : foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $g['name'] . ' · ' . $it['name'] ); ?></a></li><?php endforeach; endforeach; ?>
+			<?php foreach ( $groups as $g ) : if ( empty( $g['items'] ) ) : ?><li><a href="<?php echo esc_url( $g['url'] ); ?>"><?php echo esc_html( $g['name'] ); ?></a></li><?php else : foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( 'game' === $g['kind'] ? $g['name'] . ' · ' . $it['name'] : $it['name'] ); ?></a></li><?php endforeach; endif; endforeach; ?>
 		</ul></nav>
 		<nav aria-label="<?php esc_attr_e( 'Help', 'pokepiece' ); ?>"><h2><?php esc_html_e( 'Help', 'pokepiece' ); ?></h2><ul>
 			<?php foreach ( array( 'my-account' => 'My account', 'about' => 'About', 'contact' => 'Contact', 'shipping-policy' => 'Shipping', 'refund-return-policy' => 'Returns', 'terms-conditions' => 'Terms', 'privacy-policy' => 'Privacy' ) as $slug => $label ) : $pg = get_page_by_path( $slug ); if ( $pg ) : ?>
@@ -19,7 +19,7 @@
 		</ul></nav>
 	</div>
 	<?php $pay = pp_payment_methods(); if ( $pay ) : ?><ul class="pp-pay pp-wrap" aria-label="<?php esc_attr_e( 'Payment methods', 'pokepiece' ); ?>"><?php foreach ( $pay as $slug => $m ) : ?><li><span class="screen-reader-text"><?php echo esc_html( $m[0] ); ?></span><?php echo pp_pay_icon( $slug, $m[1] ); // phpcs:ignore ?></li><?php endforeach; ?></ul><?php endif; ?>
-	<p class="pp-footer__legal pp-wrap"><?php echo esc_html( pp_dispatch_text() ); ?> © <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'Pokémon, One Piece and Dragon Ball are trademarks of their respective owners; this shop is not affiliated with them.', 'pokepiece' ); ?>
+	<p class="pp-footer__legal pp-wrap"><?php echo esc_html( pp_dispatch_text() ); ?> © <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?>. <?php esc_html_e( 'All game names and trademarks belong to their respective owners; this shop is not affiliated with them.', 'pokepiece' ); ?>
 	<?php $td = trim( (string) get_option( 'pokepiece_trading_details', '' ) ); if ( $td ) { echo '<br>' . nl2br( esc_html( $td ) ); } ?></p>
 </footer>
 
@@ -42,7 +42,7 @@
 				<p class="pp-sp__label"><?php esc_html_e( 'Popular right now', 'pokepiece' ); ?></p>
 				<ul class="pp-sp__grid"><?php foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } ?></ul>
 				<p class="pp-sp__label"><?php esc_html_e( 'Browse', 'pokepiece' ); ?></p>
-				<p class="pp-sp__cats"><?php foreach ( pp_game_groups() as $g ) : foreach ( $g['items'] as $it ) : ?><a class="pp-sp__cat" href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( $g['name'] . ' ' . $it['name'] ); ?></a><?php endforeach; endforeach; ?></p>
+				<p class="pp-sp__cats"><?php foreach ( pp_category_links() as $l ) : ?><a class="pp-sp__cat" href="<?php echo esc_url( $l[1] ); ?>"><?php echo esc_html( $l[0] ); ?></a><?php endforeach; ?></p>
 			</div>
 		</div>
 	</div>

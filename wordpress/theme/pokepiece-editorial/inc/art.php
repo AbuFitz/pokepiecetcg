@@ -21,6 +21,13 @@ function pp_game_of_slug( $slug ) {
 	foreach ( array( 'pokemon' => 'pokemon-', 'one-piece' => 'one-piece-', 'dragon-ball' => 'dragon-ball-' ) as $k => $p ) {
 		if ( str_starts_with( (string) $slug, $p ) ) { return $k; }
 	}
+	// Other TCGs / Accessories (or any child of them): walk up to the top-level category.
+	$t = get_term_by( 'slug', (string) $slug, 'product_cat' );
+	while ( $t && ! is_wp_error( $t ) ) {
+		if ( in_array( $t->slug, array( 'other-tcgs', 'other-tcg', 'other' ), true ) ) { return 'other'; }
+		if ( in_array( $t->slug, array( 'accessories', 'accessory' ), true ) ) { return 'accessories'; }
+		$t = $t->parent ? get_term( $t->parent, 'product_cat' ) : null;
+	}
 	return '';
 }
 function pp_product_game( $product ) {

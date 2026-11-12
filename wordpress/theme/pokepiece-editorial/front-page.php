@@ -3,10 +3,13 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 $groups  = pp_game_groups();
 $shop    = wc_get_page_permalink( 'shop' );
-$stocked = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => 10 ) );
+// Products the owner stars as Featured in WooCommerce come first; the rest follow in-stock first.
+$featured = pp_discovery_products( array( 'featured' => true, 'limit' => 10 ) );
+$stocked  = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => 10 ) );
+if ( $featured ) { $fid = wp_list_pluck( $featured, 'id' ); $stocked = array_merge( array_filter( $featured, fn( $p ) => $p->is_in_stock() ), array_filter( $stocked, fn( $p ) => ! in_array( $p->get_id(), $fid, true ) ) ); }
 // Wheel content: in-stock first, then the rest of the range (each card states its real stock). Never fewer than the catalogue allows.
 $range = $stocked;
-if ( count( $range ) < 8 ) { $ids = wp_list_pluck( $range, 'id' ); foreach ( pp_discovery_products( array( 'limit' => 12 ) ) as $p ) { if ( ! in_array( $p->get_id(), $ids, true ) ) { $range[] = $p; } if ( count( $range ) >= 10 ) { break; } } }
+if ( count( $range ) < 8 ) { $ids = wp_list_pluck( $range, 'id' ); foreach ( array_merge( $featured, pp_discovery_products( array( 'limit' => 12 ) ) ) as $p ) { if ( ! in_array( $p->get_id(), $ids, true ) ) { $range[] = $p; } if ( count( $range ) >= 10 ) { break; } } }
 $all_in = $stocked && count( $stocked ) === count( $range );
 $pool    = array_merge( $stocked, pp_discovery_products( array( 'limit' => 12 ) ) );
 $stage = array(); $seen = array();
@@ -16,11 +19,13 @@ $world = array(
 	'pokemon'     => array( 'blurb' => __( 'Japanese and English Pokémon releases.', 'pokepiece' ) ),
 	'one-piece'   => array( 'blurb' => __( 'Japanese and English One Piece releases.', 'pokepiece' ) ),
 	'dragon-ball' => array( 'blurb' => __( 'Dragon Ball card game boxes.', 'pokepiece' ) ),
+	'other'       => array( 'blurb' => __( 'Naruto, Demon Slayer, Solo Leveling and more.', 'pokepiece' ) ),
+	'accessories' => array( 'blurb' => __( 'Binders, sleeves, toploaders and starter bundles.', 'pokepiece' ) ),
 );
 
 /** Up to three real product photos per game (WooCommerce data): in-stock first, never the service product, only products that actually have an image. */
 function pp_world_products( $items, $game = '' ) {
-	$slugs = array_column( $items, 'slug' );
+	$slugs = array_column( $items, 'slug' ); if ( ! $slugs ) { return array(); }
 	$ps = wc_get_products( array( 'status' => 'publish', 'limit' => 24, 'category' => $slugs, 'exclude' => pp_service_ids(), 'orderby' => 'date', 'order' => 'DESC' ) );
 	// Only products whose own title names the game: a mis-filed item (e.g. a Pokémon pack under One Piece) must not represent the wrong world.
 	$needles = array( 'pokemon' => array( 'pokémon', 'pokemon' ), 'one-piece' => array( 'one piece' ), 'dragon-ball' => array( 'dragon ball' ) )[ $game ] ?? array();
@@ -36,29 +41,29 @@ function pp_world_products( $items, $game = '' ) {
 			<div class="pp-wrap pp-hero__inner">
 				<p class="pp-script pp-hero__script"><?php esc_html_e( 'driven by adventure', 'pokepiece' ); ?></p>
 				<h1 id="pp-hero-h" class="pp-hero__title"><span><?php esc_html_e( 'Built for', 'pokepiece' ); ?></span> <span><?php esc_html_e( 'collectors.', 'pokepiece' ); ?></span></h1>
-				<p class="pp-hero__lead"><?php esc_html_e( 'PokePieceTCG is an online trading card store specialising in sealed Pokémon and One Piece TCG products.', 'pokepiece' ); ?></p>
+				<p class="pp-hero__lead"><?php echo esc_html( pp_hero_text() ); //; ?></p>
 				<p class="pp-hero__ctas"><?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), $shop, 'light' ); ?><a class="pp-ulink" href="#why"><?php esc_html_e( 'Why collectors choose us', 'pokepiece' ); ?></a></p>
 				<div class="pp-hero__stage">
-					<img class="pp-hero__art" src="<?php echo esc_url( PP_URI . '/assets/img/hero-collection.webp' ); ?>" srcset="<?php echo esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ); ?> 768w, <?php echo esc_url( PP_URI . '/assets/img/hero-collection.webp' ); ?> 1536w" sizes="(min-width: 900px) 56vw, 92vw" width="1536" height="1024" alt="<?php esc_attr_e( 'A One Piece booster box, a Pokémon booster pack and a Pokémon booster bundle', 'pokepiece' ); ?>" fetchpriority="high" decoding="async">
+					<?php echo pp_hero_image(); // phpcs:ignore ?>
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<div class="pp-ticker" aria-hidden="true"><div class="pp-ticker__track"><?php for ( $i = 0; $i < 2; $i++ ) : ?><ul><?php foreach ( array( 'Pokémon', 'One Piece', 'Booster boxes', 'Elite trainer boxes', 'Collection boxes', 'Sealed TCG' ) as $w ) : ?><li><?php echo esc_html( $w ); ?></li><?php endforeach; ?></ul><?php endfor; ?></div></div>
+	<div class="pp-ticker" aria-hidden="true"><div class="pp-ticker__track"><?php for ( $i = 0; $i < 2; $i++ ) : ?><ul><?php foreach ( apply_filters( 'pokepiece_ticker_words', array( 'Pokémon', 'One Piece', 'Dragon Ball', 'Naruto', 'Demon Slayer', 'Solo Leveling', 'Booster boxes', 'Accessories' ) ) as $w ) : ?><li><?php echo esc_html( $w ); ?></li><?php endforeach; ?></ul><?php endfor; ?></div></div>
 
 	<section class="pp-worlds" aria-labelledby="pp-worlds-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><h2 id="pp-worlds-h" class="pp-display"><?php esc_html_e( 'Three worlds. One counter.', 'pokepiece' ); ?></h2></div>
+			<div class="pp-head"><h2 id="pp-worlds-h" class="pp-display"><?php esc_html_e( 'Shop by category', 'pokepiece' ); ?></h2></div>
 		</div>
 		<ul class="pp-worlds__rail">
 			<?php foreach ( $groups as $k => $g ) : $w = $world[ $k ] ?? array( 'blurb' => '' ); $total = array_sum( array_column( $g['items'], 'count' ) ); ?>
-			<li class="pp-world pp-game-<?php echo esc_attr( $k ); ?>">
-				<?php $custom = esc_url( (string) get_option( 'pokepiece_world_img_' . $k, '' ) ); if ( $custom ) : ?><div class="pp-world__photo pp-world__photo--custom" aria-hidden="true"><img src="<?php echo $custom; ?>" alt="" loading="lazy" decoding="async"></div><?php elseif ( ( $wp = pp_world_products( $g['items'], $k )[0] ?? null ) ) : ?><div class="pp-world__photo" aria-hidden="true" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'large', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></div><?php endif; ?>
+			<li class="pp-world pp-game-<?php echo esc_attr( 'game' === $g['kind'] || in_array( $k, array( 'other', 'accessories' ), true ) ? $k : 'all' ); ?>"<?php echo ' data-grp="' . esc_attr( $k ) . '"'; ?>>
+				<?php $custom = esc_url( (string) get_option( 'pokepiece_world_img_' . $k, '' ) ); if ( $custom ) : ?><div class="pp-world__photo pp-world__photo--custom" aria-hidden="true"><img src="<?php echo $custom; ?>" alt="" loading="lazy" decoding="async"></div><?php elseif ( ( $wp = pp_world_products( array_map( fn( $s ) => array( 'slug' => $s ), $g['slugs'] ), $k )[0] ?? null ) ) : ?><div class="pp-world__photo" aria-hidden="true" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'large', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></div><?php endif; ?>
 				<h3><?php echo esc_html( $g['name'] ); ?></h3>
-				<p><?php echo esc_html( $w['blurb'] ); ?></p>
+				<?php if ( ! empty( $w['blurb'] ) ) : ?><p><?php echo esc_html( $w['blurb'] ); ?></p><?php endif; ?>
 				<ul class="pp-world__links">
-					<?php foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><span><?php echo esc_html( $it['name'] ); ?></span><em><?php echo (int) $it['count']; ?></em><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></a></li><?php endforeach; ?>
+					<?php $links = $g['items'] ?: array( array( 'name' => sprintf( __( 'Shop %s', 'pokepiece' ), $g['name'] ), 'url' => $g['url'], 'count' => $g['count'] ?? 0 ) ); foreach ( $links as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><span><?php echo esc_html( $it['name'] ); ?></span><em><?php echo (int) $it['count']; ?></em><i><?php echo pp_art( 'arrow' ); // phpcs:ignore ?></i></a></li><?php endforeach; ?>
 				</ul>
 			</li>
 			<?php endforeach; ?>

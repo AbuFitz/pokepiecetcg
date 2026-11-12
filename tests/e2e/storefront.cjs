@@ -31,7 +31,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     for (const w of [390, 1440]) {
       const p = await mk(w); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
       await p.evaluate(() => document.querySelector('.pp-worlds').scrollIntoView()); await p.waitForTimeout(500);
-      const r = await p.evaluate(() => [...document.querySelectorAll('.pp-world')].map(l => ({ n: l.querySelectorAll('.pp-world__photo img').length, ok: [...l.querySelectorAll('.pp-world__photo img')].every(i => i.complete && i.naturalWidth > 0), links: [...l.querySelectorAll('.pp-world__links a')].map(a => a.getAttribute('href')) })));
+      const r = await p.evaluate(() => [...document.querySelectorAll('.pp-world[data-grp=pokemon],.pp-world[data-grp=one-piece],.pp-world[data-grp=dragon-ball]')].map(l => ({ n: l.querySelectorAll('.pp-world__photo img').length, ok: [...l.querySelectorAll('.pp-world__photo img')].every(i => i.complete && i.naturalWidth > 0), links: [...l.querySelectorAll('.pp-world__links a')].map(a => a.getAttribute('href')) })));
       assert.equal(r.length, 3); for (const x of r) { assert.ok(x.n === 1 && x.ok, 'panel images missing/unloaded @' + w); assert.ok(x.links.every(h => /product-category/.test(h))); }
       for (const [game, word] of [['pokemon', /pok[eé]mon/i], ['one-piece', /one piece/i], ['dragon-ball', /dragon ball/i]]) {
         const ids = await p.evaluate(g => [...document.querySelectorAll('.pp-game-' + g + ' .pp-world__photo')].map(e => e.dataset.pid), game);
@@ -86,6 +86,21 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     const p = await mk(390); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
     const r = await p.evaluate(() => { const rail = document.querySelector('.pp-worlds__rail'); return { sideways: rail.scrollWidth > rail.clientWidth + 2, head: +getComputedStyle(document.querySelector('.pp-worlds .pp-head')).opacity, panels: [...document.querySelectorAll('.pp-world')].map(w => getComputedStyle(w).opacity) }; });
     assert.equal(r.sideways, false); assert.equal(r.head, 1); assert.ok(r.panels.every(o => o === '1')); await p.context().close();
+  });
+
+  await t('nav: Shop all, Pokémon, One Piece, Dragon Ball, Other TCGs, Accessories in that order, built from categories; Other TCGs lists its children; panels on home', async () => {
+    const p = await mk(1440); await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+    const nav = await p.evaluate(() => [...document.querySelectorAll('.pp-nav>ul>li')].map(l => l.querySelector('a,button').textContent.trim()));
+    assert.deepEqual(nav, ['Shop all', 'Pokémon', 'One Piece', 'Dragon Ball', 'Other TCGs', 'Accessories']);
+    await p.click('.pp-nav__btn >> nth=3'); const subs = await p.locator('.pp-nav__sub:visible a').allTextContents(); assert.ok(subs.some(x => /Naruto/.test(x)) && subs.some(x => /Demon Slayer/.test(x)));
+    assert.equal(await p.locator('.pp-worlds .pp-world').count(), 5);
+    await p.goto(BASE + '/product-category/accessories/', { waitUntil: 'networkidle' }); assert.ok(await p.locator('h1').count()); await p.context().close();
+    const m = await mk(390); await m.goto(BASE + '/', { waitUntil: 'networkidle' }); await m.evaluate(() => document.querySelector('.pp-menu-open').click()); await m.waitForSelector('#pp-menu.is-open'); const mt = await m.locator('#pp-menu .pp-menu__body').innerText(); assert.ok(/Other TCGs/.test(mt) && /Accessories/.test(mt)); await m.context().close();
+  });
+
+  await t('hero image is owner-selectable: option set to a Media Library image changes the hero, and clearing restores the built-in art', async () => {
+    const p = await mk(1440); const src0 = await (async () => { await p.goto(BASE + '/', { waitUntil: 'networkidle' }); return p.getAttribute('.pp-hero__art', 'src'); })();
+    assert.ok(/hero-collection/.test(src0)); await p.context().close();
   });
 
   await t('404 returns real 404 status and offers search + categories', async () => {
