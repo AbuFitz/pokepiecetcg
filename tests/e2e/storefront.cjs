@@ -170,14 +170,14 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
   });
 
   await t('filters: server-rendered, URL-driven chips, removable; empty result offers Clear all; sort kept', async () => {
-    const p = await mk(); await p.goto(BASE + '/shop/?pp_mode=live&pp_stock=1&orderby=price', { waitUntil: 'networkidle' });
+    const p = await mk(); await p.goto(BASE + '/shop/?pp_mode=sealed&pp_stock=1&orderby=price', { waitUntil: 'networkidle' });
     assert.equal(await p.locator('.pp-chip:not(.pp-chip--clear)').count(), 2);
     await p.click('.pp-chip >> nth=0'); await p.waitForLoadState('networkidle'); assert.ok(!/pp_mode/.test(p.url())); assert.ok(/orderby=price/.test(p.url()));
     await p.goto(BASE + '/shop/?pp_mode=preorder', { waitUntil: 'networkidle' }); assert.ok(await p.locator('.pp-empty--archive a:has-text("Clear all")').count()); await p.context().close();
   });
 
   await t('out-of-stock products are never offered an Add action; zero-stock home state is honest', async () => {
-    const p = await mk(); await p.goto(BASE + '/shop/?pp_mode=live', { waitUntil: 'networkidle' });
+    const p = await mk(); await p.goto(BASE + '/shop/', { waitUntil: 'networkidle' });
     const cards = await p.locator('li.pp-card--out').count(); assert.ok(cards > 0);
     assert.equal(await p.locator('li.pp-card--out .add_to_cart_button').count(), 0); await p.context().close();
   });
@@ -189,11 +189,17 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     await p.keyboard.press('Escape'); await p.waitForSelector('#pp-qv', { state: 'hidden' }); await p.context().close();
   });
 
-  await t('product page: unknown mode shows no mode label (never defaults to sealed); known mode shown with text', async () => {
-    const p = await mk(); await p.goto(BASE + '/product/one-piece-op14-booster-box/', { waitUntil: 'networkidle' });
-    assert.equal(await p.locator('.summary .pp-callout').count(), 0); assert.equal(await p.locator('.summary .pp-mode').count(), 0);
-    await p.goto(BASE + '/product/pokemon-storm-emerald-live-rip-and-ship/', { waitUntil: 'networkidle' });
-    assert.match(await p.textContent('.pp-callout--live'), /Opened live/); await p.context().close();
+  await t('public site focuses on sealed: no Live opening label on cards, product page, search, filters or home; sealed label still shown; data untouched', async () => {
+    const p = await mk(1440);
+    await p.goto(BASE + '/shop/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-mode--live,.pp-callout--live').count(), 0, 'live label on listing'); assert.equal(await p.locator('.pp-filters').innerText().then(t => /opened live|live opening/i.test(t)), false, 'live filter option');
+    assert.ok(await p.locator('.pp-mode--sealed').count() >= 1, 'sealed label should still show');
+    await p.goto(BASE + '/product/pokemon-storm-emerald-live-rip-and-ship/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('.summary .pp-callout,.summary .pp-mode').count(), 0); assert.ok(!/Opened live/i.test(await p.locator('.summary').innerText()));
+    const j = await (await p.request.get(BASE + '/wp-json/pokepiece/v1/search?q=one%20piece')).json(); assert.ok(j.items.length && j.items.every(i => !i.mode || !/live/i.test(i.mode)));
+    await p.goto(BASE + '/', { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-mode--live').count(), 0);
+    assert.match(await p.textContent('#pp-shelf-h'), /New arrivals/i);
+    const titles = await p.locator('.pp-rail--swipe .pp-card__title').allTextContents(); assert.ok(titles.length > 0 && titles.every(t => !/live rip|rip and ship/i.test(t) && /pok[eé]mon|one piece/i.test(t)), titles.join(' | '));
+    await p.context().close();
+    const pr = await (await (await mk(1440)).request.get(BASE + '/wp-json/wc/store/v1/products?per_page=40')).json(); assert.ok(pr.length >= 20, 'product data must be untouched');
   });
 
   await t('sticky purchase bar appears only after the main action leaves view (phone)', async () => {

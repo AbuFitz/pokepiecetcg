@@ -46,7 +46,7 @@ add_action( 'save_post_product', function ( $id ) {
 	}
 	$mode = sanitize_key( wp_unslash( $_POST['pp_mode'] ?? '' ) );
 	$fmt  = sanitize_key( wp_unslash( $_POST['pp_format'] ?? '' ) );
-	update_post_meta( $id, '_pp_mode', isset( pp_modes()[ $mode ] ) ? $mode : '' );
+	update_post_meta( $id, '_pp_mode', isset( pp_modes( true )[ $mode ] ) ? $mode : '' );
 	update_post_meta( $id, '_pp_format', isset( pp_formats()[ $fmt ] ) ? $fmt : '' );
 	update_post_meta( $id, '_pp_condition', sanitize_textarea_field( wp_unslash( $_POST['pp_condition'] ?? '' ) ) );
 	update_post_meta( $id, '_pp_is_service', empty( $_POST['pp_is_service'] ) ? '' : '1' );
@@ -66,7 +66,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		if ( ! is_readable( $file ) ) { WP_CLI::error( 'Pass --file=confirmed.csv (id,mode).' ); }
 		$h = fopen( $file, 'r' ); $n = 0;
 		while ( ( $r = fgetcsv( $h ) ) !== false ) {
-			if ( isset( $r[0], $r[1] ) && ctype_digit( $r[0] ) && isset( pp_modes()[ $r[1] ] ) ) { update_post_meta( (int) $r[0], '_pp_mode', $r[1] ); $n++; }
+			if ( isset( $r[0], $r[1] ) && ctype_digit( $r[0] ) && isset( pp_modes( true )[ $r[1] ] ) ) { update_post_meta( (int) $r[0], '_pp_mode', $r[1] ); $n++; }
 		}
 		WP_CLI::success( "$n products updated from merchant-confirmed file." );
 	} );

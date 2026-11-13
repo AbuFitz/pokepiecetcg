@@ -2,13 +2,16 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Fulfilment modes. Unknown ('') is a real state and is NEVER shown as sealed. */
-function pp_modes() {
-	return array(
+function pp_modes( $all = false ) {
+	$m = array(
 		'sealed'    => array( 'label' => __( 'Delivered sealed', 'pokepiece' ), 'short' => __( 'Sealed', 'pokepiece' ) ),
 		'no_shrink' => array( 'label' => __( 'No shrink', 'pokepiece' ), 'short' => __( 'No shrink', 'pokepiece' ) ),
 		'live'      => array( 'label' => __( 'Opened live, cards shipped', 'pokepiece' ), 'short' => __( 'Live opening', 'pokepiece' ) ),
 		'preorder'  => array( 'label' => __( 'Preorder', 'pokepiece' ), 'short' => __( 'Preorder', 'pokepiece' ) ),
 	);
+	// The public site focuses on sealed products: the 'live' label is hidden everywhere customers look (data stays in WooCommerce). Owner can re-enable via option pokepiece_show_live_label.
+	if ( ! $all && 'yes' !== get_option( 'pokepiece_show_live_label', 'no' ) && ! ( is_admin() && ! wp_doing_ajax() ) ) { unset( $m['live'] ); }
+	return $m;
 }
 
 function pp_product_mode( $product ) {
@@ -218,7 +221,7 @@ function pp_banner_messages() {
 		array( __( 'Special Delivery available', 'pokepiece' ), $svc_url ),
 		array( __( 'Fast UK dispatch on every order', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
 		array( __( 'Authentic sealed trading card products', 'pokepiece' ), $page( 'about', home_url( '/' ) ) ),
-		array( __( 'Live TCG Rip & Ship on TikTok @pokepiecetcgg', 'pokepiece' ), pp_social( 'tiktok' ) ),
+		array( __( 'Follow @pokepiecetcgg on TikTok', 'pokepiece' ), pp_social( 'tiktok' ) ),
 		array( __( 'Secure packaging to protect sealed condition', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
 		array( __( 'Join the PokePieceTCG Discord community', 'pokepiece' ), pp_social( 'discord' ) ),
 	) );
@@ -247,4 +250,20 @@ function pp_hero_image() {
 		return wp_get_attachment_image( $id, 'full', false, array( 'class' => 'pp-hero__art', 'alt' => $alt, 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 900px) 56vw, 92vw' ) );
 	}
 	return '<img class="pp-hero__art" src="' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . '" srcset="' . esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ) . ' 768w, ' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . ' 1536w" sizes="(min-width: 900px) 56vw, 92vw" width="1536" height="1024" alt="' . esc_attr( $alt ) . '" fetchpriority="high" decoding="async">';
+}
+
+/** Opened-live / rip-and-ship listings (by the owner's mode field, or the title wording) are kept in WooCommerce but are not showcased on the public home page. */
+function pp_is_live_listing( $p ) {
+	return 'live' === (string) $p->get_meta( '_pp_mode', true ) || (bool) preg_match( '/live\s*rip|rip\s*(and|&)\s*ship/i', $p->get_name() );
+}
+/** New arrivals: latest sealed Pokémon and One Piece. Owner-starred Featured products first, then newest (in stock first). */
+function pp_new_arrivals( $limit = 10 ) {
+	$all = pp_discovery_products( array( 'limit' => 60, 'orderby' => 'date', 'order' => 'DESC' ) );
+	$ok = array_values( array_filter( $all, function ( $p ) {
+		if ( pp_is_live_listing( $p ) ) { return false; }
+		$n = mb_strtolower( $p->get_name() ); // title decides the game, so a mis-filed category cannot misplace a product here
+		return str_contains( $n, 'pokémon' ) || str_contains( $n, 'pokemon' ) || str_contains( $n, 'one piece' );
+	} ) );
+	usort( $ok, fn( $a, $b ) => ( (int) $b->is_featured() <=> (int) $a->is_featured() ) ?: ( (int) $b->is_in_stock() <=> (int) $a->is_in_stock() ) );
+	return array_slice( $ok, 0, $limit );
 }

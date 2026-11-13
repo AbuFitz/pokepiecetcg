@@ -3,14 +3,9 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 $groups  = pp_game_groups();
 $shop    = wc_get_page_permalink( 'shop' );
-// Products the owner stars as Featured in WooCommerce come first; the rest follow in-stock first.
-$featured = pp_discovery_products( array( 'featured' => true, 'limit' => 10 ) );
-$stocked  = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => 10 ) );
-if ( $featured ) { $fid = wp_list_pluck( $featured, 'id' ); $stocked = array_merge( array_filter( $featured, fn( $p ) => $p->is_in_stock() ), array_filter( $stocked, fn( $p ) => ! in_array( $p->get_id(), $fid, true ) ) ); }
-// Wheel content: in-stock first, then the rest of the range (each card states its real stock). Never fewer than the catalogue allows.
-$range = $stocked;
-if ( count( $range ) < 8 ) { $ids = wp_list_pluck( $range, 'id' ); foreach ( array_merge( $featured, pp_discovery_products( array( 'limit' => 12 ) ) ) as $p ) { if ( ! in_array( $p->get_id(), $ids, true ) ) { $range[] = $p; } if ( count( $range ) >= 10 ) { break; } } }
-$all_in = $stocked && count( $stocked ) === count( $range );
+$range   = pp_new_arrivals( 10 );
+$stocked = array_filter( $range, fn( $p ) => $p->is_in_stock() );
+$all_in  = true;
 $pool    = array_merge( $stocked, pp_discovery_products( array( 'limit' => 12 ) ) );
 $stage = array(); $seen = array();
 foreach ( $pool as $p ) { if ( isset( $seen[ $p->get_id() ] ) || ! $p->get_image_id() ) { continue; } $seen[ $p->get_id() ] = 1; $stage[] = $p; if ( count( $stage ) === 2 ) { break; } }
@@ -73,11 +68,11 @@ function pp_world_products( $items, $game = '' ) {
 	<section class="pp-shelf" aria-labelledby="pp-shelf-h">
 		<div class="pp-wrap">
 			<div class="pp-shelf__head">
-				<div class="pp-head"><h2 id="pp-shelf-h" class="pp-display"><?php echo $all_in ? esc_html__( 'On the shelf', 'pokepiece' ) : esc_html__( 'The range', 'pokepiece' ); ?></h2></div>
+				<div class="pp-head"><h2 id="pp-shelf-h" class="pp-display"><?php esc_html_e( 'New arrivals', 'pokepiece' ); ?></h2></div>
 				
 			</div>
 			<?php if ( ! $stocked ) : ?>
-			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'Everything we list is out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry, each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
+			<p class="pp-quiet" role="status"><span><b><?php esc_html_e( 'New arrivals are out of stock right now.', 'pokepiece' ); ?></b> <?php esc_html_e( 'Have a look at what we carry, each product page says exactly what it is.', 'pokepiece' ); ?></span></p>
 			<?php endif; ?>
 		</div>
 		<?php if ( $range ) : ?>
@@ -127,8 +122,7 @@ function pp_world_products( $items, $game = '' ) {
 
 	<section class="pp-community" aria-labelledby="pp-comm-h">
 		<div class="pp-wrap">
-			<div class="pp-head"><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2>
-			<p class="pp-comm__bio"><?php esc_html_e( 'Live TCG Rip & Ship · Big pulls · Trusted stock · Multiple TCGs', 'pokepiece' ); ?></p></div>
+			<div class="pp-head"><h2 id="pp-comm-h" class="pp-display"><?php esc_html_e( 'On TikTok', 'pokepiece' ); ?></h2></div>
 		</div>
 		<?php $clips = pp_tiktok_items(); if ( $clips ) : ?>
 		<div class="pp-reel" style="--n:<?php echo (int) count( $clips ); ?>" role="region" aria-label="<?php esc_attr_e( 'Latest from TikTok', 'pokepiece' ); ?>">

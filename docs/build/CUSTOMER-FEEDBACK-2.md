@@ -29,3 +29,16 @@ Source: customer message (12 Nov 2026). Status as of this commit.
 * Banner (top strip) messages: edit via the `pokepiece_banner_messages` filter or ask us to expose a field.
 * New category: Products > Categories. Top-level categories appear in the nav automatically.
 * Featured products: star in Products list (Woo "Featured").
+
+## Round 3 (customer reply, 13 Nov)
+| Request | Status |
+|---|---|
+| Public site focuses on sealed; remove LIVE OPENING badges, keep WooCommerce data/inventory | **Done.** The Live label is hidden on cards, product pages, cart, search, filters and home. Product data, stock and the `_pp_mode` field are untouched (still visible to staff in the product editor). Re-enable with option `pokepiece_show_live_label = yes`. Product *titles* that say "LIVE RIP AND SHIP" are product data and were not edited. |
+| Rename "On the Shelf" to New Arrivals/Featured; showcase latest sealed Pokémon and One Piece | **Done.** "New arrivals": products starred Featured first, then newest, Pokémon and One Piece only, excluding live/rip-and-ship listings (by the mode field or title wording). |
+| Some new category links 404 | **Cause:** the static demo had no pages for empty categories (Other TCGs, Naruto, etc.). **Fixed in the demo** (all categories and the password-reset page are exported; a link check finds none missing). On the real site these are WordPress category pages. |
+| Pokémon Abyss Eye under One Piece Japanese | **Data issue, not changed.** Public data shows product 754 filed under One Piece Japanese. Owner confirms, then re-categorise in WooCommerce. The home page already uses product titles, so it does not show under the wrong game there. |
+| Consistent sealed / no-shrink labels | Same labels everywhere (cards, product page, cart, search). Per-product values still come from the owner's mode field; unset shows nothing. |
+| Manage listings, prices, stock; walkthrough at handover | Native WooCommerce, unchanged. Walkthrough to be scheduled. |
+| Pre-launch checks: 8-hour shipping, payments, accounts, orders, shipping, Privacy link, placeholder descriptions, images, mobile, basket/checkout | **Not done.** Need the staging site. The demo's product descriptions are placeholder fixtures; real descriptions come from his WooCommerce. |
+
+Open question for the customer/team: should products named "LIVE RIP AND SHIP" stay listed publicly (just without the badge) or be hidden from the shop? Currently they stay listed.
