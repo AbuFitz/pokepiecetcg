@@ -12,7 +12,8 @@ add_action( 'after_setup_theme', function () {
 	) );
 	add_theme_support( 'wc-product-gallery-lightbox' );
 	add_theme_support( 'responsive-embeds' );
-	add_image_size( 'pp-plate', 640, 640, false );
+	add_image_size( 'pp-plate', 640, 640, false ); // never hard-cropped: any shape of photo is shown whole inside the square frame
+	add_image_size( 'pp-thumb', 240, 240, false );
 	register_nav_menus( array( 'footer' => __( 'Footer links', 'pokepiece' ), 'utility' => __( 'Header utility links', 'pokepiece' ) ) );
 } );
 
@@ -86,4 +87,11 @@ function pp_top_colour() {
 	$map = array( 'red' => '#c1232c', 'blue' => '#2447b3', 'yellow' => '#f4c641', 'orange' => '#e8732a', 'ink' => '#14171a' );
 	foreach ( get_body_class() as $c ) { if ( str_starts_with( $c, 'pp-bar-' ) ) { return $map[ substr( $c, 7 ) ] ?? $map['ink']; } }
 	return $map['ink'];
+}
+
+// Product framing: WooCommerce hard-crops its thumbnail sizes to 1:1 by default, which cuts the top/bottom off tall box photos. Keep every size uncropped so
+// photos of any shape reach the browser whole; CSS (object-fit: contain) then frames them inside the square plate. Existing uploads need one thumbnail
+// regeneration after install (wp media regenerate --yes) because WordPress only re-cuts sizes when asked.
+foreach ( array( 'thumbnail', 'gallery_thumbnail', 'single' ) as $pp_sz ) {
+	add_filter( 'woocommerce_get_image_size_' . $pp_sz, function ( $size ) { $size['crop'] = 0; return $size; } );
 }

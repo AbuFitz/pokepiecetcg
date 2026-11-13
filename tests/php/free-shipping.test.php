@@ -1,6 +1,7 @@
 <?php
 /** LOCAL ONLY (wp eval-file). Verifies the 8-hour free standard shipping rule against throwaway orders. Refuses non-localhost. */
 if ( ! str_contains( home_url(), 'localhost' ) ) { WP_CLI::error( 'localhost only' ); }
+$ppc_original_settings = get_option( 'ppc_settings', false ); // restored at the end so the test never changes real settings
 update_option( 'ppc_settings', array( 'fs_enabled' => 'yes', 'fs_hours' => 8, 'fs_keyword' => 'standard', 'fs_notice' => 'yes', 'fs_thanks' => 'no' ) );
 $fail = 0; $ok = function ( $name, $cond ) use ( &$fail ) { echo ( $cond ? 'PASS ' : 'FAIL ' ) . $name . "\n"; if ( ! $cond ) { $fail++; } };
 $mk = function ( $email, $hours_ago, $status = 'processing' ) {
@@ -25,3 +26,4 @@ $e5 = 'e' . wp_rand( 1000, 9999 ) . '@example.invalid'; $mk( $e5, 1, 'cancelled'
 update_option( 'ppc_settings', array( 'fs_enabled' => 'no' ) ); $r = $rates( $e ); $ok( 'offer switched off: nothing is free', (float) $r['flat:1']->get_cost() === 3.95 );
 foreach ( wc_get_orders( array( 'limit' => -1, 'billing_email' => '', 'type' => 'shop_order' ) ) as $o ) { if ( str_ends_with( (string) $o->get_billing_email(), '@example.invalid' ) ) { $o->delete( true ); } }
 echo $fail ? "FAILED: $fail\n" : "ALL PASSED\n";
+if ( false === $ppc_original_settings ) { delete_option( 'ppc_settings' ); } else { update_option( 'ppc_settings', $ppc_original_settings ); }

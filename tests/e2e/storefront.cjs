@@ -10,7 +10,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
 
 (async () => {
   const b = await chromium.launch();
-  const mk = async (w = 1440, extra = {}) => { const c = await b.newContext({ viewport: { width: w, height: w < 700 ? 844 : 900 }, ...extra }); const p = await c.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text()) && p.errs.push(m.text())); return p; };
+  const mk = async (w = 1440, extra = {}) => { const c = await b.newContext({ viewport: { width: w, height: w < 700 ? 844 : 900 }, ...extra }); await c.addCookies([{ name: 'pp_consent', value: encodeURIComponent(JSON.stringify({ v: 1, p: 0, a: 0, m: 0, t: 1 })), url: BASE }]); const p = await c.newPage(); p.errs = []; p.on('pageerror', e => p.errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text()) && p.errs.push(m.text())); return p; };
 
   for (const w of [320, 390, 430, 768, 1440]) {
     await t(`no horizontal overflow + zoomable viewport @${w}: home, shop, product, 404`, async () => {
@@ -72,7 +72,7 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     await p.goto(ins.permalink, { waitUntil: 'networkidle' }); assert.equal(await p.locator('.pp-opt').count(), 1, 'no PDP option');
     await p.locator('.pp-opt').click(); assert.ok(await p.isChecked('.pp-opt input'), 'checkbox not ticked');
     await Promise.all([p.waitForNavigation(), p.click('.single_add_to_cart_button')]);
-    await p.goto(BASE + '/cart/', { waitUntil: 'networkidle' }); assert.ok(await p.locator('.woocommerce-cart-form a[href*="' + SERVICE_SLUG + '"]').count() >= 1, 'service line not added with product'); assert.ok(await p.locator('.woocommerce-cart-form a[href*="' + ins.slug + '"]').count() >= 1);
+    await p.goto(BASE + '/cart/', { waitUntil: 'networkidle' }); const legacyLine = await p.locator('.woocommerce-cart-form a[href*="' + SERVICE_SLUG + '"]').count() >= 1, feeLine = /Special Delivery Shipping Upgrade/.test(await p.locator('.cart_totals').innerText()); assert.ok(legacyLine || feeLine, 'upgrade added neither as the old product line nor as the Special Delivery fee (PokePiece Core)'); assert.ok(await p.locator('.woocommerce-cart-form a[href*="' + ins.slug + '"]').count() >= 1);
     const r = await p.goto(BASE + SVC); assert.equal(r.status(), 200); assert.ok((await p.textContent('.pp-callout--service')).includes('order notes')); await p.context().close();
   });
 

@@ -170,3 +170,10 @@ add_action( 'woocommerce_single_product_summary', function () {
 add_filter( 'woocommerce_product_description_heading', fn() => __( 'About this product', 'pokepiece' ) );
 
 add_action( 'woocommerce_before_add_to_cart_button', function () { global $product; if ( $product && ! pp_is_service( $product->get_id() ) && $product->is_type( 'simple' ) ) { echo pp_upgrade_option_pdp(); } } ); // phpcs:ignore
+
+// Product page: the gallery plate follows the photo's flat edge colour (see pp_plate_colour), white otherwise.
+add_action( 'wp_head', function () {
+	if ( ! is_singular( 'product' ) ) { return; }
+	$p = wc_get_product( get_the_ID() ); $c = $p ? pp_plate_colour( $p->get_image_id() ) : ''; if ( ! $c ) { return; }
+	echo '<style>.single-product .woocommerce-product-gallery__image{background:' . esc_html( $c ) . '}.single-product .woocommerce-product-gallery__image img{mix-blend-mode:normal}</style>';
+} );

@@ -18,6 +18,13 @@ add_action( 'admin_menu', function () {
 			update_option( 'pokepiece_hero_text', sanitize_text_field( wp_unslash( $_POST['hero_text'] ?? '' ) ) );
 			update_option( 'pokepiece_contact_email', sanitize_email( wp_unslash( $_POST['contact_email'] ?? '' ) ) );
 			update_option( 'pokepiece_dispatch_text', sanitize_text_field( wp_unslash( $_POST['dispatch_text'] ?? '' ) ) );
+			update_option( 'pokepiece_cookie_prompt', empty( $_POST['cookie_prompt'] ) ? 'no' : 'yes' );
+			update_option( 'pokepiece_promo_on', empty( $_POST['promo_on'] ) ? 'no' : 'yes' );
+			foreach ( array( 'promo_title', 'promo_text', 'promo_code', 'promo_label' ) as $k ) { update_option( 'pokepiece_' . $k, sanitize_text_field( wp_unslash( $_POST[ $k ] ?? '' ) ) ); }
+			update_option( 'pokepiece_promo_url', esc_url_raw( wp_unslash( $_POST['promo_url'] ?? '' ) ) );
+			update_option( 'pokepiece_promo_delay', max( 2, min( 60, absint( $_POST['promo_delay'] ?? 8 ) ) ) );
+			update_option( 'pokepiece_promo_days', max( 1, min( 90, absint( $_POST['promo_days'] ?? 7 ) ) ) );
+			update_option( 'pokepiece_promo_where', 'home' === ( $_POST['promo_where'] ?? 'all' ) ? 'home' : 'all' );
 			delete_transient( 'pp_tiktok_items' );
 			echo '<div class="notice notice-success"><p>Saved.</p></div>';
 		}
@@ -31,6 +38,13 @@ add_action( 'admin_menu', function () {
 		echo '<tr><th>TikTok profile</th><td><input class="regular-text" name="tiktok_url" value="' . $v( 'tiktok_url', 'https://www.tiktok.com/@pokepiecetcgg' ) . '"></td></tr>';
 		echo '<tr><th>Discord invite</th><td><input class="regular-text" name="discord_url" value="' . $v( 'discord_url', 'https://discord.com/invite/54bNErEDb' ) . '"></td></tr>';
 		echo '<tr><th>Contact email</th><td><input class="regular-text" name="contact_email" value="' . $v( 'contact_email', 'info@pokepiecetcg.co.uk' ) . '"></td></tr>';
+		echo '<tr><th>Cookie prompt</th><td><label><input type="checkbox" name="cookie_prompt" ' . checked( 'no' !== get_option( 'pokepiece_cookie_prompt', 'yes' ), true, false ) . '> Show the cookie prompt and a footer link to change choices</label><p class="description">Review the wording and the cookie list against what the live site really sets before launch.</p></td></tr>';
+		echo '<tr><th>Promo popup</th><td><label><input type="checkbox" name="promo_on" ' . checked( 'yes' === get_option( 'pokepiece_promo_on', 'no' ), true, false ) . '> Show a popup (off by default)</label><p class="description">Only say what is true: a real code that works at checkout, a real offer.</p></td></tr>';
+		echo '<tr><th>Popup headline</th><td><input class="large-text" name="promo_title" maxlength="80" value="' . $v( 'promo_title' ) . '"></td></tr>';
+		echo '<tr><th>Popup text</th><td><textarea class="large-text" name="promo_text" rows="2" maxlength="200">' . esc_textarea( get_option( 'pokepiece_promo_text', '' ) ) . '</textarea></td></tr>';
+		echo '<tr><th>Discount code (optional)</th><td><input class="regular-text" name="promo_code" value="' . $v( 'promo_code' ) . '"></td></tr>';
+		echo '<tr><th>Button text and link</th><td><input class="regular-text" name="promo_label" placeholder="Shop new arrivals" value="' . $v( 'promo_label' ) . '"> <input class="regular-text" name="promo_url" placeholder="https://" value="' . $v( 'promo_url' ) . '"></td></tr>';
+		echo '<tr><th>Timing</th><td>Show after <input type="number" min="2" max="60" name="promo_delay" value="' . (int) get_option( 'pokepiece_promo_delay', 8 ) . '"> seconds, then not again for <input type="number" min="1" max="90" name="promo_days" value="' . (int) get_option( 'pokepiece_promo_days', 7 ) . '"> days. On <select name="promo_where"><option value="all" ' . selected( get_option( 'pokepiece_promo_where', 'all' ), 'all', false ) . '>all pages except cart, checkout and account</option><option value="home" ' . selected( get_option( 'pokepiece_promo_where', 'all' ), 'home', false ) . '>the home page only</option></select></td></tr>';
 		echo '<tr><th>Dispatch wording</th><td><input class="large-text" name="dispatch_text" value="' . $v( 'dispatch_text', 'Orders are usually dispatched within 1 to 3 working days unless stated otherwise.' ) . '"></td></tr></table>';
 		submit_button(); echo '</form></div>';
 		wp_enqueue_media();

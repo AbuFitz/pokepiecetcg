@@ -24,7 +24,14 @@ function ppc_audit_rows() {
 		$cat_games = array_filter( array_unique( array_map( fn( $s ) => ppc_game_in_text( str_replace( '-', ' ', $s ) ), $cats ) ) );
 		if ( ! $cats ) { $issues[] = 'no category'; }
 		if ( $title_game && $cat_games && ! in_array( $title_game, $cat_games, true ) ) { $issues[] = "title says $title_game but category is " . implode( '/', $cat_games ); }
-		if ( ! $p->get_image_id() ) { $issues[] = 'no image'; }
+		if ( ! $p->get_image_id() ) { $issues[] = 'no image'; } else {
+			$m = wp_get_attachment_metadata( $p->get_image_id() );
+			if ( ! empty( $m['width'] ) && ! empty( $m['height'] ) ) {
+				$w = (int) $m['width']; $h = (int) $m['height'];
+				if ( min( $w, $h ) < 600 ) { $issues[] = "image small ({$w}x{$h}, aim for 1000px+)"; }
+				if ( $w / max( 1, $h ) > 1.6 || $w / max( 1, $h ) < 0.6 ) { $issues[] = "image shape unusual ({$w}x{$h}, will sit small in the square frame)"; }
+			}
+		}
 		if ( '' === (string) $p->get_price() || (float) $p->get_price() <= 0 ) { $issues[] = 'no price'; }
 		if ( ! $p->get_meta( '_pp_mode', true ) ) { $issues[] = 'fulfilment label not set'; }
 		if ( 'FIXTURE' === substr( $p->get_description(), 0, 7 ) || '' === trim( wp_strip_all_tags( $p->get_description() ) ) ) { $issues[] = 'no real description'; }

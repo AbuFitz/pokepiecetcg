@@ -595,7 +595,7 @@ ul.products::before,ul.products::after{display:none!important}
 .woocommerce-MyAccount-navigation ul{list-style:none;margin:0 0 24px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .woocommerce-MyAccount-navigation a{display:block;padding:10px 18px;border-radius:var(--r-control);background:#efece3;text-decoration:none;font-weight:600}
 .woocommerce-MyAccount-navigation .is-active a{background:var(--ink);color:#fff}
-@media(min-width:900px){.woocommerce-account .woocommerce{display:grid;grid-template-columns:240px 1fr;gap:40px}.woocommerce-MyAccount-navigation ul{flex-direction:column}.woocommerce-account .woocommerce-MyAccount-content{float:none;width:auto}.woocommerce-account .woocommerce-MyAccount-navigation{float:none;width:auto}}
+@media(min-width:900px){.woocommerce-account.logged-in .woocommerce{display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;align-items:start}.woocommerce-MyAccount-navigation ul{flex-direction:column}.woocommerce-account .woocommerce-MyAccount-content{float:none;width:auto}.woocommerce-account .woocommerce-MyAccount-navigation{float:none;width:auto}}
 .woocommerce-form-login,.woocommerce-form-register,.woocommerce-ResetPassword{background:#fff;border:0!important;border-radius:var(--r-panel);padding:24px!important}
 /* My account: logged-out login / register */
 .woocommerce-account #customer_login,.woocommerce-account .u-columns.col2-set{display:grid;gap:22px}
@@ -1008,3 +1008,118 @@ html:has(.pp-bar-red) body,html:has(.pp-bar-blue) body,html:has(.pp-bar-yellow) 
 	.pp-worlds__rail>.pp-world:nth-child(n+4):not(:has(.pp-world__photo)){padding-top:34px}
 	.pp-world h3{font-size:clamp(28px,3.1vw,50px)}
 }
+
+/* Special Delivery option (PokePiece Core): same tick-box language as the product-page option */
+.ppc-sd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,23,26,.2);cursor:pointer;font-size:14px;line-height:1.3;transition:box-shadow .15s;position:relative}
+.ppc-sd:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.ppc-sd input{position:absolute;opacity:0;pointer-events:none}
+.ppc-sd__box{flex:none;width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 2px var(--ink);background:#fff;display:grid;place-items:center}
+.ppc-sd input:checked+.ppc-sd__box{background:var(--ink)}
+.ppc-sd input:checked+.ppc-sd__box::after{content:"";width:10px;height:6px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;rotate:-45deg;translate:0 -1px}
+.ppc-sd input:focus-visible+.ppc-sd__box{outline:3px solid var(--focus);outline-offset:2px}
+.ppc-sd input:disabled+.ppc-sd__box{opacity:.5}
+.ppc-sd__txt em{font-style:normal;font-weight:700;color:var(--muted)}
+.ppc-sd-block{margin:0 0 18px}.ppc-sd-ref{margin:10px 0 0}.ppc-sd-ref[hidden]{display:none}
+.ppc-sd-ref label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+.ppc-sd-ref input{width:100%;min-height:48px;border-radius:var(--r-field);border:1.5px solid var(--field);padding:0 14px;font:inherit}
+.pp-upgrade-line .ppc-sd{margin-top:8px}
+
+/* ---- My account redesign ---- */
+.woocommerce-account:not(.logged-in) .pp-page__title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.woocommerce-account .pp-page__title{font-size:clamp(34px,6vw,64px);margin-bottom:22px}
+.pp-auth{display:grid;gap:0;border:2px solid var(--ink);border-radius:var(--shape);box-shadow:8px 8px 0 var(--ink);overflow:hidden;background:#fff;max-width:1080px;margin-inline:auto}
+.pp-auth__aside{background:var(--red);color:#fff;padding:clamp(24px,4vw,48px);display:flex;flex-direction:column;gap:14px}
+.pp-auth__aside .pp-script{color:var(--yellow);margin:0}
+.pp-auth__title{font:900 clamp(34px,5vw,56px)/.95 var(--font);font-stretch:118%;text-transform:uppercase;margin:0}
+.pp-auth__perks{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px;font-weight:600}
+.pp-auth__perks li{display:flex;gap:10px;align-items:center}
+.pp-auth__perks li::before{content:"";flex:none;width:20px;height:20px;border-radius:6px;background:var(--yellow);box-shadow:inset 0 0 0 2px var(--ink);background-image:linear-gradient(var(--ink),var(--ink));background-size:0 0}
+.pp-auth__guest{margin-top:auto;padding-top:10px;color:#fff;font-weight:700}
+.pp-auth__forms{padding:clamp(22px,4vw,48px);display:grid;gap:0}
+.pp-auth__forms #customer_login{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+.pp-auth__forms .u-columns .u-column1,.pp-auth__forms .u-columns .u-column2{float:none!important;width:100%!important;max-width:none}
+.pp-auth__forms .u-column2{margin-top:30px;padding-top:30px;border-top:2px dashed var(--line)}
+.pp-auth__forms h2{font:900 clamp(22px,2.4vw,30px)/1 var(--font);font-stretch:112%;text-transform:uppercase;margin:0 0 14px}
+.pp-auth__forms .woocommerce-form-login,.pp-auth__forms .woocommerce-form-register{border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;background:transparent!important}
+.pp-auth__forms .woocommerce-form-login .button,.pp-auth__forms .woocommerce-form-register .button{width:auto;min-width:200px}
+.pp-auth__forms .woocommerce-form-row{margin:0 0 14px;display:block;width:100%;float:none}
+.pp-auth__forms .woocommerce-form-login__rememberme{display:flex;align-items:center;gap:8px;margin:4px 0 8px}
+.pp-auth__forms .woocommerce-form-login__rememberme input{width:18px;height:18px}
+.pp-auth__forms .lost_password{margin:8px 0 0}
+@media(min-width:900px){.pp-auth{grid-template-columns:minmax(300px,5fr) minmax(0,7fr)}.pp-auth__aside{min-height:520px}}
+@media(max-width:899px){.pp-auth__aside{padding:22px 20px 18px}.pp-auth__perks{display:none}.pp-auth__guest{display:none}.pp-auth__title{font-size:34px}}
+/* lost password / reset: same centred card, never squeezed */
+.woocommerce-account:not(.logged-in) .woocommerce>.woocommerce-ResetPassword,.woocommerce-account:not(.logged-in) .woocommerce>form.lost_reset_password{max-width:560px;margin-inline:auto;border:2px solid var(--ink)!important;border-radius:var(--shape)!important;box-shadow:6px 6px 0 var(--ink)}
+/* logged-in dashboard */
+.woocommerce-account.logged-in .woocommerce-MyAccount-navigation{background:#fff;border:2px solid var(--ink);border-radius:var(--shape-s);box-shadow:5px 5px 0 var(--ink);padding:10px}
+.woocommerce-account.logged-in .woocommerce-MyAccount-navigation ul{margin:0}
+.woocommerce-account.logged-in .woocommerce-MyAccount-navigation a{background:transparent;border-radius:12px;padding:12px 14px;font-weight:700}
+.woocommerce-account.logged-in .woocommerce-MyAccount-navigation li:not(.is-active) a:hover{background:var(--paper)}
+.woocommerce-account.logged-in .woocommerce-MyAccount-navigation .is-active a{background:var(--ink);color:#fff}
+.woocommerce-account.logged-in .woocommerce-MyAccount-content{background:#fff;border:2px solid var(--ink);border-radius:var(--shape);box-shadow:6px 6px 0 var(--ink);padding:clamp(20px,3vw,36px);min-width:0}
+.woocommerce-account.logged-in .woocommerce-MyAccount-content h2,.woocommerce-account.logged-in .woocommerce-MyAccount-content h3{font:900 clamp(22px,2.4vw,30px)/1.05 var(--font);font-stretch:112%;text-transform:uppercase;margin:0 0 14px}
+.pp-dash .pp-script{margin:0}
+.pp-dash__hi{font:900 clamp(32px,5vw,52px)/1 var(--font);font-stretch:118%;text-transform:uppercase;margin:0 0 20px}
+.pp-dash__tiles{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.pp-dash__tiles a{display:grid;gap:4px;padding:18px 54px 18px 18px;border-radius:var(--shape-s);background:var(--paper);text-decoration:none;position:relative;box-shadow:inset 0 0 0 2px var(--ink);transition:transform .2s var(--ease),background .2s}
+.pp-dash__tiles a:hover{background:var(--yellow);transform:translate(-2px,-2px)}
+.pp-dash__tiles strong{font:800 18px/1.1 var(--font)}
+.pp-dash__tiles span{color:var(--muted);font-size:14px}
+.pp-dash__tiles i{position:absolute;right:18px;top:50%;translate:0 -50%;font-style:normal;font-weight:800;font-size:22px}
+.pp-dash__out{margin:18px 0 0;font-size:14px}
+@media(min-width:700px){.pp-dash__tiles{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:899px){.woocommerce-account.logged-in .woocommerce-MyAccount-navigation{padding:6px;margin-bottom:18px;border-radius:18px;box-shadow:4px 4px 0 var(--ink)}.woocommerce-account.logged-in .woocommerce-MyAccount-navigation ul{flex-wrap:nowrap;overflow-x:auto;gap:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.woocommerce-account.logged-in .woocommerce-MyAccount-navigation li{flex:none}.woocommerce-account.logged-in .woocommerce-MyAccount-navigation a{padding:10px 14px;white-space:nowrap;font-size:14px}}
+.woocommerce-account .pp-pagewrap{padding-bottom:72px}
+.woocommerce-account:not(.logged-in) .pp-woo-content{margin-inline:auto}
+.pp-auth__perks li::before{background-image:none;position:relative}
+.pp-auth__perks li{position:relative}
+.pp-auth__perks li::after{content:"";position:absolute;left:6px;top:50%;width:8px;height:4px;border-left:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);rotate:-45deg;translate:0 -70%}
+.woocommerce-account.logged-in .woocommerce-notices-wrapper{grid-column:1/-1}.woocommerce-account.logged-in .woocommerce-notices-wrapper:empty{display:none}
+@media(min-width:900px){.woocommerce-account.logged-in .woocommerce-MyAccount-navigation{grid-column:1;position:sticky;top:150px}.woocommerce-account.logged-in .woocommerce-MyAccount-content{grid-column:2}}
+.pp-auth__forms .woocommerce-form-login p,.pp-auth__forms .woocommerce-form-register p{float:none}
+.pp-auth__forms .lost_password{display:block;width:100%;clear:both;margin-top:12px}
+.pp-auth__forms .woocommerce-form-login .form-row:has(.woocommerce-form-login__submit){display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+@media(max-width:899px){.pp-auth__aside .pp-script{display:none}.pp-auth__aside{padding:18px 20px}.pp-auth__title{font-size:30px}.pp-auth__forms .woocommerce-form-login .button,.pp-auth__forms .woocommerce-form-register .button{width:100%}}
+.woocommerce-account.logged-in .pp-woo-content{max-width:none}
+.pp-dash__tiles{align-items:stretch}.pp-dash__tiles li{display:flex}.pp-dash__tiles a{flex:1}
+.woocommerce-account.logged-in .woocommerce-MyAccount-content .woocommerce-info,.woocommerce-account.logged-in .woocommerce-MyAccount-content .woocommerce-message{margin:0 0 14px}
+.woocommerce-account .woocommerce-MyAccount-content button.button[type=submit],.woocommerce-account .woocommerce-MyAccount-content .woocommerce-Button{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 28px;border:0;border-radius:var(--r-control);background:var(--action);color:#fff;font:800 15px var(--font);cursor:pointer}
+.woocommerce-account .woocommerce-MyAccount-content button.button[type=submit]:hover{background:var(--action-hover)}
+.woocommerce-account .woocommerce-MyAccount-content fieldset{border:1.5px solid var(--line);border-radius:var(--r-field);padding:14px 16px;margin:6px 0 18px}
+.woocommerce-account .woocommerce-MyAccount-content fieldset legend{font-weight:800;padding:0 8px}
+
+/* ---- Cookie prompt, preferences, promo popup ---- */
+.pp-cookie{position:fixed;z-index:105;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));background:#fff;border:2px solid var(--ink);border-radius:var(--shape-s);box-shadow:5px 5px 0 var(--ink);padding:18px 18px 16px;max-width:520px;animation:pp-up .3s var(--ease)}
+.pp-cookie[hidden]{display:none}
+.pp-cookie h2{font:900 20px/1 var(--font);font-stretch:112%;text-transform:uppercase;margin:0 0 8px}
+.pp-cookie p{font-size:14px;line-height:1.45;margin:0 0 14px}
+.pp-cookie__btns{display:flex;flex-wrap:wrap;gap:8px}
+.pp-cookie__btns .pp-btn{flex:1 1 auto;min-height:46px;justify-content:center;font-size:14px;padding-inline:16px}
+@media(min-width:700px){.pp-cookie{left:24px;right:auto;bottom:24px;width:480px}}
+body.pp-cookie-on .pp-sticky{bottom:calc(var(--pp-cookie-h,190px) + 20px)}
+.pp-cp h2{font:900 24px/1 var(--font);font-stretch:112%;text-transform:uppercase;margin:0 0 8px}
+.pp-cp__row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0;border-top:1.5px solid var(--line);cursor:pointer}
+.pp-cp__row.is-locked{cursor:default}
+.pp-cp__txt{display:grid;gap:3px;font-size:14px;line-height:1.35}.pp-cp__txt span{color:var(--muted);font-size:13px}
+.pp-cp__row input{position:absolute;opacity:0;pointer-events:none}
+.pp-cp__sw{flex:none;width:50px;height:30px;border-radius:99px;background:#c9ccd0;position:relative;transition:background .18s}
+.pp-cp__sw::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:translate .18s var(--ease)}
+.pp-cp__row input:checked+.pp-cp__sw{background:var(--ink)}.pp-cp__row input:checked+.pp-cp__sw::after{translate:20px 0}
+.pp-cp__row input:disabled+.pp-cp__sw{opacity:.55}
+.pp-cp__row input:focus-visible+.pp-cp__sw{outline:3px solid var(--focus);outline-offset:3px}
+.pp-cp .pp-cookie__btns{margin-top:16px}
+.pp-promo{text-align:center;display:grid;gap:12px;padding:clamp(24px,5vw,36px)!important}
+.pp-promo h2{font:900 clamp(28px,6vw,38px)/1 var(--font);font-stretch:116%;text-transform:uppercase;margin:0}
+.pp-promo p{margin:0;color:var(--muted)}
+.pp-promo__code{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;padding:12px;border-radius:14px;background:var(--paper);box-shadow:inset 0 0 0 2px var(--ink)}
+.pp-promo__code code{font:800 20px var(--font);letter-spacing:.08em}
+.pp-promo__no{justify-self:center;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.pp-cookie{animation:none}}
+@media(max-width:699px){.pp-cookie{padding:14px 14px 12px}.pp-cookie h2{font-size:17px;margin-bottom:6px}.pp-cookie p{font-size:13px;margin-bottom:10px}.pp-cookie__btns .pp-btn{min-height:44px}.pp-cookie .pp-btn--ghost{flex-basis:100%;min-height:36px;border:0;background:none;box-shadow:none;text-decoration:underline}.pp-cookie [data-pp-consent-act]{flex:1 1 calc(50% - 4px);padding-inline:8px}}
+
+/* Product framing: WooCommerce's own `ul.products li.product a img{height:auto}` outranks the plate rules, so only square photos fitted. Win the cascade so every
+   shape (wide, tall, transparent) is shown whole and centred inside the square plate. */
+.woocommerce ul.products li.product .pp-card__plate>a>img,ul.products li.product .pp-card__plate>a>img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:contain;object-position:50% 50%;margin:0;padding:14px;box-sizing:border-box}
+.pp-card__plate,.pp-sp__img,.pp-qvc__img{background:var(--plate,#fff)}
+.pp-card__plate[style*="--plate"] img,.pp-sp__img[style*="--plate"] img,.pp-qvc__img[style*="--plate"] img{mix-blend-mode:normal}
+.pp-card .pp-card__plate[style*="--plate"],.pp-sp__img[style*="--plate"],.pp-qvc__img[style*="--plate"]{background:var(--plate)!important}

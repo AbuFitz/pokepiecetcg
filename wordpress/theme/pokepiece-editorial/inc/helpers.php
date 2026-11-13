@@ -204,7 +204,7 @@ function pp_search_featured( $n = 8 ) {
 }
 function pp_search_tile( $p ) {
 	[ $k, $t ] = pp_stock_state( $p ); $mode = pp_product_mode( $p );
-	echo '<li><a class="pp-sp__tile" href="' . esc_url( $p->get_permalink() ) . '"><span class="pp-sp__img">' . $p->get_image( 'pp-plate', array( 'alt' => '', 'loading' => 'lazy' ) ) . ( $mode ? '<span class="pp-mode pp-mode--' . esc_attr( $mode ) . '">' . esc_html( pp_modes()[ $mode ]['short'] ) . '</span>' : '' ) . '</span><span class="pp-sp__t">' . esc_html( $p->get_name() ) . '</span><span class="pp-sp__p">' . wp_kses_post( $p->get_price_html() ) . '</span><span class="pp-stock pp-stock--' . esc_attr( $k ) . '"><span class="pp-stock__dot" aria-hidden="true"></span>' . esc_html( $t ) . '</span></a></li>';
+	echo '<li><a class="pp-sp__tile" href="' . esc_url( $p->get_permalink() ) . '"><span class="pp-sp__img"' . pp_plate_attrs( $p ) . '>' . $p->get_image( 'pp-plate', array( 'alt' => '', 'loading' => 'lazy' ) ) . ( $mode ? '<span class="pp-mode pp-mode--' . esc_attr( $mode ) . '">' . esc_html( pp_modes()[ $mode ]['short'] ) . '</span>' : '' ) . '</span><span class="pp-sp__t">' . esc_html( $p->get_name() ) . '</span><span class="pp-sp__p">' . wp_kses_post( $p->get_price_html() ) . '</span><span class="pp-stock pp-stock--' . esc_attr( $k ) . '"><span class="pp-stock__dot" aria-hidden="true"></span>' . esc_html( $t ) . '</span></a></li>';
 }
 
 /** Published, visible products in a category, excluding service/add-on products. */
@@ -215,7 +215,7 @@ function pp_term_product_count( $t ) {
 
 /** Rotating banner: array( text, url ). Only wording the owner already publishes. Filter `pokepiece_banner_messages` to edit. */
 function pp_banner_messages() {
-	$svc = pp_service_ids(); $svc_url = ( $svc && 'publish' === get_post_status( $svc[0] ) ) ? get_permalink( $svc[0] ) : wc_get_page_permalink( 'shop' );
+	$svc = pp_service_ids(); $svc_url = function_exists( 'pp_sd_on' ) && pp_sd_on() ? pp_sd_info_url() : ( ( $svc && 'publish' === get_post_status( $svc[0] ) ) ? get_permalink( $svc[0] ) : wc_get_page_permalink( 'shop' ) );
 	$page = fn( $slug, $fallback ) => ( $p = get_page_by_path( $slug ) ) ? get_permalink( $p ) : $fallback;
 	return apply_filters( 'pokepiece_banner_messages', array(
 		array( __( 'Special Delivery available', 'pokepiece' ), $svc_url ),
@@ -266,4 +266,47 @@ function pp_new_arrivals( $limit = 10 ) {
 	} ) );
 	usort( $ok, fn( $a, $b ) => ( (int) $b->is_featured() <=> (int) $a->is_featured() ) ?: ( (int) $b->is_in_stock() <=> (int) $a->is_in_stock() ) );
 	return array_slice( $ok, 0, $limit );
+}
+
+/**
+ * Plate colour for a product photo. Most photos sit on white, so the plate stays white. When the photo's edges are one flat, light, non-white colour (a cream or
+ * grey backdrop), the plate takes that colour so the picture blends in instead of showing a hard rectangle. Photos with transparency or busy edges stay on
+ * white. Computed once from the small size and cached on the attachment (meta `_pp_edge_v1`, '-' = keep white).
+ */
+function pp_plate_colour( $attachment_id ) {
+	$id = (int) $attachment_id; if ( ! $id || ! function_exists( 'imagecreatefromstring' ) ) { return ''; }
+	$c = get_post_meta( $id, '_pp_edge_v1', true );
+	if ( '' !== $c ) { return '-' === $c ? '' : $c; }
+	$res = '-';
+	$file = '';
+	$im = image_get_intermediate_size( $id, 'pp-thumb' ); $up = wp_get_upload_dir();
+	if ( $im && ! empty( $im['path'] ) && is_readable( trailingslashit( $up['basedir'] ) . $im['path'] ) ) { $file = trailingslashit( $up['basedir'] ) . $im['path']; }
+	else { $f = get_attached_file( $id ); if ( $f && is_readable( $f ) && filesize( $f ) < 3 * MB_IN_BYTES ) { $file = $f; } }
+	$data = $file ? file_get_contents( $file ) : '';
+	$g = $data ? @imagecreatefromstring( $data ) : false;
+	if ( $g ) {
+		$w = imagesx( $g ); $h = imagesy( $g ); $pts = array(); $ok = $w > 12 && $h > 12;
+		if ( $ok ) {
+			foreach ( array( array( 3, 3 ), array( $w - 4, 3 ), array( 3, $h - 4 ), array( $w - 4, $h - 4 ), array( intdiv( $w, 2 ), 3 ), array( intdiv( $w, 2 ), $h - 4 ), array( 3, intdiv( $h, 2 ) ), array( $w - 4, intdiv( $h, 2 ) ) ) as $pt ) {
+				$rgba = imagecolorat( $g, $pt[0], $pt[1] ); $a = ( $rgba >> 24 ) & 0x7F;
+				if ( $a > 30 ) { $ok = false; break; } // transparent edge: leave on white
+				$pts[] = array( ( $rgba >> 16 ) & 255, ( $rgba >> 8 ) & 255, $rgba & 255 );
+			}
+		}
+		if ( $ok && $pts ) {
+			$m = array( 0, 0, 0 ); foreach ( $pts as $p ) { for ( $i = 0; $i < 3; $i++ ) { $m[ $i ] += $p[ $i ] / count( $pts ); } }
+			$dev = 0; foreach ( $pts as $p ) { for ( $i = 0; $i < 3; $i++ ) { $dev = max( $dev, abs( $p[ $i ] - $m[ $i ] ) ); } }
+			$lum = 0.2126 * $m[0] + 0.7152 * $m[1] + 0.0722 * $m[2];
+			if ( $dev <= 22 && $lum >= 170 && min( $m ) < 246 ) { // light flat backdrops only; tiles stay white-looking, dark photos stay as pictures on white
+				 $res = sprintf( '#%02x%02x%02x', round( $m[0] ), round( $m[1] ), round( $m[2] ) ); }
+		}
+		imagedestroy( $g );
+	}
+	update_post_meta( $id, '_pp_edge_v1', $res );
+	return '-' === $res ? '' : $res;
+}
+/** Inline style + class for a plate element showing this product's main photo. */
+function pp_plate_attrs( $product ) {
+	$c = $product ? pp_plate_colour( $product->get_image_id() ) : '';
+	return $c ? ' style="--plate:' . esc_attr( $c ) . '"' : '';
 }

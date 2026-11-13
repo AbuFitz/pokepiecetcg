@@ -8,7 +8,12 @@
 defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WooCommerce' ) ) { return; }
 
+/** True when the PokePiece Core plugin's Special Delivery option is switched on: then there is no product at all, only a fee the customer opts into. */
+function pp_sd_on() { return function_exists( 'ppc_sd_active' ) && ppc_sd_active(); }
+function pp_sd_info_url() { $pg = get_page_by_path( 'shipping-policy' ); return $pg ? get_permalink( $pg ) : wc_get_page_permalink( 'shop' ); }
+
 function pp_upgrade_product() {
+	if ( pp_sd_on() ) { return null; }
 	foreach ( pp_service_ids() as $id ) {
 		$p = wc_get_product( $id );
 		if ( $p && 'publish' === get_post_status( $id ) && $p->is_purchasable() && $p->is_in_stock() ) { return $p; }
@@ -23,10 +28,17 @@ function pp_upgrade_in_cart( $p ) {
 
 /** Product page: a checkbox option inside the purchase form. Cart/drawer: one compact line. */
 function pp_upgrade_option_pdp() {
+	if ( pp_sd_on() ) {
+		return '<label class="pp-opt"><input type="checkbox" name="pp_upgrade" value="1"><span class="pp-opt__box" aria-hidden="true"></span><span class="pp-opt__txt"><strong>' . esc_html__( 'Add Special Delivery', 'pokepiece' ) . '</strong> <em>+' . wp_kses_post( wc_price( ppc_sd_price() ) ) . '</em></span><a class="pp-opt__info" href="' . esc_url( pp_sd_info_url() ) . '">' . esc_html__( 'Info', 'pokepiece' ) . '</a></label>';
+	}
 	$p = pp_upgrade_product(); if ( ! $p ) { return ''; }
 	return '<label class="pp-opt"><input type="checkbox" name="pp_upgrade" value="1"><span class="pp-opt__box" aria-hidden="true"></span><span class="pp-opt__txt"><strong>' . esc_html__( 'Add Special Delivery', 'pokepiece' ) . '</strong> <em>+' . wp_kses_post( $p->get_price_html() ) . '</em></span><a class="pp-opt__info" href="' . esc_url( $p->get_permalink() ) . '">' . esc_html__( 'Info', 'pokepiece' ) . '</a></label>';
 }
 function pp_upgrade_card( $ctx = 'cart' ) {
+	if ( pp_sd_on() ) {
+		if ( ! WC()->cart || WC()->cart->is_empty() ) { return ''; }
+		return '<div class="pp-upgrade-line pp-upgrade-line--' . esc_attr( $ctx ) . '"><span>' . esc_html__( 'Need it faster?', 'pokepiece' ) . '</span>' . ppc_sd_toggle_html( $ctx ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	}
 	$p = pp_upgrade_product(); if ( ! $p || pp_upgrade_in_cart( $p ) ) { return ''; }
 	return '<div class="pp-upgrade-line pp-upgrade-line--' . esc_attr( $ctx ) . '"><span>' . esc_html__( 'Need it faster?', 'pokepiece' ) . '</span><a class="ajax_add_to_cart add_to_cart_button" href="' . esc_url( $p->add_to_cart_url() ) . '" data-product_id="' . (int) $p->get_id() . '" data-quantity="1" rel="nofollow">' . esc_html__( 'Add Special Delivery', 'pokepiece' ) . ' · ' . wp_kses_post( $p->get_price_html() ) . '</a></div>';
 }

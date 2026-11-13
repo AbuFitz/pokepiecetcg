@@ -3,7 +3,7 @@ const { chromium, devices } = require('playwright');
 const assert=require('node:assert/strict');let fail=0;const T=async(n,f)=>{try{await f();console.log('PASS',n)}catch(e){fail++;console.log('FAIL',n,e.message.split('\n')[0])}};
 (async()=>{const b=await chromium.launch();const B=(process.env.BASE||'http://localhost:8088');
 for(const [lab,opts] of [['desktop',{viewport:{width:1440,height:900}}],['mobile',{...devices['iPhone 13']}]]){
-const ctx=await b.newContext(opts);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+const ctx=await b.newContext(opts);await ctx.addCookies([{name:'pp_consent',value:encodeURIComponent(JSON.stringify({v:1,p:0,a:0,m:0,t:1})),url:(process.env.BASE||'http://localhost:8088')}]);const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto(B+'/',{waitUntil:'networkidle'});
 const open=()=>p.evaluate(()=>document.querySelector(lab==='desktop'?'.pp-act-account':'.pp-menu-open').click());
 await T(lab+': account icon opens popup (dialog, focus inside)',async()=>{if(lab==='mobile'){await p.evaluate(()=>document.querySelector('.pp-menu-open').click());await p.waitForSelector('#pp-menu.is-open');await p.evaluate(()=>document.querySelector('.pp-menu a[href*=my-account]').click())}else await p.evaluate(()=>document.querySelector('[data-pp-account]').click());await p.waitForSelector('#pp-account.is-open');assert.ok(await p.evaluate(()=>document.getElementById('pp-account').contains(document.activeElement)))});

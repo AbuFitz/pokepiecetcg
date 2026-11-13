@@ -83,3 +83,42 @@ function pp_account_modal() {
 	<?php
 }
 add_action( 'wp_footer', 'pp_account_modal', 5 );
+
+/* ---- My account page (the full page; the sign-in popup stays for everywhere else) ---- */
+// Logged out: one designed stage. Brand panel on the left, sign-in with create-account below it on the right.
+add_action( 'woocommerce_before_customer_login_form', function () {
+	?>
+	<div class="pp-auth">
+		<aside class="pp-auth__aside">
+			<p class="pp-script"><?php esc_html_e( 'welcome back', 'pokepiece' ); ?></p>
+			<p class="pp-auth__title"><?php esc_html_e( 'Your account', 'pokepiece' ); ?></p>
+			<ul class="pp-auth__perks">
+				<li><?php esc_html_e( 'Track and review your orders', 'pokepiece' ); ?></li>
+				<li><?php esc_html_e( 'Save addresses for faster checkout', 'pokepiece' ); ?></li>
+				<li><?php esc_html_e( 'Update your details any time', 'pokepiece' ); ?></li>
+			</ul>
+			<a class="pp-auth__guest" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Just browsing? Back to the shop', 'pokepiece' ); ?> →</a>
+		</aside>
+		<div class="pp-auth__forms">
+	<?php
+}, 1 );
+add_action( 'woocommerce_after_customer_login_form', function () { echo '</div></div>'; }, 99 );
+
+// Logged in: dashboard tiles instead of the stock paragraph.
+add_action( 'woocommerce_account_dashboard', function () {
+	$u = wp_get_current_user();
+	$tiles = array(
+		array( 'orders', __( 'Orders', 'pokepiece' ), __( 'Track and review what you have bought', 'pokepiece' ) ),
+		array( 'edit-address', __( 'Addresses', 'pokepiece' ), __( 'Delivery and billing details', 'pokepiece' ) ),
+		array( 'edit-account', __( 'Account details', 'pokepiece' ), __( 'Name, email and password', 'pokepiece' ) ),
+	);
+	echo '<div class="pp-dash"><p class="pp-script">' . esc_html__( 'good to see you', 'pokepiece' ) . '</p><h2 class="pp-dash__hi">' . sprintf( /* translators: %s name */ esc_html__( 'Hi %s', 'pokepiece' ), esc_html( $u->display_name ) ) . '</h2><ul class="pp-dash__tiles">';
+	foreach ( $tiles as $t ) { echo '<li><a href="' . esc_url( wc_get_account_endpoint_url( $t[0] ) ) . '"><strong>' . esc_html( $t[1] ) . '</strong><span>' . esc_html( $t[2] ) . '</span><i aria-hidden="true">→</i></a></li>'; }
+	echo '</ul><p class="pp-dash__out"><a href="' . esc_url( wc_logout_url() ) . '">' . esc_html__( 'Log out', 'pokepiece' ) . '</a></p></div>';
+}, 5 );
+
+// A card shop sells no downloads: hide that tab unless this customer actually has some.
+add_filter( 'woocommerce_account_menu_items', function ( $items ) {
+	if ( isset( $items['downloads'] ) && function_exists( 'WC' ) && WC()->customer && ! WC()->customer->get_downloadable_products() ) { unset( $items['downloads'] ); }
+	return $items;
+}, 20 );

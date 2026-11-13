@@ -3,7 +3,7 @@ $p = $args['product']; [ $sk, $st ] = pp_stock_state( $p );
 $simple = $p->is_type( 'simple' ) && $p->is_purchasable() && $p->is_in_stock();
 ?>
 <div class="pp-qvc">
-	<div class="pp-qvc__img"><?php echo $p->get_image( 'pp-plate' ); // phpcs:ignore ?></div>
+	<div class="pp-qvc__img"<?php echo pp_plate_attrs( $p ); // phpcs:ignore ?>><?php echo $p->get_image( 'pp-plate' ); // phpcs:ignore ?></div>
 	<div class="pp-qvc__info">
 		<h2><?php echo esc_html( $p->get_name() ); ?></h2>
 		<?php echo pp_render_facts( $p ); // phpcs:ignore ?>

@@ -9,7 +9,7 @@ $svc = pp_is_service( $product->get_id() );
 ?>
 <?php $game = pp_product_game( $product ); ?>
 <li <?php wc_product_class( 'pp-card pp-card--' . $sk . ' pp-game-' . ( $game ?: 'all' ) . ( $svc ? ' pp-card--service' : '' ), $product ); ?> data-pid="<?php echo (int) $product->get_id(); ?>" data-mode="<?php echo esc_attr( pp_product_mode( $product ) ); ?>" data-stock="<?php echo esc_attr( $sk ); ?>" data-price="<?php echo esc_attr( (float) $product->get_price() ); ?>" data-name="<?php echo esc_attr( mb_strtolower( $product->get_name() ) ); ?>" data-date="<?php echo (int) $product->get_date_created()->getTimestamp(); ?>">
-	<div class="pp-card__plate">
+	<div class="pp-card__plate"<?php echo pp_plate_attrs( $product ); // phpcs:ignore ?>>
 		<a href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true"><?php echo $product->get_image( 'pp-plate', array( 'loading' => 'lazy', 'alt' => '' ) ); // phpcs:ignore ?></a>
 		<?php echo pp_render_mode_chip( $product ); // phpcs:ignore ?>
 		<?php if ( ! $svc ) : ?><button type="button" class="pp-qv-open" data-id="<?php echo (int) $product->get_id(); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Quick view: %s', 'pokepiece' ), $product->get_name() ) ); ?>"><?php esc_html_e( 'Quick view', 'pokepiece' ); ?></button><?php endif; ?>

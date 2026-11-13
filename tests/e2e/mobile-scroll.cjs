@@ -2,7 +2,7 @@
 const { chromium, devices } = require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{const b=await chromium.launch();let fail=0;const T=async(n,f)=>{try{await f();console.log('PASS',n)}catch(e){fail++;console.log('FAIL',n,e.message.split('\n')[0])}};
-const ctx=await b.newContext({...devices['iPhone 13'],hasTouch:true,isMobile:true});const p=await ctx.newPage();const cdp=await ctx.newCDPSession(p);const errs=[];p.on('pageerror',e=>errs.push(e.message));
+const ctx=await b.newContext({...devices['iPhone 13'],hasTouch:true,isMobile:true});await ctx.addCookies([{name:'pp_consent',value:encodeURIComponent(JSON.stringify({v:1,p:0,a:0,m:0,t:1})),url:(process.env.BASE||'http://localhost:8088')}]);const p=await ctx.newPage();const cdp=await ctx.newCDPSession(p);const errs=[];p.on('pageerror',e=>errs.push(e.message));
 const swipe=async(x,y,dx,dy,steps=12)=>{await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=steps;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+dx*i/steps,y:y+dy*i/steps}]});await p.waitForTimeout(16)}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(600)};
 await p.goto('' + (process.env.BASE || 'http://localhost:8088') + '/',{waitUntil:'networkidle'});
 await T('vertical swipe starting on hero scrolls the page',async()=>{await swipe(200,500,0,-500);assert.ok(await p.evaluate(()=>scrollY)>200)});
