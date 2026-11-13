@@ -41,7 +41,9 @@ foreach ( array_reverse( $snap ) as $p ) {
 	$prod->set_manage_stock( false ); $prod->set_stock_status( $p['is_in_stock'] ? 'instock' : 'outofstock' );
 	// Public Store API omits category 18 (pokemon-japanese) from these products' `categories`, but ?category=18 lists them; mirror that observed membership.
 	$cat18 = array( 782, 699, 686, 174, 172, 158 );
-	$cats = array(); $slugs = array_column( $p['categories'], 'slug' ); if ( in_array( $p['id'], $cat18, true ) ) { $slugs[] = 'pokemon-japanese'; }
+	$cats = array(); $slugs = array_column( $p['categories'], 'slug' );
+	// Demo-only correction: his live data files #754 (a Pokémon Abyss Eye pack) under One Piece Japanese. Move it to Pokémon Japanese here; the real fix is in his WooCommerce admin.
+	if ( 754 === (int) $p['id'] ) { $slugs = array( 'pokemon-japanese' ); } if ( in_array( $p['id'], $cat18, true ) ) { $slugs[] = 'pokemon-japanese'; }
 	foreach ( array_map( fn( $s ) => array( 'slug' => $s ), array_unique( $slugs ) ) as $c ) { $t = get_term_by( 'slug', $c['slug'], 'product_cat' ); if ( $t ) { $cats[] = $t->term_id; } }
 	$prod->set_category_ids( $cats ); $prod->save();
 	update_post_meta( $id, '_pp_mode', pp_suggest_mode( $p['slug'] ) ); // fixture only: real merchant confirmation required
