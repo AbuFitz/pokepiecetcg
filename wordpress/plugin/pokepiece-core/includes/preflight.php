@@ -22,9 +22,10 @@ function ppc_preflight_rows() {
 	$add( 'Free-shipping rule target', $has_std ? 'ok' : 'warn', $has_std ? 'A method containing "' . ppc_opt( 'fs_keyword', 'standard' ) . '" exists, so the 8-hour rule has something to discount.' : 'No shipping method name contains "' . ppc_opt( 'fs_keyword', 'standard' ) . '": the 8-hour rule would never apply. Change the keyword or the method name.' );
 	$add( 'Taxes', 'info', 'wc_calc_taxes = ' . get_option( 'woocommerce_calc_taxes', 'no' ) . '; prices ' . ( 'yes' === get_option( 'woocommerce_prices_include_tax' ) ? 'include' : 'exclude' ) . ' tax. Decide whether Special Delivery is taxable to match.' );
 
-	foreach ( array( 'shop' => wc_get_page_id( 'shop' ), 'cart' => wc_get_page_id( 'cart' ), 'checkout' => wc_get_page_id( 'checkout' ), 'my account' => wc_get_page_id( 'myaccount' ), 'privacy policy' => (int) get_option( 'wp_page_for_privacy_policy' ) ?: (int) ( get_page_by_path( 'privacy-policy' )->ID ?? 0 ) ) as $n => $id ) {
+	foreach ( array( 'shop' => wc_get_page_id( 'shop' ), 'cart' => wc_get_page_id( 'cart' ), 'checkout' => wc_get_page_id( 'checkout' ), 'my account' => wc_get_page_id( 'myaccount' ), 'privacy policy' => (int) get_option( 'wp_page_for_privacy_policy' ) ) as $n => $id ) {
 		$ok = $id > 0 && 'publish' === get_post_status( $id ); $add( 'Page: ' . $n, $ok ? 'ok' : 'warn', $ok ? get_permalink( $id ) : 'missing or not published' );
 	}
+	$pu = function_exists( 'get_privacy_policy_url' ) ? get_privacy_policy_url() : ''; $add( 'Privacy link used by checkout and sign-up', $pu ? 'ok' : 'warn', $pu ?: 'No published Privacy Policy page is set: the checkout and registration text would link nowhere or to a 404. Publish one and choose it under Settings > Privacy.' );
 	foreach ( array( 'shipping-policy', 'refund-return-policy', 'terms-conditions', 'about', 'contact' ) as $slug ) { $pg = get_page_by_path( $slug ); $add( 'Page: ' . $slug, $pg && 'publish' === $pg->post_status ? 'ok' : 'warn', $pg ? get_permalink( $pg ) : 'not found (footer link will be hidden)' ); }
 	$add( 'Permalinks', get_option( 'permalink_structure' ) ? 'ok' : 'warn', get_option( 'permalink_structure' ) ?: 'plain permalinks: product URLs would change' );
 

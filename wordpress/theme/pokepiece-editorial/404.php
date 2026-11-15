@@ -6,6 +6,6 @@
 	<?php get_search_form(); ?>
 	<ul class="pp-404__links"><li><a class="pp-btn pp-btn--primary" href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Shop all products', 'pokepiece' ); ?></a></li>
 	<?php foreach ( pp_category_links() as $l ) : ?><li><a class="pp-btn pp-btn--ghost" href="<?php echo esc_url( $l[1] ); ?>"><?php echo esc_html( $l[0] ); ?></a></li><?php endforeach; ?></ul>
-	<?php $c = get_page_by_path( 'contact' ); if ( $c ) : ?><p><?php esc_html_e( 'Still stuck?', 'pokepiece' ); ?> <a href="<?php echo esc_url( get_permalink( $c ) ); ?>"><?php esc_html_e( 'Contact us', 'pokepiece' ); ?></a>.</p><?php endif; ?>
+	<?php $c = pp_page( 'contact' ); if ( $c ) : ?><p><?php esc_html_e( 'Still stuck?', 'pokepiece' ); ?> <a href="<?php echo esc_url( get_permalink( $c ) ); ?>"><?php esc_html_e( 'Contact us', 'pokepiece' ); ?></a>.</p><?php endif; ?>
 </div></main>
 <?php get_footer();

@@ -18,6 +18,8 @@ add_action( 'admin_menu', function () {
 			update_option( 'pokepiece_hero_text', sanitize_text_field( wp_unslash( $_POST['hero_text'] ?? '' ) ) );
 			update_option( 'pokepiece_contact_email', sanitize_email( wp_unslash( $_POST['contact_email'] ?? '' ) ) );
 			update_option( 'pokepiece_dispatch_text', sanitize_text_field( wp_unslash( $_POST['dispatch_text'] ?? '' ) ) );
+			update_option( 'pokepiece_seo_home_title', sanitize_text_field( wp_unslash( $_POST['seo_home_title'] ?? '' ) ) );
+			update_option( 'pokepiece_seo_home_desc', sanitize_text_field( wp_unslash( $_POST['seo_home_desc'] ?? '' ) ) );
 			update_option( 'pokepiece_cookie_prompt', empty( $_POST['cookie_prompt'] ) ? 'no' : 'yes' );
 			update_option( 'pokepiece_promo_on', empty( $_POST['promo_on'] ) ? 'no' : 'yes' );
 			foreach ( array( 'promo_title', 'promo_text', 'promo_code', 'promo_label' ) as $k ) { update_option( 'pokepiece_' . $k, sanitize_text_field( wp_unslash( $_POST[ $k ] ?? '' ) ) ); }
@@ -38,6 +40,8 @@ add_action( 'admin_menu', function () {
 		echo '<tr><th>TikTok profile</th><td><input class="regular-text" name="tiktok_url" value="' . $v( 'tiktok_url', 'https://www.tiktok.com/@pokepiecetcgg' ) . '"></td></tr>';
 		echo '<tr><th>Discord invite</th><td><input class="regular-text" name="discord_url" value="' . $v( 'discord_url', 'https://discord.com/invite/54bNErEDb' ) . '"></td></tr>';
 		echo '<tr><th>Contact email</th><td><input class="regular-text" name="contact_email" value="' . $v( 'contact_email', 'info@pokepiecetcg.co.uk' ) . '"></td></tr>';
+		echo '<tr><th>Search and link-preview title (home page)</th><td><input class="large-text" name="seo_home_title" maxlength="70" placeholder="' . esc_attr( pp_seo_home_title() ) . '" value="' . $v( 'seo_home_title' ) . '"><p class="description">Shown in Google and when the link is shared. Applies even when Rank Math is active. Aim for under 60 characters.</p></td></tr>';
+		echo '<tr><th>Search description (home page)</th><td><textarea class="large-text" name="seo_home_desc" rows="2" maxlength="170" placeholder="' . esc_attr( pp_seo_home_desc() ) . '">' . esc_textarea( get_option( 'pokepiece_seo_home_desc', '' ) ) . '</textarea></td></tr>';
 		echo '<tr><th>Cookie prompt</th><td><label><input type="checkbox" name="cookie_prompt" ' . checked( 'no' !== get_option( 'pokepiece_cookie_prompt', 'yes' ), true, false ) . '> Show the cookie prompt and a footer link to change choices</label><p class="description">Review the wording and the cookie list against what the live site really sets before launch.</p></td></tr>';
 		echo '<tr><th>Promo popup</th><td><label><input type="checkbox" name="promo_on" ' . checked( 'yes' === get_option( 'pokepiece_promo_on', 'no' ), true, false ) . '> Show a popup (off by default)</label><p class="description">Only say what is true: a real code that works at checkout, a real offer.</p></td></tr>';
 		echo '<tr><th>Popup headline</th><td><input class="large-text" name="promo_title" maxlength="80" value="' . $v( 'promo_title' ) . '"></td></tr>';

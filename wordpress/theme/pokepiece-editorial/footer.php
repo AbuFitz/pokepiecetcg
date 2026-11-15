@@ -13,7 +13,7 @@
 			<?php foreach ( $groups as $g ) : if ( empty( $g['items'] ) ) : ?><li><a href="<?php echo esc_url( $g['url'] ); ?>"><?php echo esc_html( $g['name'] ); ?></a></li><?php else : foreach ( $g['items'] as $it ) : ?><li><a href="<?php echo esc_url( $it['url'] ); ?>"><?php echo esc_html( 'game' === $g['kind'] ? $g['name'] . ' · ' . $it['name'] : $it['name'] ); ?></a></li><?php endforeach; endif; endforeach; ?>
 		</ul></nav>
 		<nav aria-label="<?php esc_attr_e( 'Help', 'pokepiece' ); ?>"><h2><?php esc_html_e( 'Help', 'pokepiece' ); ?></h2><ul>
-			<?php foreach ( array( 'my-account' => 'My account', 'about' => 'About', 'contact' => 'Contact', 'shipping-policy' => 'Shipping', 'refund-return-policy' => 'Returns', 'terms-conditions' => 'Terms', 'privacy-policy' => 'Privacy' ) as $slug => $label ) : $pg = get_page_by_path( $slug ); if ( $pg ) : ?>
+			<?php foreach ( array( 'my-account' => 'My account', 'about' => 'About', 'contact' => 'Contact', 'shipping-policy' => 'Shipping', 'refund-return-policy' => 'Returns', 'terms-conditions' => 'Terms', 'privacy-policy' => 'Privacy' ) as $slug => $label ) : $pg = pp_page( $slug ); if ( $pg ) : ?>
 			<li><a href="<?php echo esc_url( get_permalink( $pg ) ); ?>"><?php echo esc_html( $label ); ?></a></li><?php endif; endforeach; ?>
 			<?php do_action( 'pokepiece_footer_help_links' ); ?>
 		</ul></nav>

@@ -70,7 +70,7 @@ function pp_account_modal() {
 				<label for="pp-up-pass"><?php esc_html_e( 'Password (8+ characters)', 'pokepiece' ); ?></label><div class="pp-pass"><input id="pp-up-pass" name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="pp-pass__toggle" aria-pressed="false" aria-controls="pp-up-pass"><?php esc_html_e( 'Show', 'pokepiece' ); ?></button></div>
 				<input type="text" name="website" tabindex="-1" autocomplete="off" class="pp-hp" aria-hidden="true">
 				<p class="pp-muted"><?php
-				$pp = get_page_by_path( 'privacy-policy' );
+				$pp = pp_page( 'privacy-policy' );
 				printf( esc_html__( 'Your personal data is used to manage your account as described in our %s.', 'pokepiece' ), $pp ? '<a href="' . esc_url( get_permalink( $pp ) ) . '">' . esc_html__( 'privacy policy', 'pokepiece' ) . '</a>' : esc_html__( 'privacy policy', 'pokepiece' ) ); // phpcs:ignore
 				?></p>
 				<p class="pp-form-msg" role="alert"></p>

@@ -56,7 +56,7 @@ add_action( 'wp_enqueue_scripts', function () {
 }, 30 );
 
 add_action( 'wp_footer', function () {
-	$privacy = get_page_by_path( 'privacy-policy' ); $plink = $privacy ? get_permalink( $privacy ) : '';
+	$privacy = pp_page( 'privacy-policy' ); $plink = $privacy ? get_permalink( $privacy ) : '';
 	if ( pp_cookie_prompt_on() ) :
 		?>
 	<section class="pp-cookie" id="pp-cookie" role="region" aria-labelledby="pp-cookie-t" hidden>

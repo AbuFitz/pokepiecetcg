@@ -10,7 +10,7 @@ if ( ! class_exists( 'WooCommerce' ) ) { return; }
 
 /** True when the PokePiece Core plugin's Special Delivery option is switched on: then there is no product at all, only a fee the customer opts into. */
 function pp_sd_on() { return function_exists( 'ppc_sd_active' ) && ppc_sd_active(); }
-function pp_sd_info_url() { $pg = get_page_by_path( 'shipping-policy' ); return $pg ? get_permalink( $pg ) : wc_get_page_permalink( 'shop' ); }
+function pp_sd_info_url() { $pg = pp_page( 'shipping-policy' ); return $pg ? get_permalink( $pg ) : wc_get_page_permalink( 'shop' ); }
 
 function pp_upgrade_product() {
 	if ( pp_sd_on() ) { return null; }

@@ -1123,3 +1123,11 @@ body.pp-cookie-on .pp-sticky{bottom:calc(var(--pp-cookie-h,190px) + 20px)}
 .pp-card__plate,.pp-sp__img,.pp-qvc__img{background:var(--plate,#fff)}
 .pp-card__plate[style*="--plate"] img,.pp-sp__img[style*="--plate"] img,.pp-qvc__img[style*="--plate"] img{mix-blend-mode:normal}
 .pp-card .pp-card__plate[style*="--plate"],.pp-sp__img[style*="--plate"],.pp-qvc__img[style*="--plate"]{background:var(--plate)!important}
+
+/* Selects: own chevron, comfortably inset from the pill's edge (the native arrow sat flush against it) */
+.woocommerce-ordering select,select.orderby,.woocommerce form select,.pp-field select{-webkit-appearance:none;appearance:none;padding-inline:18px 46px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none' stroke='%2314171a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.5 1.5 7 7l5.5-5.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 20px center;background-size:14px 9px;text-overflow:ellipsis}
+.woocommerce-ordering select::-ms-expand{display:none}
+
+/* Header between 900 and 1199px: six nav items + search + account + cart did not fit. Tighter nav and an icon-only search keep it on one line. */
+@media(min-width:900px) and (max-width:1199px){.pp-nav a,.pp-nav__btn{padding:0 9px;font-size:14px}.pp-searchbtn{width:46px;padding:0;justify-content:center;border-radius:50%}.pp-searchbtn span{display:none}}
+@media(min-width:900px) and (max-width:999px){.pp-nav a,.pp-nav__btn{padding:0 6px;font-size:13px;gap:2px}.pp-logo img{height:30px}.pp-actions{gap:0}}

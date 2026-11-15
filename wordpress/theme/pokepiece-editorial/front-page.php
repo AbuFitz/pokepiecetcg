@@ -54,7 +54,7 @@ function pp_world_products( $items, $game = '' ) {
 		<ul class="pp-worlds__rail">
 			<?php foreach ( $groups as $k => $g ) : $w = $world[ $k ] ?? array( 'blurb' => '' ); $total = array_sum( array_column( $g['items'], 'count' ) ); ?>
 			<li class="pp-world pp-game-<?php echo esc_attr( 'game' === $g['kind'] || in_array( $k, array( 'other', 'accessories' ), true ) ? $k : 'all' ); ?>"<?php echo ' data-grp="' . esc_attr( $k ) . '"'; ?>>
-				<?php $custom = esc_url( (string) get_option( 'pokepiece_world_img_' . $k, '' ) ); if ( $custom ) : ?><div class="pp-world__photo pp-world__photo--custom" aria-hidden="true"><img src="<?php echo $custom; ?>" alt="" loading="lazy" decoding="async"></div><?php elseif ( ( $wp = pp_world_products( array_map( fn( $s ) => array( 'slug' => $s ), $g['slugs'] ), $k )[0] ?? null ) ) : ?><div class="pp-world__photo" aria-hidden="true" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'large', array( 'alt' => '', 'decoding' => 'async' ) ); // phpcs:ignore ?></div><?php endif; ?>
+				<?php $custom = esc_url( (string) get_option( 'pokepiece_world_img_' . $k, '' ) ); if ( $custom ) : ?><div class="pp-world__photo pp-world__photo--custom" aria-hidden="true"><img src="<?php echo $custom; ?>" alt="" loading="lazy" decoding="async"></div><?php elseif ( ( $wp = pp_world_products( array_map( fn( $s ) => array( 'slug' => $s ), $g['slugs'] ), $k )[0] ?? null ) ) : ?><div class="pp-world__photo" aria-hidden="true" data-pid="<?php echo (int) $wp->get_id(); ?>"><?php echo $wp->get_image( 'pp-plate', array( 'alt' => '', 'decoding' => 'async', 'loading' => 'lazy' ) ); // phpcs:ignore ?></div><?php endif; ?>
 				<h3><?php echo esc_html( $g['name'] ); ?></h3>
 				<?php if ( ! empty( $w['blurb'] ) ) : ?><p><?php echo esc_html( $w['blurb'] ); ?></p><?php endif; ?>
 				<ul class="pp-world__links">
@@ -95,7 +95,7 @@ function pp_world_products( $items, $game = '' ) {
 				<li><h3><?php esc_html_e( 'Trusted seller', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Backed by 5.0 ★ reviews.', 'pokepiece' ); ?></p></li>
 				<li><h3><?php esc_html_e( 'Authentic products', 'pokepiece' ); ?></h3><p><?php esc_html_e( 'Sealed, from trusted suppliers.', 'pokepiece' ); ?></p></li>
 			</ul>
-			<?php $ab = get_page_by_path( 'about' ); if ( $ab ) : ?><p class="pp-why__cta"><?php echo pp_cta( __( 'Our story', 'pokepiece' ), get_permalink( $ab ), 'ink' ); // phpcs:ignore ?></p><?php endif; ?>
+			<?php $ab = pp_page( 'about' ); if ( $ab ) : ?><p class="pp-why__cta"><?php echo pp_cta( __( 'Our story', 'pokepiece' ), get_permalink( $ab ), 'ink' ); // phpcs:ignore ?></p><?php endif; ?>
 		</div>
 	</section>
 	<section class="pp-faq" aria-labelledby="pp-faq-h">
@@ -130,7 +130,7 @@ function pp_world_products( $items, $game = '' ) {
 				<?php for ( $loop = 0; $loop < 2; $loop++ ) : ?>
 				<ul class="pp-reel__set"<?php echo $loop ? ' aria-hidden="true"' : ''; ?>>
 					<?php foreach ( $clips as $c ) : ?>
-					<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"<?php echo $loop ? ' tabindex="-1"' : ''; ?>><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" width="360" height="640" decoding="async" draggable="false"><span class="pp-clip__tt"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 14 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
+					<li class="pp-clip"><a href="<?php echo esc_url( $c['url'] ); ?>" rel="noopener"<?php echo $loop ? ' tabindex="-1"' : ''; ?>><img src="<?php echo esc_url( $c['thumb'] ); ?>" alt="" width="360" height="640" fetchpriority="low" decoding="async" draggable="false"><span class="pp-clip__tt"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></span><span class="pp-clip__cap"><?php echo esc_html( wp_trim_words( $c['title'], 14 ) ); ?></span><span class="screen-reader-text"><?php esc_html_e( 'Watch on TikTok', 'pokepiece' ); ?></span></a></li>
 					<?php endforeach; ?>
 				</ul>
 				<?php endfor; ?>
@@ -150,7 +150,7 @@ function pp_world_products( $items, $game = '' ) {
 	<section class="pp-deliver" aria-label="<?php esc_attr_e( 'Delivery and contact', 'pokepiece' ); ?>">
 		<div class="pp-wrap pp-deliver__inner">
 			<div><p class="pp-deliver__big"><?php esc_html_e( 'We ship from the United Kingdom.', 'pokepiece' ); ?></p><p class="pp-deliver__sub"><?php echo esc_html( pp_dispatch_text() ); ?></p>
-			<p class="pp-deliver__links"><?php $sp = get_page_by_path( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
+			<p class="pp-deliver__links"><?php $sp = pp_page( 'shipping-policy' ); if ( $sp ) : ?><a class="pp-ulink" href="<?php echo esc_url( get_permalink( $sp ) ); ?>"><?php esc_html_e( 'Shipping policy', 'pokepiece' ); ?></a><?php endif; ?>
 			</p></div>
 			<div><p class="pp-deliver__big"><a href="mailto:<?php echo esc_attr( pp_contact_email() ); ?>"><?php echo esc_html( pp_contact_email() ); ?></a></p><p class="pp-deliver__sub"><?php esc_html_e( 'For any questions regarding orders, products or support. We aim to respond within 24 to 48 hours.', 'pokepiece' ); ?></p></div>
 		</div>

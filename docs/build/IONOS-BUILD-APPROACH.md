@@ -24,7 +24,8 @@ Same database, so there is no product, order or customer migration. The long par
    ```bash
    wp media regenerate --yes
    ```
-   (or the Regenerate Thumbnails plugin, then remove it). Photos of any shape then show whole inside the square frame; the audit flags photos under 600px.
+   (or the Regenerate Thumbnails plugin, then remove it). Photos of any shape then show whole inside the square frame, as lighter WebP files where the server supports it; the audit flags photos under 600px.
+   SEO: see `docs/build/SEO-PLAN.md` (titles, sitemap, robots, structured data, performance). Check Rank Math is the only tool printing tags.
 5. Special Delivery: WooCommerce > PokePiece rules > set the price (his current product's price), tick Enabled, set the reference label. Then set the old upgrade product to Draft or Private. The cart converts any old product line into the option, so nobody is charged twice. Decide whether it is taxable.
 6. 8-hour free shipping: compare his exported Code Snippets entry with the preflight report (which statuses count, which methods go free, guest vs account, tax). Enable ours and switch his snippet off. Never run both.
 7. Cookies: list what the live site actually sets (preflight names tracking plugins). Keep one consent tool: either the PokePiece prompt (gate scripts with `type="text/plain" data-pp-consent="analytics"`) or the existing one, not both. Review the wording and the Privacy Policy with the client.

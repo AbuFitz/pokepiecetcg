@@ -216,7 +216,7 @@ function pp_term_product_count( $t ) {
 /** Rotating banner: array( text, url ). Only wording the owner already publishes. Filter `pokepiece_banner_messages` to edit. */
 function pp_banner_messages() {
 	$svc = pp_service_ids(); $svc_url = function_exists( 'pp_sd_on' ) && pp_sd_on() ? pp_sd_info_url() : ( ( $svc && 'publish' === get_post_status( $svc[0] ) ) ? get_permalink( $svc[0] ) : wc_get_page_permalink( 'shop' ) );
-	$page = fn( $slug, $fallback ) => ( $p = get_page_by_path( $slug ) ) ? get_permalink( $p ) : $fallback;
+	$page = fn( $slug, $fallback ) => ( $p = pp_page( $slug ) ) ? get_permalink( $p ) : $fallback;
 	return apply_filters( 'pokepiece_banner_messages', array(
 		array( __( 'Special Delivery available', 'pokepiece' ), $svc_url ),
 		array( __( 'Fast UK dispatch on every order', 'pokepiece' ), $page( 'shipping-policy', home_url( '/' ) ) ),
@@ -249,7 +249,7 @@ function pp_hero_image() {
 	if ( $id && wp_attachment_is_image( $id ) ) {
 		return wp_get_attachment_image( $id, 'full', false, array( 'class' => 'pp-hero__art', 'alt' => $alt, 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 900px) 56vw, 92vw' ) );
 	}
-	return '<img class="pp-hero__art" src="' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . '" srcset="' . esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ) . ' 768w, ' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . ' 1536w" sizes="(min-width: 900px) 56vw, 92vw" width="1536" height="1024" alt="' . esc_attr( $alt ) . '" fetchpriority="high" decoding="async">';
+	return '<img class="pp-hero__art" src="' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . '" srcset="' . esc_url( PP_URI . '/assets/img/hero-collection-480.webp' ) . ' 480w, ' . esc_url( PP_URI . '/assets/img/hero-collection-768.webp' ) . ' 768w, ' . esc_url( PP_URI . '/assets/img/hero-collection.webp' ) . ' 1200w" sizes="(min-width: 900px) 56vw, 92vw" width="1200" height="800" alt="' . esc_attr( $alt ) . '" fetchpriority="high" decoding="async">';
 }
 
 /** Opened-live / rip-and-ship listings (by the owner's mode field, or the title wording) are kept in WooCommerce but are not showcased on the public home page. */
@@ -310,3 +310,6 @@ function pp_plate_attrs( $product ) {
 	$c = $product ? pp_plate_colour( $product->get_image_id() ) : '';
 	return $c ? ' style="--plate:' . esc_attr( $c ) . '"' : '';
 }
+
+/** A page by slug, but only when it is PUBLISHED. get_page_by_path() also returns drafts, which made footer/menu links point at pages visitors cannot open (404). */
+function pp_page( $slug ) { $p = get_page_by_path( $slug ); return $p && 'publish' === $p->post_status ? $p : null; }

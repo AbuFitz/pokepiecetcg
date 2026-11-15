@@ -26,6 +26,8 @@ def clean(html):
     html = re.sub(r'<meta name="robots"[^>]*>', '', html)
     html = re.sub(r'<script[^>]+(cart-fragments|add-to-cart)[^>]*></script>\s*', '', html)  # no live cart in a static snapshot
     html = re.sub(r'<script[^>]*id=["\']ppc-sd-js-extra["\'][^>]*>.*?</script>\s*', '', html, flags=re.S); html = re.sub(r'<script[^>]*id=["\']ppc-sd-js["\'][^>]*></script>\s*', '', html)  # Special Delivery fee is simulated by demo-shim.js
+    origin = os.environ.get('DEMO_ORIGIN', 'https://pokepiecetcg.vercel.app').rstrip('/')
+    html = re.sub(r'(<meta (?:property="og:(?:image|url)"|name="twitter:image") content=")(/[^"]*)', lambda m: m.group(1) + origin + m.group(2), html)  # link-preview crawlers need absolute URLs
     html = html.replace('</head>', '<meta name="robots" content="noindex,nofollow"><script defer src="/demo-shim.js"></script></head>', 1)
     return html
 def refs(text):

@@ -24,3 +24,16 @@ function ppc_ensure_categories() {
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	WP_CLI::add_command( 'pokepiece ensure-categories', function () { foreach ( ppc_ensure_categories() as $l ) { WP_CLI::log( $l ); } WP_CLI::success( 'Done. Nothing existing was changed.' ); } );
 }
+
+
+/**
+ * Privacy link: WooCommerce's checkout and registration text link to the page chosen under Settings > Privacy. If that is a draft or missing (WordPress's
+ * default is a draft), the link is a 404. When a published page with the slug `privacy-policy` exists, use it instead. Nothing is written to the database.
+ */
+add_filter( 'pre_option_wp_page_for_privacy_policy', function ( $pre ) {
+	static $busy = false; if ( $busy ) { return $pre; }
+	$busy = true; $id = (int) get_option( 'wp_page_for_privacy_policy' ); $busy = false;
+	if ( $id && 'publish' === get_post_status( $id ) ) { return $pre; }
+	$pg = get_page_by_path( 'privacy-policy' );
+	return $pg && 'publish' === $pg->post_status ? (int) $pg->ID : $pre;
+} );

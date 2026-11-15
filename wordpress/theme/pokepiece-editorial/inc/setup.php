@@ -95,3 +95,25 @@ function pp_top_colour() {
 foreach ( array( 'thumbnail', 'gallery_thumbnail', 'single' ) as $pp_sz ) {
 	add_filter( 'woocommerce_get_image_size_' . $pp_sz, function ( $size ) { $size['crop'] = 0; return $size; } );
 }
+
+// Largest-paint hint: the home page's hero image is fetched at high priority straight from the head, not discovered late.
+add_action( 'wp_head', function () {
+	if ( ! is_front_page() ) { return; }
+	$id = (int) get_option( 'pokepiece_hero_image_id', 0 );
+	if ( $id && wp_attachment_is_image( $id ) ) {
+		$src = wp_get_attachment_image_url( $id, 'full' ); $set = wp_get_attachment_image_srcset( $id, 'full' );
+		if ( $src ) { echo '<link rel="preload" as="image" href="' . esc_url( $src ) . '"' . ( $set ? ' imagesrcset="' . esc_attr( $set ) . '" imagesizes="(min-width: 900px) 56vw, 92vw"' : '' ) . ' fetchpriority="high">' . "\n"; }
+		return;
+	}
+	$b = PP_URI . '/assets/img/';
+	echo '<link rel="preload" as="image" href="' . esc_url( $b . 'hero-collection.webp' ) . '" imagesrcset="' . esc_url( $b . 'hero-collection-480.webp' ) . ' 480w, ' . esc_url( $b . 'hero-collection-768.webp' ) . ' 768w, ' . esc_url( $b . 'hero-collection.webp' ) . ' 1200w" imagesizes="(min-width: 900px) 56vw, 92vw" fetchpriority="high">' . "\n";
+}, 1 );
+
+// Sub-sizes as WebP: his photos are large PNGs, and WordPress would otherwise keep every thumbnail as a 250 to 400 KB PNG. WebP keeps transparency and is
+// roughly a quarter of the size. Only when the server's image library can write WebP; originals are never touched. Re-cut existing sizes with
+// `wp media regenerate --yes` after install.
+add_filter( 'image_editor_output_format', function ( $formats, $filename, $mime ) {
+	if ( function_exists( 'wp_image_editor_supports' ) && wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) && in_array( $mime, array( 'image/png', 'image/jpeg' ), true ) ) { $formats[ $mime ] = 'image/webp'; }
+	return $formats;
+}, 10, 3 );
+add_filter( 'wp_editor_set_quality', function ( $q, $mime ) { return 'image/webp' === $mime ? 80 : $q; }, 10, 2 );

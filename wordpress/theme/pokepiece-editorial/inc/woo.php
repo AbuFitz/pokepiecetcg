@@ -91,7 +91,7 @@ function pp_single_product_hooks() {
 		echo '<p class="pp-callout pp-callout--service"><strong>' . esc_html__( 'Postage service', 'pokepiece' ) . '</strong> ' . esc_html__( 'Add the TikTok username or order reference in the order notes at checkout, exactly as before.', 'pokepiece' ) . '</p>';
 	}
 	echo '<details class="pp-disclose"><summary>' . esc_html__( 'Delivery information', 'pokepiece' ) . pp_icon( 'chev' ) . '</summary><div><p>' . esc_html( pp_dispatch_text() ) . ' ';
-	$sp = get_page_by_path( 'shipping-policy' );
+	$sp = pp_page( 'shipping-policy' );
 	if ( $sp ) { echo '<a href="' . esc_url( get_permalink( $sp ) ) . '">' . esc_html__( 'Shipping policy', 'pokepiece' ) . '</a>'; }
 	echo '</p><p>' . esc_html__( 'Delivery charges are calculated by the shop at checkout.', 'pokepiece' ) . '</p></div></details>';
 }, 35 );
@@ -162,7 +162,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 	global $product;
 	if ( $product->is_type( 'simple' ) && ! $product->is_in_stock() && ! $product->is_on_backorder() ) {
 		echo '<div class="pp-oos"><button type="button" class="pp-btn" disabled aria-disabled="true">' . esc_html__( 'Currently out of stock', 'pokepiece' ) . '</button>';
-		$c = get_page_by_path( 'contact' ); if ( $c ) { echo '<a class="pp-ulink" href="' . esc_url( get_permalink( $c ) ) . '">' . esc_html__( 'Ask about availability', 'pokepiece' ) . '</a>'; }
+		$c = pp_page( 'contact' ); if ( $c ) { echo '<a class="pp-ulink" href="' . esc_url( get_permalink( $c ) ) . '">' . esc_html__( 'Ask about availability', 'pokepiece' ) . '</a>'; }
 		echo '</div>';
 	}
 }, 31 );
