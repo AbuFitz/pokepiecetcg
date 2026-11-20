@@ -64,4 +64,4 @@ Layout shift 0 on all three. Real figures on IONOS depend on its server, caching
 ## Needs the client or a tool we do not have
 - Real product descriptions (unique per product).
 - Keyword Planner/Ahrefs volumes to prioritise sets and write category copy.
-- Decision on the 11 sold-out "Live Rip and Ship" pages (hide, redirect or keep).
+- The 11 old "Live Rip and Ship" listings belong to his previous shop and are not carried into the new one (removed from the fixture and demo). On the live site, when the new shop replaces the old catalogue, make sure their old URLs are not left as broken links: redirect them to the matching category.

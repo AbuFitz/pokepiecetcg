@@ -74,3 +74,5 @@ json.dump(cat, open(os.path.join(out, 'demo-catalogue.json'), 'w'), ensure_ascii
 shutil.copy(os.path.join(os.path.dirname(__file__), 'demo-shim.js'), os.path.join(out, 'demo-shim.js'))
 json.dump({"cleanUrls": False, "trailingSlash": True, "headers": [{"source": "/(.*)", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}]}, open(os.path.join(out, 'vercel.json'), 'w'))
 print(len(pages), 'pages', len(seen), 'assets')
+# browsers and Google ask for /favicon.ico at the site root before reading any <link>
+shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'wordpress', 'theme', 'pokepiece-editorial', 'assets', 'brand', 'favicon.ico'), os.path.join(out, 'favicon.ico'))

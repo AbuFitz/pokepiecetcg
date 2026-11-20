@@ -35,6 +35,8 @@ update_option( 'woocommerce_ship_to_countries', 'specific' ); update_option( 'wo
 $img = (bool) getenv( 'PP_IMAGES' );
 foreach ( array_reverse( $snap ) as $p ) {
 	if ( get_post( $p['id'] ) ) { continue; }
+	// Old live-stream listings ("Live Rip and Ship") belong to his previous shop. The new shop starts without them, so the fixture and demo do not carry them.
+	if ( preg_match( '/live\s*rip|rip\s*(and|&)\s*ship/i', html_entity_decode( $p['name'] ) ) ) { continue; }
 	$id = wp_insert_post( array( 'import_id' => $p['id'], 'post_type' => 'product', 'post_status' => 'publish', 'post_title' => html_entity_decode( $p['name'] ), 'post_name' => $p['slug'], 'post_content' => 'FIXTURE description. Real product copy is merchant content.' ) );
 	$prod = wc_get_product( $id ); if ( ! $prod ) { continue; }
 	$prod->set_regular_price( number_format( $p['prices']['price'] / 100, 2, '.', '' ) );

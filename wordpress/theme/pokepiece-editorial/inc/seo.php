@@ -58,7 +58,12 @@ function pp_seo_description() {
 /** Title for pages where PokePiece sets it (home, shop, categories). Products and pages keep WordPress/SEO-plugin titles. */
 function pp_seo_title() {
 	if ( is_front_page() ) { return pp_seo_home_title(); }
-	if ( is_singular( 'product' ) ) { $n = get_the_title(); $t = $n . ( preg_match( '/\bUK\b/i', $n ) ? '' : ' UK' ) . ' | ' . get_bloginfo( 'name' ); return strlen( $t ) <= 65 ? $t : ''; }
+	if ( is_singular( 'product' ) ) {
+		$n = html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ); $tail = ' | ' . get_bloginfo( 'name' ); $uk = preg_match( '/\bUK\b/i', $n ) ? '' : ' UK';
+		if ( mb_strlen( $n . $uk . $tail ) > 65 ) { $uk = ''; } // long names: drop the " UK" first
+		if ( mb_strlen( $n . $tail ) > 65 ) { $n = rtrim( mb_strimwidth( $n, 0, 65 - mb_strlen( $tail ), '…' ) ); } // then trim the name itself so the brand always fits
+		return $n . $uk . $tail;
+	}
 	if ( function_exists( 'is_shop' ) && is_shop() && ! is_search() ) { return __( 'Shop Trading Cards & Collectibles UK', 'pokepiece' ) . ' | ' . get_bloginfo( 'name' ); }
 	if ( function_exists( 'is_product_category' ) && is_product_category() ) { return pp_seo_cat_label( get_queried_object() )[0] . ' | ' . get_bloginfo( 'name' ); }
 	return '';
@@ -180,4 +185,4 @@ function pp_ranges_nav() {
 	echo '</ul></nav>';
 }
 add_action( 'woocommerce_after_shop_loop', 'pp_ranges_nav', 25 );
-add_action( 'woocommerce_after_single_product_summary', 'pp_ranges_nav', 30 );
+add_action( 'woocommerce_after_single_product', 'pp_ranges_nav', 20 ); // after the whole product block, outside its grid (inside the summary it overlapped the price and buttons)

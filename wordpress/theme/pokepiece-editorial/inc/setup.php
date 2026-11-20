@@ -117,3 +117,11 @@ add_filter( 'image_editor_output_format', function ( $formats, $filename, $mime 
 	return $formats;
 }, 10, 3 );
 add_filter( 'wp_editor_set_quality', function ( $q, $mime ) { return 'image/webp' === $mime ? 80 : $q; }, 10, 2 );
+
+// Favicon: the brand "P" from the new logo must win everywhere. WordPress would otherwise print the Site Icon chosen in Settings (his old ball icon) and answer
+// /favicon.ico with it. Remove core's tags, and serve our file for the bare /favicon.ico request browsers and Google make.
+remove_action( 'wp_head', 'wp_site_icon', 99 );
+add_action( 'do_faviconico', function () {
+	$f = PP_DIR . '/assets/brand/favicon.ico'; if ( ! is_readable( $f ) ) { return; }
+	header( 'Content-Type: image/x-icon' ); header( 'Cache-Control: public, max-age=86400' ); readfile( $f ); exit;
+}, 1 );

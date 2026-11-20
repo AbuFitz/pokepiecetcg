@@ -42,6 +42,6 @@ Re-activate the previous theme, deactivate `pokepiece-core`, re-enable his snipp
 
 ## Open items
 - His exported snippet (to match the 8-hour rule exactly).
-- Whether "LIVE RIP AND SHIP" titled products stay listed without the badge.
+- Old "Live Rip and Ship" listings are not part of the new shop. When the new catalogue goes live, redirect their old URLs to the matching category so no link breaks.
 - Abyss Eye re-categorisation, needs his confirmation.
 - SEO pass (quoted separately) is not started.

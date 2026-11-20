@@ -8,7 +8,7 @@ const T = async (n, f) => { try { await f(); console.log('PASS', n); } catch (e)
   const get = async u => { const r = await rq.get(BASE + u); return { s: r.status(), t: await r.text() }; };
   const meta = (h, re) => (h.match(re) || [])[1];
   const prods = await (await rq.get(BASE + '/wp-json/wc/store/v1/products?per_page=40')).json(); const cats = await (await rq.get(BASE + '/wp-json/wc/store/v1/products/categories?per_page=20&hide_empty=true')).json();
-  const pdp = new URL(prods.find(p => p.is_in_stock && p.id !== 686).permalink).pathname; const catPaths = cats.map(c => new URL(c.permalink).pathname);
+  const pdp = new URL(prods.find(p => p.is_in_stock && p.id !== 686).permalink).pathname; const catPaths = cats.filter(c => c.count >= 2).map(c => new URL(c.permalink).pathname); // ranges that actually have products
   const pages = ['/', '/shop/', ...catPaths.slice(0, 4), pdp, '/about/', '/contact/', '/shipping-policy/'];
   const info = {}; for (const u of pages) { const { t } = await get(u); info[u] = { h: t, title: meta(t, /<title>(.*?)<\/title>/s)?.replace(/&amp;/g, '&').replace(/&#8211;/g, '-').trim(), desc: meta(t, /<meta name="description" content="([^"]*)"/), canon: meta(t, /<link rel="canonical" href="([^"]*)"/), h1: (t.match(/<h1[\s>]/g) || []).length }; }
   await T('home title is the approved wording and is the link-preview title', async () => { const h = info['/'].h; assert.equal(info['/'].title, 'PokePieceTCG | Trading Cards & Collectibles UK'); assert.equal(meta(h, /<meta property="og:title" content="([^"]*)"/).replace(/&amp;/g, '&'), 'PokePieceTCG | Trading Cards & Collectibles UK'); assert.equal(meta(h, /<meta name="twitter:title" content="([^"]*)"/).replace(/&amp;/g, '&'), 'PokePieceTCG | Trading Cards & Collectibles UK'); });

@@ -1,4 +1,12 @@
-<?php defined( 'ABSPATH' ) || exit; $groups = pp_game_groups(); $cur = is_tax( 'product_cat' ) ? get_queried_object()->slug : ''; ?>
+<?php defined( 'ABSPATH' ) || exit; $groups = pp_game_groups(); $cur = is_tax( 'product_cat' ) ? get_queried_object()->slug : '';
+// The desktop bar fits six links. When the owner adds more top-level categories, everything after the fourth goes into one "More" dropdown, so the header can never overflow. The phone menu always lists every category.
+$nav_groups = $groups;
+if ( count( $groups ) > 5 ) {
+	$nav_groups = array_slice( $groups, 0, 4, true ); $more = array_slice( $groups, 4, null, true ); $mi = array(); $ms = array();
+	foreach ( $more as $mk => $mg ) { $mi[] = array( 'slug' => 'grp-' . $mk, 'name' => $mg['name'], 'url' => $mg['url'], 'count' => (int) ( $mg['count'] ?? 0 ) ); $ms = array_merge( $ms, (array) ( $mg['slugs'] ?? array() ) ); }
+	$nav_groups['more'] = array( 'name' => __( 'More', 'pokepiece' ), 'items' => $mi, 'slugs' => $ms, 'kind' => 'more', 'url' => wc_get_page_permalink( 'shop' ), 'count' => 0 );
+}
+?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -19,7 +27,7 @@
 			<nav class="pp-nav" aria-label="<?php esc_attr_e( 'Main', 'pokepiece' ); ?>">
 				<ul>
 					<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"<?php echo is_shop() ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a></li>
-					<?php foreach ( $groups as $k => $g ) : $active = pp_group_active( $g, $cur ); if ( empty( $g['items'] ) ) : ?>
+					<?php foreach ( $nav_groups as $k => $g ) : $active = pp_group_active( $g, $cur ); if ( empty( $g['items'] ) ) : ?>
 					<li><a href="<?php echo esc_url( $g['url'] ); ?>"<?php echo $active ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $g['name'] ); ?></a></li>
 					<?php continue; endif; ?>
 					<li class="pp-nav__group">
