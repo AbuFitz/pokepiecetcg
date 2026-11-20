@@ -50,7 +50,7 @@ function pp_account_modal() {
 	<div class="pp-modal__panel pp-acc">
 		<button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button>
 		<aside class="pp-acc__side" aria-hidden="true">
-			<img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="50">
+			<img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="35">
 			<p class="pp-acc__big"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></p>
 			<ul><li><?php esc_html_e( 'Track your orders', 'pokepiece' ); ?></li><li><?php esc_html_e( 'Save your addresses', 'pokepiece' ); ?></li><li><?php esc_html_e( 'Check out faster', 'pokepiece' ); ?></li></ul>
 		</aside>

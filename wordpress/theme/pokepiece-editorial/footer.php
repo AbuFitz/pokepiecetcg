@@ -2,7 +2,7 @@
 <footer class="pp-footer">
 	<div class="pp-wrap pp-footer__grid">
 		<div class="pp-footer__lead">
-			<a class="pp-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="260" height="65" loading="lazy"></a>
+			<a class="pp-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="240" height="42" loading="lazy"></a>
 			<p class="pp-footer__tag"><?php esc_html_e( 'Built for collectors. Driven by adventure.', 'pokepiece' ); ?></p>
 			<?php echo pp_cta( __( 'Shop all products', 'pokepiece' ), wc_get_page_permalink( 'shop' ), 'yellow' ); ?>
 			<p class="pp-footer__socials"><?php if ( $tt ) : ?><a class="pp-social" href="<?php echo esc_url( $tt ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'TikTok, @pokepiecetcgg', 'pokepiece' ); ?>"><?php echo pp_art( 'tiktok' ); // phpcs:ignore ?></a><?php endif; ?><?php if ( $dc ) : ?><a class="pp-social" href="<?php echo esc_url( $dc ); ?>" rel="noopener" aria-label="<?php esc_attr_e( 'Discord', 'pokepiece' ); ?>"><?php echo pp_art( 'discord' ); // phpcs:ignore ?></a><?php endif; ?></p>

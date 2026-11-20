@@ -121,11 +121,14 @@ add_action( 'wp_head', function () {
 	echo '<meta property="og:site_name" content="' . esc_attr( get_bloginfo( 'name' ) ) . '"><meta property="og:locale" content="' . esc_attr( str_replace( '-', '_', get_bloginfo( 'language' ) ) ) . '"><meta property="og:type" content="' . ( is_singular( 'product' ) ? 'product' : 'website' ) . '"><meta property="og:title" content="' . esc_attr( $title ) . '"><meta property="og:url" content="' . esc_url( $url ) . '"><meta property="og:image" content="' . esc_url( $img ) . '"><meta property="og:image:width" content="' . (int) $dims[0] . '"><meta property="og:image:height" content="' . (int) $dims[1] . '">' . "\n";
 	echo '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="' . esc_attr( $title ) . '"><meta name="twitter:image" content="' . esc_url( $img ) . '">' . "\n";
 	if ( $desc ) { echo '<meta property="og:description" content="' . esc_attr( $desc ) . '"><meta name="twitter:description" content="' . esc_attr( $desc ) . '">' . "\n"; }
+	if ( is_singular( 'product' ) && ( $pr = wc_get_product( get_the_ID() ) ) && '' !== (string) $pr->get_price() ) {
+		echo '<meta property="product:price:amount" content="' . esc_attr( wc_format_decimal( wc_get_price_to_display( $pr ), 2 ) ) . '"><meta property="product:price:currency" content="' . esc_attr( get_woocommerce_currency() ) . '"><meta property="product:availability" content="' . ( $pr->is_in_stock() ? 'in stock' : 'out of stock' ) . '"><meta property="product:condition" content="new">' . "\n";
+	}
 }, 2 );
 
 add_action( 'wp_head', function () {
 	if ( pp_seo_plugin_active() || ! is_front_page() ) { return; }
-	$org = array( '@type' => array( 'Organization', 'OnlineStore' ), '@id' => home_url( '/#org' ), 'name' => 'PokePieceTCG', 'url' => home_url( '/' ), 'logo' => PP_URI . '/assets/brand/icon-192.png', 'email' => pp_contact_email(), 'areaServed' => 'GB', 'description' => 'PokePieceTCG is a UK based trading card store for Pokémon, One Piece, Dragon Ball and other TCG booster boxes, sealed products, collector items and accessories. All products are authentic and sourced from trusted suppliers. Fast UK dispatch on all orders.', 'sameAs' => array_values( array_filter( array( pp_social( 'tiktok' ), pp_social( 'discord' ), esc_url( (string) get_option( 'pokepiece_google_profile', 'https://share.google/zSyE11bqZ6OTNXMwk' ) ) ) ) ) );
+	$org = array( '@type' => array( 'Organization', 'OnlineStore' ), '@id' => home_url( '/#org' ), 'name' => 'PokePieceTCG', 'url' => home_url( '/' ), 'logo' => PP_URI . '/assets/brand/icon-512.png', 'email' => pp_contact_email(), 'areaServed' => 'GB', 'description' => 'PokePieceTCG is a UK based trading card store for Pokémon, One Piece, Dragon Ball and other TCG booster boxes, sealed products, collector items and accessories. All products are authentic and sourced from trusted suppliers. Fast UK dispatch on all orders.', 'sameAs' => array_values( array_filter( array( pp_social( 'tiktok' ), pp_social( 'discord' ), esc_url( (string) get_option( 'pokepiece_google_profile', 'https://share.google/zSyE11bqZ6OTNXMwk' ) ) ) ) ) );
 	$site = array( '@type' => 'WebSite', '@id' => home_url( '/#site' ), 'url' => home_url( '/' ), 'name' => 'PokePieceTCG', 'publisher' => array( '@id' => home_url( '/#org' ) ), 'potentialAction' => array( '@type' => 'SearchAction', 'target' => home_url( '/?s={search_term_string}&post_type=product' ), 'query-input' => 'required name=search_term_string' ) );
 	$faq = array( '@type' => 'FAQPage', 'mainEntity' => array_map( fn( $f ) => array( '@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $f[1] ) ), pp_faqs() ) );
 	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@graph' => array( $org, $site, $faq ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
@@ -136,3 +139,45 @@ add_filter( 'pp_band_description', function ( $desc ) {
 	if ( $desc || ! is_product_category() ) { return $desc; }
 	return '<p>' . esc_html( pp_cat_intro( get_queried_object() ) ) . '</p>';
 } );
+
+
+/* ---- Structured data extras ---- */
+function pp_seo_brand( $product ) {
+	$g = pp_product_game( $product );
+	return array( 'pokemon' => 'Pokémon', 'one-piece' => 'One Piece', 'dragon-ball' => 'Dragon Ball' )[ $g ] ?? '';
+}
+// Brand (the game franchise, from the product's category) and condition on Product/Offer. These are sealed new products; used or opened stock would need a different value.
+function pp_seo_enrich_product( $m, $product ) {
+	$b = pp_seo_brand( $product ); if ( $b ) { $m['brand'] = array( '@type' => 'Brand', 'name' => $b ); }
+	if ( ! empty( $m['offers'] ) ) { foreach ( $m['offers'] as $i => $o ) { if ( is_array( $o ) ) { $m['offers'][ $i ]['itemCondition'] = 'https://schema.org/NewCondition'; } } }
+	return $m;
+}
+add_filter( 'woocommerce_structured_data_product', 'pp_seo_enrich_product', 20, 2 );
+add_filter( 'rank_math/snippet/rich_snippet_product_entity', function ( $e ) {
+	$p = wc_get_product( get_the_ID() ); if ( ! $p ) { return $e; }
+	$b = pp_seo_brand( $p ); if ( $b && empty( $e['brand'] ) ) { $e['brand'] = array( '@type' => 'Brand', 'name' => $b ); }
+	if ( ! empty( $e['offers'] ) && is_array( $e['offers'] ) ) { if ( isset( $e['offers']['@type'] ) ) { $e['offers']['itemCondition'] = 'https://schema.org/NewCondition'; } else { foreach ( $e['offers'] as $i => $o ) { if ( is_array( $o ) ) { $e['offers'][ $i ]['itemCondition'] = 'https://schema.org/NewCondition'; } } } }
+	return $e;
+} );
+
+// Shop and category pages: CollectionPage + ItemList of the products on the page (SEO plugins print their own, so only without one).
+add_action( 'wp_head', function () {
+	if ( pp_seo_plugin_active() || ! ( is_shop() || is_product_category() ) || pp_seo_is_param_view() || is_search() ) { return; }
+	global $wp_query; $items = array(); $pos = ( max( 1, (int) get_query_var( 'paged' ) ) - 1 ) * (int) $wp_query->get( 'posts_per_page' ) + 1;
+	foreach ( (array) $wp_query->posts as $post ) { $items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'url' => get_permalink( $post ), 'name' => get_the_title( $post ) ); }
+	if ( ! $items ) { return; }
+	$url = pp_seo_canonical_url();
+	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'CollectionPage', '@id' => $url . '#page', 'url' => $url, 'name' => pp_seo_title() ?: wp_get_document_title(), 'description' => pp_seo_description(), 'isPartOf' => array( '@id' => home_url( '/#site' ) ), 'mainEntity' => array( '@type' => 'ItemList', 'numberOfItems' => count( $items ), 'itemListElement' => $items ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
+}, 4 );
+
+/* ---- Internal links: every shop, category and product page links on to the other ranges with descriptive anchors (crawlable, useful to shoppers) ---- */
+function pp_ranges_nav() {
+	$cur = is_product_category() ? trailingslashit( (string) get_term_link( get_queried_object() ) ) : '';
+	$links = array_filter( pp_category_links(), fn( $l ) => trailingslashit( $l[1] ) !== $cur );
+	if ( ! $links ) { return; }
+	echo '<nav class="pp-ranges pp-wrap" aria-labelledby="pp-ranges-h"><h2 id="pp-ranges-h">' . esc_html__( 'Browse more ranges', 'pokepiece' ) . '</h2><ul>';
+	foreach ( $links as $l ) { echo '<li><a href="' . esc_url( $l[1] ) . '">' . esc_html( $l[0] ) . '</a></li>'; }
+	echo '</ul></nav>';
+}
+add_action( 'woocommerce_after_shop_loop', 'pp_ranges_nav', 25 );
+add_action( 'woocommerce_after_single_product_summary', 'pp_ranges_nav', 30 );

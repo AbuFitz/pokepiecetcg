@@ -20,6 +20,8 @@ add_action( 'admin_menu', function () {
 			update_option( 'pokepiece_dispatch_text', sanitize_text_field( wp_unslash( $_POST['dispatch_text'] ?? '' ) ) );
 			update_option( 'pokepiece_seo_home_title', sanitize_text_field( wp_unslash( $_POST['seo_home_title'] ?? '' ) ) );
 			update_option( 'pokepiece_seo_home_desc', sanitize_text_field( wp_unslash( $_POST['seo_home_desc'] ?? '' ) ) );
+			update_option( 'pokepiece_wm_on', empty( $_POST['wm_on'] ) ? 'no' : 'yes' );
+			update_option( 'pokepiece_wm_strength', max( 5, min( 60, absint( $_POST['wm_strength'] ?? 15 ) ) ) );
 			update_option( 'pokepiece_cookie_prompt', empty( $_POST['cookie_prompt'] ) ? 'no' : 'yes' );
 			update_option( 'pokepiece_promo_on', empty( $_POST['promo_on'] ) ? 'no' : 'yes' );
 			foreach ( array( 'promo_title', 'promo_text', 'promo_code', 'promo_label' ) as $k ) { update_option( 'pokepiece_' . $k, sanitize_text_field( wp_unslash( $_POST[ $k ] ?? '' ) ) ); }
@@ -40,6 +42,7 @@ add_action( 'admin_menu', function () {
 		echo '<tr><th>TikTok profile</th><td><input class="regular-text" name="tiktok_url" value="' . $v( 'tiktok_url', 'https://www.tiktok.com/@pokepiecetcgg' ) . '"></td></tr>';
 		echo '<tr><th>Discord invite</th><td><input class="regular-text" name="discord_url" value="' . $v( 'discord_url', 'https://discord.com/invite/54bNErEDb' ) . '"></td></tr>';
 		echo '<tr><th>Contact email</th><td><input class="regular-text" name="contact_email" value="' . $v( 'contact_email', 'info@pokepiecetcg.co.uk' ) . '"></td></tr>';
+		echo '<tr><th>Logo watermark on product photos</th><td><label><input type="checkbox" name="wm_on" ' . checked( pp_wm_on(), true, false ) . '> Show the tilted logo pattern over every product photo (new products included)</label><p><label>Strength <input type="number" min="5" max="60" name="wm_strength" value="' . (int) pp_wm_strength() . '"> % (15 is subtle; higher is bolder)</label></p><p class="description">A visual layer: the photo files are not changed.</p></td></tr>';
 		echo '<tr><th>Search and link-preview title (home page)</th><td><input class="large-text" name="seo_home_title" maxlength="70" placeholder="' . esc_attr( pp_seo_home_title() ) . '" value="' . $v( 'seo_home_title' ) . '"><p class="description">Shown in Google and when the link is shared. Applies even when Rank Math is active. Aim for under 60 characters.</p></td></tr>';
 		echo '<tr><th>Search description (home page)</th><td><textarea class="large-text" name="seo_home_desc" rows="2" maxlength="170" placeholder="' . esc_attr( pp_seo_home_desc() ) . '">' . esc_textarea( get_option( 'pokepiece_seo_home_desc', '' ) ) . '</textarea></td></tr>';
 		echo '<tr><th>Cookie prompt</th><td><label><input type="checkbox" name="cookie_prompt" ' . checked( 'no' !== get_option( 'pokepiece_cookie_prompt', 'yes' ), true, false ) . '> Show the cookie prompt and a footer link to change choices</label><p class="description">Review the wording and the cookie list against what the live site really sets before launch.</p></td></tr>';

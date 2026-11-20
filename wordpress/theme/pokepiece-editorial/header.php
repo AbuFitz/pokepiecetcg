@@ -15,7 +15,7 @@
 	<div class="pp-frame">
 		<div class="pp-frame__top">
 			<button class="pp-iconbtn pp-menu-open" type="button" aria-controls="pp-menu" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open menu', 'pokepiece' ); ?>"><?php echo pp_icon( 'menu' ); ?></button>
-			<a class="pp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>, <?php esc_attr_e( 'home', 'pokepiece' ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="200" height="50"></a>
+			<a class="pp-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>, <?php esc_attr_e( 'home', 'pokepiece' ); ?>"><img src="<?php echo esc_url( PP_URI . '/assets/brand/horizontal-colour.svg' ); ?>" alt="" width="196" height="34"></a>
 			<nav class="pp-nav" aria-label="<?php esc_attr_e( 'Main', 'pokepiece' ); ?>">
 				<ul>
 					<li><a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"<?php echo is_shop() ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Shop all', 'pokepiece' ); ?></a></li>

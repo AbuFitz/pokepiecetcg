@@ -27,6 +27,9 @@ function ppc_preflight_rows() {
 	}
 	$pu = function_exists( 'get_privacy_policy_url' ) ? get_privacy_policy_url() : ''; $add( 'Privacy link used by checkout and sign-up', $pu ? 'ok' : 'warn', $pu ?: 'No published Privacy Policy page is set: the checkout and registration text would link nowhere or to a 404. Publish one and choose it under Settings > Privacy.' );
 	foreach ( array( 'shipping-policy', 'refund-return-policy', 'terms-conditions', 'about', 'contact' ) as $slug ) { $pg = get_page_by_path( $slug ); $add( 'Page: ' . $slug, $pg && 'publish' === $pg->post_status ? 'ok' : 'warn', $pg ? get_permalink( $pg ) : 'not found (footer link will be hidden)' ); }
+	$bp = (int) get_option( 'blog_public' ); $add( 'Search engine visibility', 1 === $bp ? 'ok' : 'warn', 1 === $bp ? 'Search engines are allowed to index this site.' : 'Settings > Reading has "Discourage search engines" ticked. Fine on staging, but it MUST be unticked when the site goes live or Google will not list it.' );
+	$add( 'Site address', 0 === strpos( home_url(), 'https://' ) ? 'ok' : 'warn', home_url() . ( 0 === strpos( home_url(), 'https://' ) ? '' : ' (not https: fine on staging, not for live)' ) );
+	$add( 'Product feed', 'info', home_url( '/?ppc_feed=google' ) . ' (for Google Merchant Center; needs his Merchant Center account and shipping set up there)' );
 	$add( 'Permalinks', get_option( 'permalink_structure' ) ? 'ok' : 'warn', get_option( 'permalink_structure' ) ?: 'plain permalinks: product URLs would change' );
 
 	$plugins = (array) get_option( 'active_plugins', array() ); $names = array_map( fn( $p ) => dirname( $p ) === '.' ? $p : dirname( $p ), $plugins );

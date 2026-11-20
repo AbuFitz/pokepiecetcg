@@ -1131,3 +1131,23 @@ body.pp-cookie-on .pp-sticky{bottom:calc(var(--pp-cookie-h,190px) + 20px)}
 /* Header between 900 and 1199px: six nav items + search + account + cart did not fit. Tighter nav and an icon-only search keep it on one line. */
 @media(min-width:900px) and (max-width:1199px){.pp-nav a,.pp-nav__btn{padding:0 9px;font-size:14px}.pp-searchbtn{width:46px;padding:0;justify-content:center;border-radius:50%}.pp-searchbtn span{display:none}}
 @media(min-width:900px) and (max-width:999px){.pp-nav a,.pp-nav__btn{padding:0 6px;font-size:13px;gap:2px}.pp-logo img{height:30px}.pp-actions{gap:0}}
+
+/* New wordmark logo (no Poké Ball): 5.75:1, so heights are set to keep the old overall width in the header */
+.pp-logo img{height:30px;width:auto}
+@media(min-width:900px){.pp-logo img{height:38px}}
+@media(min-width:900px) and (max-width:999px){.pp-logo img{height:28px}}
+@media(max-width:899px){.pp-logo img{height:29px}}
+@media(max-width:380px){.pp-logo img{height:23px}}
+.pp-footer__logo img{width:min(250px,70vw)}
+
+/* Logo watermark over product photos (inc/watermark.php). A visual layer on every product photo, current and future. Strength: --pp-wm-o. */
+.pp-wm .pp-card__plate::after,.pp-wm .pp-sp__img::after,.pp-wm .pp-qvc__img::after,.pp-wm.single-product .woocommerce-product-gallery__image::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:inherit;background:url("../img/watermark-tile.webp") 0 0/88% auto repeat;opacity:var(--pp-wm-o,.15)}
+.pp-wm .pp-sp__img,.pp-wm .pp-qvc__img,.pp-wm.single-product .woocommerce-product-gallery__image{position:relative}
+.pp-wm .pp-sp__img{display:block}
+.pp-wm .pp-qvc__img{overflow:hidden;border-radius:var(--r-image)}
+
+/* Browse more ranges (internal links) */
+.pp-ranges{margin:48px auto 8px}.pp-ranges h2{font:900 clamp(22px,2.6vw,32px)/1 var(--font);font-stretch:112%;text-transform:uppercase;margin:0 0 16px}
+.pp-ranges ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.pp-ranges a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:var(--r-control);background:#fff;box-shadow:inset 0 0 0 2px var(--ink);font-weight:700;text-decoration:none;transition:background .15s}
+.pp-ranges a:hover{background:var(--yellow)}

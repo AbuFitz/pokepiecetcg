@@ -32,6 +32,14 @@ Competitors' titles follow "`{Set or product}` Japanese Booster Box UK", with th
 - **Links**: a crawl of home, shop, a category and a product finds no 404s (a draft Privacy page was being linked and is now only linked when published).
 - **Images**: alt text on product images; photos of any shape framed whole; sub-sizes written as WebP when the server supports it.
 
+## Built in the second pass ("extreme" build)
+- **Richer structured data**: product `brand` (the game franchise, from its category) and `itemCondition: NewCondition` (these are sealed new products), price/availability tags in link previews, `CollectionPage` + `ItemList` on shop and category pages. Works through WooCommerce's own schema and through Rank Math's product filter.
+- **Internal linking**: every shop, category and product page ends with "Browse more ranges" (descriptive anchors to the other ranges, never to itself).
+- **Google Merchant Center feed**: `{site}/?ppc_feed=google` (free product listings). Published, visible products only, never the old shipping-upgrade product; clean originals as images because Merchant Center rejects watermarked photos; price in GBP, stock status, brand, condition, category path. **Needs his Merchant Center account**, with shipping and returns set up inside it. Product identifiers are marked "no" because sealed TCG boxes have none; if he has GTINs, add them.
+- **Guides**: two evergreen guides (Japanese vs English boxes; sealed boxes and shrink wrap) are created as **drafts** with `wp pokepiece ensure-guides`. Wording is deliberately general and must be reviewed and corrected by him before publishing. They link to the category pages.
+- **Launch safety**: the launch report now flags "Discourage search engines" (a cloned staging site often has it ticked and the live site must not), a non-https address, and the feed URL.
+- **Image weight**: logo SVG slimmed from 55 KB to 37 KB; watermark tile is one 51 KB WebP cached across every product image.
+
 ## Performance (simulated mobile: 4x CPU slowdown, ~1.6 Mbps, 150 ms latency, no server compression)
 | Page | Before | After |
 |---|---|---|
@@ -47,6 +55,11 @@ Layout shift 0 on all three. Real figures on IONOS depend on its server, caching
 4. Check no old URL changed (IDs and slugs are preserved); spot-check 20 product URLs return 200 and the old category URLs resolve.
 5. Read 301/404 reports weekly for the first month.
 6. His Google Business Profile: keep name, website link and category consistent with the site.
+
+## Server settings worth asking IONOS or the team to confirm (not something the theme can do)
+- Gzip/Brotli compression and long browser caching for CSS, JS, fonts, images (the local measurements above were taken with no compression, so real pages should be lighter).
+- PHP 8.2+ and an object/page cache if the plan offers one.
+- One HTTPS address (redirect `http://` and `www` to the chosen one).
 
 ## Needs the client or a tool we do not have
 - Real product descriptions (unique per product).

@@ -10,7 +10,7 @@ add_action( 'after_setup_theme', function () {
 		'thumbnail_image_width' => 480, 'single_image_width' => 900,
 		'product_grid' => array( 'default_columns' => 4, 'min_columns' => 2, 'max_columns' => 4 ),
 	) );
-	add_theme_support( 'wc-product-gallery-lightbox' );
+	if ( ! function_exists( 'pp_wm_on' ) || ! pp_wm_on() ) { add_theme_support( 'wc-product-gallery-lightbox' ); } // the zoom popup would show the clean, unmarked file
 	add_theme_support( 'responsive-embeds' );
 	add_image_size( 'pp-plate', 640, 640, false ); // never hard-cropped: any shape of photo is shown whole inside the square frame
 	add_image_size( 'pp-thumb', 240, 240, false );
@@ -45,8 +45,8 @@ add_action( 'wp_head', function () {
 	if ( has_site_icon() ) {
 		return;
 	}
-	printf( '<link rel="icon" href="%s" sizes="any">' . "\n" . '<link rel="icon" href="%s" type="image/svg+xml">' . "\n" . '<link rel="apple-touch-icon" href="%s">' . "\n",
-		esc_url( PP_URI . '/assets/brand/favicon.ico' ), esc_url( PP_URI . '/assets/brand/favicon.svg' ), esc_url( PP_URI . '/assets/brand/apple-touch-icon.png' ) );
+	printf( '<link rel="icon" href="%s" sizes="any">' . "\n" . '<link rel="icon" type="image/png" sizes="32x32" href="%s">' . "\n" . '<link rel="apple-touch-icon" href="%s">' . "\n",
+		esc_url( PP_URI . '/assets/brand/favicon.ico' ), esc_url( PP_URI . '/assets/brand/favicon-32.png' ), esc_url( PP_URI . '/assets/brand/apple-touch-icon.png' ) );
 }, 1 );
 
 // Viewport: allow zoom (the current live site disables it).
