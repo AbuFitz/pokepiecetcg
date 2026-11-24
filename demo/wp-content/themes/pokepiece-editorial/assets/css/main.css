@@ -120,7 +120,7 @@ p{margin:0 0 1em}
 .pp-searchbtn .pp-i{width:20px;height:20px}
 @media(max-width:560px){.pp-searchbtn{width:46px;padding:0;justify-content:center;border-radius:50%}.pp-searchbtn span{display:none}}
 .pp-modal--search{align-items:end;background:rgba(20,23,26,.55)}
-.pp-sp{padding:0;width:min(1040px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;border:2px solid var(--ink);border-radius:var(--shape);box-shadow:8px 8px 0 var(--ink);overflow:hidden;background:#fff}
+.pp-sp{padding:0;width:min(1040px,100%);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;border:2px solid var(--ink);border-radius:var(--shape);box-shadow:8px 8px 0 var(--ink);overflow:hidden;background:#fff}
 .pp-sp>.pp-close{position:absolute;top:12px;right:12px;z-index:3;background:#fff;border:2px solid var(--ink)}
 .pp-sp__form{display:flex;align-items:center;gap:10px;margin:18px 70px 12px 18px;padding:6px 6px 6px 16px;border:2px solid var(--ink);border-radius:var(--r-control);background:var(--paper)}
 .pp-sp__form:focus-within{box-shadow:0 0 0 3px rgba(11,87,208,.35)}
@@ -145,7 +145,7 @@ p{margin:0 0 1em}
 .pp-sp__p{font:900 18px var(--font);font-stretch:112%}
 .pp-sp .pp-stock{font-size:13px}
 .pp-sp__all{margin-top:20px}
-@media(max-width:699px){.pp-modal--search{padding:0}.pp-sp{width:100%;height:92dvh;max-height:92dvh;border-radius:var(--r-panel) var(--r-panel) 0 0;border-bottom:0;box-shadow:none;animation:pp-up .26s var(--ease)}}
+@media(max-width:699px){.pp-modal--search{padding:0}.pp-sp{width:100%;height:92vh;max-height:92vh;height:92dvh;max-height:92dvh;border-radius:var(--r-panel) var(--r-panel) 0 0;border-bottom:0;box-shadow:none;animation:pp-up .26s var(--ease)}}
 @media(min-width:700px){.pp-modal--search{align-items:start;padding-top:6vh}}
 /* ---------- Search (404 page inline form) ---------- */
 .pp-search{position:relative;display:flex;align-items:center;background:var(--paper);border:2px solid transparent;border-radius:var(--r-control);padding:3px 3px 3px 14px;min-height:48px;box-shadow:0 0 0 2px var(--line) inset}
@@ -205,7 +205,7 @@ p{margin:0 0 1em}
 .pp-qty button{width:38px;height:38px;border:0;background:transparent;font:600 18px var(--font-ui);cursor:pointer}
 .pp-qty button:hover:not(:disabled){background:#efece3}.pp-qty button:disabled{opacity:.35}
 .pp-qty output{min-width:28px;text-align:center;font-weight:600}
-.pp-line.is-busy{opacity:.55;pointer-events:none}
+.pp-line.is-busy{opacity:.8;transition:opacity .15s}.pp-line.is-removing{opacity:.45;pointer-events:none}
 .pp-empty{padding:32px 4px;text-align:left}
 .pp-empty--archive{padding:48px 0}
 
@@ -213,7 +213,7 @@ p{margin:0 0 1em}
 .pp-modal{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:12px;background:rgba(32,35,33,.5);opacity:0;transition:opacity .2s var(--ease)}
 .pp-modal[hidden]{display:none}
 .pp-modal.is-open{opacity:1}
-.pp-modal__panel{position:relative;background:var(--paper);border-radius:var(--r-panel);width:min(960px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:28px;transform:scale(.98);transition:transform .2s var(--ease)}
+.pp-modal__panel{position:relative;background:var(--paper);border-radius:var(--r-panel);width:min(960px,100%);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;padding:28px;transform:scale(.98);transition:transform .2s var(--ease)}
 .pp-modal.is-open .pp-modal__panel{transform:none}
 .pp-modal__panel--sm{width:min(480px,100%)}
 .pp-modal__panel>.pp-close{position:absolute;top:10px;right:10px;z-index:2}
@@ -230,7 +230,7 @@ p{margin:0 0 1em}
 
 /* ---------- Account popup ---------- */
 .pp-modal--account{align-items:end}
-.pp-acc{padding:0;display:grid;width:min(900px,100%);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--ink);overflow:hidden;border-radius:var(--shape);max-height:calc(100dvh - 24px)}
+.pp-acc{padding:0;display:grid;width:min(900px,100%);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--ink);overflow:hidden;border-radius:var(--shape);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}
 .pp-acc__side{display:none;background:var(--red);color:#fff;padding:36px;flex-direction:column;gap:18px;border-right:2px solid var(--ink)}
 .pp-acc__side img{background:#fff;border-radius:14px;padding:10px 14px;height:auto;width:200px}
 .pp-acc__big{font-weight:900;font-stretch:118%;text-transform:uppercase;letter-spacing:-.02em;line-height:.95;font-size:clamp(28px,3vw,42px);margin:0}
@@ -246,7 +246,7 @@ p{margin:0 0 1em}
 .pp-pass{position:relative}.pp-pass input{padding-right:78px!important}
 .pp-pass__toggle{position:absolute;right:6px;top:50%;translate:0 -50%;border:0;background:var(--paper);border-radius:var(--r-control);min-height:36px;padding:0 14px;font:800 13px var(--font);cursor:pointer}
 .pp-acc__form .pp-btn{margin-top:6px}
-@media(max-width:699px){.pp-modal--account{padding:0}.pp-acc{width:100%;max-height:92dvh;border-radius:var(--r-panel) var(--r-panel) 0 0;border-bottom:0;box-shadow:none;animation:pp-up .26s var(--ease)}.pp-acc__main{padding-bottom:calc(24px + env(safe-area-inset-bottom))}}
+@media(max-width:699px){.pp-modal--account{padding:0}.pp-acc{width:100%;max-height:92vh;max-height:92dvh;border-radius:var(--r-panel) var(--r-panel) 0 0;border-bottom:0;box-shadow:none;animation:pp-up .26s var(--ease)}.pp-acc__main{padding-bottom:calc(24px + env(safe-area-inset-bottom))}}
 @media(min-width:700px){.pp-modal--account{align-items:center}.pp-acc{grid-template-columns:.85fr 1fr}.pp-acc__side{display:flex}.pp-acc__main{padding:38px 36px}.pp-acc__tabs{margin-right:0}.pp-modal--account .pp-close{background:#fff;border:2px solid var(--ink)}}
 /* ---------- About gallery ---------- */
 .pp-about-gal{margin:clamp(40px,6vw,80px) 0 0}
@@ -503,7 +503,7 @@ ul.products::before,ul.products::after{display:none!important}
 .pp-filters fieldset{border:0;padding:0;margin:0 0 20px;min-width:0}
 .pp-filters legend{font-weight:800;margin-bottom:4px;padding:0;text-transform:uppercase;font-size:13px;letter-spacing:.07em}
 .pp-filters__actions{display:flex;gap:10px;flex-wrap:wrap}
-.pp-filter-panel.is-open{display:block;position:fixed;z-index:100;inset:auto 0 0 0;max-height:88dvh;overflow:auto;background:#fff;border:2px solid var(--ink);border-bottom:0;border-radius:var(--r-panel) var(--r-panel) 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));animation:pp-up .24s var(--ease)}
+.pp-filter-panel.is-open{display:block;position:fixed;z-index:100;inset:auto 0 0 0;max-height:88vh;max-height:88dvh;overflow:auto;background:#fff;border:2px solid var(--ink);border-bottom:0;border-radius:var(--r-panel) var(--r-panel) 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));animation:pp-up .24s var(--ease)}
 @keyframes pp-up{from{transform:translateY(30px);opacity:0}}
 .pp-filter-close{display:inline-grid}
 @media(min-width:1000px){
@@ -897,7 +897,7 @@ ul.products{align-items:stretch}
 .pp-sp__cancel{display:none}
 @media(max-width:699px){
 	.pp-modal--search{padding:10px 10px 0;align-items:end}
-	.pp-sp{height:auto;max-height:calc(100dvh - 20px);border-radius:26px 26px 0 0;border-bottom:0;box-shadow:none}
+	.pp-sp{height:auto;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);border-radius:26px 26px 0 0;border-bottom:0;box-shadow:none}
 	.pp-sp__form{margin:12px 12px 6px;padding:4px 4px 4px 14px}
 	.pp-sp__form .pp-sp__go{display:none}
 	.pp-sp__body{padding:6px 12px calc(20px + env(safe-area-inset-bottom))}
@@ -1151,3 +1151,23 @@ body.pp-cookie-on .pp-sticky{bottom:calc(var(--pp-cookie-h,190px) + 20px)}
 .pp-ranges ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .pp-ranges a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:var(--r-control);background:#fff;box-shadow:inset 0 0 0 2px var(--ink);font-weight:700;text-decoration:none;transition:background .15s}
 .pp-ranges a:hover{background:var(--yellow)}
+
+/* Yellow call-to-action: dark text. The footer's white link colour was winning and gave white-on-yellow (contrast 1.6:1). */
+body a.pp-cta--yellow,body a.pp-cta--yellow>span{color:var(--ink)}
+
+/* Light only: the design is built for light backgrounds. Browsers that force a dark mode on pages (some Android browsers) would otherwise invert it. */
+:root{color-scheme:light}
+
+/* Forms inside page content (a contact form plugin such as Contact Form 7, WPForms, Forminator, or plain HTML) take the shop's look */
+.pp-prose form,.pp-page .wpcf7,.pp-page .wpforms-container{max-width:640px;margin:1.6em 0}
+.pp-prose label,.pp-prose .wpforms-field-label{display:block;font-weight:700;font-size:14px;margin:0 0 6px}
+.pp-prose p:has(>label),.pp-prose .wpforms-field,.pp-prose .forminator-field{margin:0 0 16px}
+.pp-prose input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]):not([type=hidden]):not([type=file]),.pp-prose textarea,.pp-prose select{width:100%;min-height:50px;padding:12px 14px;border:1.5px solid var(--field);border-radius:var(--r-field);font:inherit;color:var(--ink);background:#fff;box-sizing:border-box}
+.pp-prose textarea{min-height:150px;resize:vertical}
+.pp-prose input[type=checkbox],.pp-prose input[type=radio]{width:20px;height:20px;accent-color:var(--ink);vertical-align:-4px;margin-right:8px}
+.pp-prose input[type=submit],.pp-prose button[type=submit],.pp-prose .wpcf7-submit,.pp-prose .wpforms-submit,.pp-prose .forminator-button-submit{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 30px;border:0;border-radius:var(--r-control);background:var(--action);color:#fff;font:800 16px var(--font);cursor:pointer;transition:background .15s,transform .1s}
+.pp-prose input[type=submit]:hover,.pp-prose button[type=submit]:hover{background:var(--action-hover)}.pp-prose input[type=submit]:active,.pp-prose button[type=submit]:active{transform:scale(.98)}
+.pp-prose .wpcf7-not-valid-tip,.pp-prose .wpforms-error,.pp-prose .forminator-error-message{color:var(--danger);font-size:14px;font-weight:600;margin-top:6px;display:block}
+.pp-prose .wpcf7-not-valid,.pp-prose .wpforms-error:is(input,textarea,select){border-color:var(--danger)}
+.pp-prose .wpcf7-response-output,.pp-prose .wpforms-confirmation-container{margin:16px 0 0;padding:14px 16px;border-radius:var(--r-field);background:#fff;box-shadow:inset 0 0 0 2px var(--ink);font-weight:600}
+.pp-prose .wpcf7-spinner{display:none}

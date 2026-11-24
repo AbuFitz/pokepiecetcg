@@ -82,6 +82,9 @@
 	/* ----- Cart drawer ----- */
 	var drawer = $('#pp-cart-drawer');
 	var cartBtn = $('.pp-cart-open');
+	/* the cart button's accessible name always includes the visible count */
+	function syncCartLabel() { var b = $('.pp-cart-open'), c = $('.pp-cart-count'); if (!b) return; var n = c ? parseInt(c.getAttribute('data-count') || '0', 10) : 0; b.setAttribute('aria-label', n ? 'Open cart, ' + n + (n === 1 ? ' item' : ' items') : 'Open cart'); }
+	syncCartLabel(); if (window.jQuery) window.jQuery(document.body).on('wc_fragments_refreshed wc_fragments_loaded added_to_cart removed_from_cart', function () { setTimeout(syncCartLabel, 0); });
 	function openCart() { if (drawer) openLayer(drawer, cartBtn, { focus: '.pp-close' }); }
 	if (drawer && cartBtn) {
 		cartBtn.addEventListener('click', openCart);
@@ -95,22 +98,29 @@
 	if (window.jQuery) {
 		window.jQuery(document.body).on('added_to_cart', function () { drawerStatus(''); openCart(); });
 	}
-	var busy = false;
-	function cartUpdate(line, qty) {
-		if (busy) return; busy = true; line.classList.add('is-busy'); drawerStatus('');
-		var fd = new FormData(); fd.append('action', 'pokepiece_cart_update'); fd.append('nonce', PP.nonce); fd.append('key', line.dataset.key); fd.append('qty', qty);
-		fetch(PP.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
-			busy = false;
-			if (j && j.success) { applyFragments(j.data.fragments); drawerStatus(qty === 0 ? '' : ''); }
-			else { line.classList.remove('is-busy'); if (j && j.data) { applyFragments(j.data.fragments); drawerStatus(j.data.message || PP.i18n.cartFail); } else drawerStatus(PP.i18n.cartFail); }
-			if (window.jQuery) window.jQuery(document.body).trigger('wc_fragment_refresh');
-		}).catch(function () { busy = false; line.classList.remove('is-busy'); drawerStatus(PP.i18n.cartFail); });
+	/* A page cached for longer than WordPress accepts its security tokens (about 24 h) answers 403. Ask for fresh tokens once and repeat the request. */
+	function ppRefreshNonces() { var fd = new FormData(); fd.append('action', 'pokepiece_nonces'); return fetch(PP.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.success) { PP.accNonce = j.data.acc; PP.nonce = j.data.cart; if (window.PPC_SD && j.data.sd) window.PPC_SD.nonce = j.data.sd; return true; } return false; }).catch(function () { return false; }); }
+	function ppPost(build) { var go = function () { return fetch(PP.ajax, { method: 'POST', body: build(), credentials: 'same-origin' }); }; return go().then(function (r) { return r.status === 403 ? ppRefreshNonces().then(function (ok) { return ok ? go() : r; }) : r; }); }
+	/* Quantity changes: the number reacts instantly; clicks made while a request is in flight are merged into ONE follow-up request with the final value
+	   (no lost clicks, no request storm). The server answer is the truth: on failure the real quantity is restored and the reason shown. */
+	var inflight = false, want = {};
+	function cartRefreshTruth() { if (window.jQuery) window.jQuery(document.body).trigger('wc_fragment_refresh'); }
+	function cartSend() {
+		if (inflight) return; var keys = Object.keys(want); if (!keys.length) return; var key = keys[0], qty = want[key]; delete want[key]; inflight = true;
+		var line = $('.pp-line[data-key="' + key + '"]'); if (line) line.classList.add('is-busy'); drawerStatus('');
+		ppPost(function () { var fd = new FormData(); fd.append('action', 'pokepiece_cart_update'); fd.append('nonce', PP.nonce); fd.append('key', key); fd.append('qty', qty); return fd; }).then(function (r) { return r.json(); }).then(function (j) {
+			inflight = false;
+			if (j && j.success) { if (!Object.keys(want).length) applyFragments(j.data.fragments); }
+			else { want = {}; if (j && j.data) { applyFragments(j.data.fragments); drawerStatus(j.data.message || PP.i18n.cartFail); } else { drawerStatus(PP.i18n.cartFail); cartRefreshTruth(); } }
+			if (Object.keys(want).length) cartSend(); else cartRefreshTruth();
+		}).catch(function () { inflight = false; want = {}; drawerStatus(PP.i18n.cartFail); cartRefreshTruth(); var l = $('.pp-line.is-busy'); if (l) l.classList.remove('is-busy'); });
 	}
 	document.addEventListener('click', function (e) {
-		var line = e.target.closest('.pp-line'); if (!line) return;
-		var q = e.target.closest('[data-pp-qty]');
-		if (q) { var cur = parseInt($('output', line).textContent, 10) || 1; cartUpdate(line, Math.max(0, cur + parseInt(q.dataset.ppQty, 10))); }
-		else if (e.target.closest('[data-pp-remove]')) cartUpdate(line, 0);
+		var line = e.target.closest('.pp-line'); if (!line || !drawer || !drawer.contains(line)) return;
+		var key = line.dataset.key, step = e.target.closest('[data-pp-qty]'), drop = e.target.closest('[data-pp-remove]'); if (!step && !drop) return;
+		var out = $('output', line), cur = want[key] !== undefined ? want[key] : (parseInt(out && out.textContent, 10) || 1), next = drop ? 0 : Math.max(0, cur + parseInt(step.dataset.ppQty, 10));
+		want[key] = next; if (next > 0 && out) out.textContent = String(next); else line.classList.add('is-removing');
+		cartSend();
 	});
 
 	/* ----- Filters drawer (phone) ----- */
@@ -197,7 +207,7 @@
 	/* ----- Account popup (sign in / create account) ----- */
 	var acc = $('#pp-account');
 	if (acc) {
-		var tabs = $$('[role=tab]', acc), panes = $$('form[role=tabpanel]', acc);
+		var tabs = $$('[role=tab]', acc), panes = $$('form.pp-acc__form', acc);
 		function showTab(i) { tabs.forEach(function (t, k) { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; }); panes.forEach(function (p, k) { p.hidden = k !== i; }); var f = $('input', panes[i]); if (f) f.focus({ preventScroll: true }); }
 		tabs.forEach(function (t, i) { t.addEventListener('click', function () { showTab(i); }); t.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { var n = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length; showTab(n); tabs[n].focus(); } }); });
 		$('.pp-close', acc).addEventListener('click', function () { closeLayer(); });
@@ -209,8 +219,8 @@
 		panes.forEach(function (f) {
 			f.addEventListener('submit', function (e) {
 				e.preventDefault(); var msg = $('.pp-form-msg', f), btn = $('button[type=submit]', f); msg.className = 'pp-form-msg'; msg.textContent = '';
-				var fd = new FormData(f); fd.append('action', f.dataset.action); fd.append('nonce', PP.accNonce); btn.disabled = true; btn.dataset.t = btn.textContent; btn.textContent = PP.i18n.loading;
-				fetch(PP.ajax, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+				btn.disabled = true; btn.dataset.t = btn.textContent; btn.textContent = PP.i18n.loading;
+				ppPost(function () { var fd = new FormData(f); fd.append('action', f.dataset.action); fd.append('nonce', PP.accNonce); return fd; }).then(function (r) { return r.json(); }).then(function (j) {
 					if (j.success) { msg.className = 'pp-form-msg is-ok'; msg.textContent = 'Success, taking you to your account…'; location.href = j.data.redirect; }
 					else { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = (j.data && j.data.message) || PP.i18n.nlFail; var bad = $('input', f); if (bad) bad.focus({ preventScroll: true }); }
 				}).catch(function () { btn.disabled = false; btn.textContent = btn.dataset.t; msg.className = 'pp-form-msg is-error'; msg.textContent = 'Something went wrong. Please try again.'; });
