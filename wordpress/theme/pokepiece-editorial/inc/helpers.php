@@ -77,8 +77,23 @@ function pp_stock_state( $product ) {
 }
 
 /** Game → language categories, derived from real product_cat terms (no hard-coded IDs). */
+/**
+ * The category structure behind the header menu, footer, search and home panels. Building it counts the products in every category, which on a real catalogue
+ * is real work, and it used to run on EVERY request. It is now kept between requests (12 hours) and rebuilt the moment a category or product changes.
+ */
 function pp_game_groups() {
 	static $cache = null; if ( null !== $cache ) { return $cache; }
+	$t = get_transient( 'pp_groups_v2' );
+	if ( is_array( $t ) ) { return $cache = $t; }
+	$cache = pp_game_groups_build(); set_transient( 'pp_groups_v2', $cache, 12 * HOUR_IN_SECONDS );
+	return $cache;
+}
+function pp_flush_groups() { delete_transient( 'pp_groups_v2' ); }
+foreach ( array( 'created_product_cat', 'edited_product_cat', 'delete_product_cat', 'woocommerce_new_product', 'woocommerce_update_product', 'woocommerce_delete_product', 'woocommerce_trash_product', 'update_option_pokepiece_service_product_ids', 'permalink_structure_changed' ) as $pp_h ) { add_action( $pp_h, 'pp_flush_groups' ); }
+add_action( 'set_object_terms', function ( $object_id, $terms, $tt_ids, $taxonomy ) { if ( 'product_cat' === $taxonomy ) { pp_flush_groups(); } }, 10, 4 );
+add_action( 'transition_post_status', function ( $new, $old, $post ) { if ( 'product' === $post->post_type && $new !== $old ) { pp_flush_groups(); } }, 10, 3 );
+
+function pp_game_groups_build() {
 	$games = array(
 		'pokemon'     => array( 'name' => 'Pokémon', 'prefix' => 'pokemon-' ),
 		'one-piece'   => array( 'name' => 'One Piece', 'prefix' => 'one-piece-' ),
@@ -115,7 +130,7 @@ function pp_game_groups() {
 		if ( isset( $used[ $t->term_id ] ) || 'uncategorized' === $t->slug ) { continue; }
 		$build( $t, 'cat-' . $t->term_id, 'extra' );
 	}
-	return $cache = $out;
+	return $out;
 }
 
 /** Is the current category archive inside this nav group? */
@@ -198,7 +213,8 @@ function pp_about_gallery() {
 function pp_search_featured( $n = 8 ) {
 	$in = pp_discovery_products( array( 'stock_status' => 'instock', 'limit' => $n ) );
 	$out = count( $in ) < $n ? pp_discovery_products( array( 'limit' => $n * 2 ) ) : array();
-	$have = wp_list_pluck( $in, 'id' ); $list = $in;
+	// (not wp_list_pluck(): reading ->id on a product is deprecated and logs a notice on every page)
+	$have = array_map( fn( $p ) => $p->get_id(), $in ); $list = $in;
 	foreach ( $out as $p ) { if ( count( $list ) >= $n ) { break; } if ( ! in_array( $p->get_id(), $have, true ) && $p->get_image_id() ) { $list[] = $p; } }
 	return array_filter( $list, fn( $p ) => $p->get_image_id() );
 }
@@ -313,3 +329,19 @@ function pp_plate_attrs( $product ) {
 
 /** A page by slug, but only when it is PUBLISHED. get_page_by_path() also returns drafts, which made footer/menu links point at pages visitors cannot open (404). */
 function pp_page( $slug ) { $p = get_page_by_path( $slug ); return $p && 'publish' === $p->post_status ? $p : null; }
+
+/**
+ * The search popup's "Popular right now" tiles are the same on every page, so the finished markup is kept between requests (6 hours) instead of loading eight
+ * products on every page view. Cleared the moment a product, its price, its stock or its category changes.
+ */
+function pp_search_featured_html() {
+	$h = get_transient( 'pp_search_feat_v1' );
+	if ( is_string( $h ) ) { return $h; }
+	ob_start(); foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } $h = ob_get_clean();
+	set_transient( 'pp_search_feat_v1', $h, 6 * HOUR_IN_SECONDS ); return $h;
+}
+function pp_flush_search_feat() { delete_transient( 'pp_search_feat_v1' ); }
+foreach ( array( 'woocommerce_new_product', 'woocommerce_update_product', 'woocommerce_delete_product', 'woocommerce_trash_product', 'woocommerce_product_set_stock', 'woocommerce_variation_set_stock', 'woocommerce_product_set_stock_status', 'created_product_cat', 'edited_product_cat', 'delete_product_cat', 'update_option_pokepiece_service_product_ids' ) as $pp_h ) { add_action( $pp_h, 'pp_flush_search_feat' ); }
+add_action( 'set_object_terms', function ( $o, $t, $tt, $taxonomy ) { if ( 'product_cat' === $taxonomy ) { pp_flush_search_feat(); } }, 10, 4 );
+add_action( 'transition_post_status', function ( $new, $old, $post ) { if ( 'product' === $post->post_type && $new !== $old ) { pp_flush_search_feat(); } }, 10, 3 );
+add_action( 'update_option_pokepiece_wm_on', 'pp_flush_search_feat' );

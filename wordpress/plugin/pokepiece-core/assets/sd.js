@@ -7,7 +7,9 @@
 		var on = t.checked; if (busy) { t.checked = !on; return; } busy = true;
 		var boxes = document.querySelectorAll('[data-ppc-sd]'); boxes.forEach(function (b) { b.disabled = true; });
 		var fd = new FormData(); fd.append('nonce', PPC_SD.nonce); fd.append('on', on ? '1' : '0');
-		fetch(PPC_SD.url, { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+		var send = function () { var f = new FormData(); f.append('nonce', PPC_SD.nonce); f.append('on', on ? '1' : '0'); return fetch(PPC_SD.url, { method: 'POST', body: f, credentials: 'same-origin' }).then(function (r) { return r.json(); }); };
+		// an old cached page has an expired token: fetch a fresh one once and repeat
+		send().then(function (j) { if (j && !j.success && j.data && j.data.message === 'expired' && PPC_SD.ajax) { var n = new FormData(); n.append('action', 'pokepiece_nonces'); return fetch(PPC_SD.ajax, { method: 'POST', body: n, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (t) { if (t && t.success && t.data.sd) { PPC_SD.nonce = t.data.sd; return send(); } return j; }); } return j; }).then(function (j) {
 			if (!j || !j.success) throw new Error('fail');
 			boxes.forEach(function (b) { b.checked = j.data.on; });
 			var ref = document.getElementById('ppc_sd_field') || document.getElementById('ppc_sd_ref_field'); if (ref) ref.hidden = !j.data.on;

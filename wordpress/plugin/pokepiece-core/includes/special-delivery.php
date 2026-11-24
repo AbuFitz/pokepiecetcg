@@ -50,6 +50,8 @@ add_action( 'woocommerce_add_to_cart', function () {
 	if ( ppc_sd_active() && ! empty( $_POST['pp_upgrade'] ) ) { ppc_sd_set( true ); } // phpcs:ignore WordPress.Security.NonceVerification
 } );
 
+add_filter( 'pokepiece_nonces', function ( $n ) { $n['sd'] = wp_create_nonce( 'ppc_sd' ); return $n; } ); // lets a page cached for over a day get a fresh token (see the theme's ppPost)
+
 // Toggle endpoint: /?wc-ajax=ppc_sd_toggle (POST on=1|0, nonce).
 add_action( 'wc_ajax_ppc_sd_toggle', function () {
 	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'ppc_sd' ) ) { wp_send_json_error( array( 'message' => 'expired' ), 403 ); }
@@ -90,6 +92,6 @@ add_action( 'woocommerce_email_order_meta', function ( $order, $sent_to_admin ) 
 add_action( 'wp_enqueue_scripts', function () {
 	if ( ! ppc_sd_active() ) { return; }
 	wp_enqueue_script( 'ppc-sd', plugins_url( 'assets/sd.js', PPC_FILE ), array( 'jquery' ), PPC_VERSION, true );
-	wp_localize_script( 'ppc-sd', 'PPC_SD', array( 'url' => add_query_arg( 'wc-ajax', 'ppc_sd_toggle', home_url( '/' ) ), 'nonce' => wp_create_nonce( 'ppc_sd' ) ) );
+	wp_localize_script( 'ppc-sd', 'PPC_SD', array( 'url' => add_query_arg( 'wc-ajax', 'ppc_sd_toggle', home_url( '/' ) ), 'ajax' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'ppc_sd' ) ) );
 	wp_add_inline_style( 'woocommerce-general', '.ppc-sd{display:flex;gap:.6em;align-items:center;cursor:pointer}.ppc-sd-block{margin:0 0 1.2em}.ppc-sd-ref{margin-top:.6em}' );
 }, 30 );

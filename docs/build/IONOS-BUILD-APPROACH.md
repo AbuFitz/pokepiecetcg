@@ -33,6 +33,14 @@ Same database, so there is no product, order or customer migration. The long par
 9. Test on staging: each payment gateway in its own test mode, accounts (register, sign in, reset email), orders, shipping and tax, Privacy link, basket and checkout, order emails arriving (IONOS may need SMTP), mobile on real devices.
 10. Customer walkthrough, then go live in a quiet period.
 
+
+## What the plugin does on its own once activated (so nothing is a surprise)
+- **Hardening** (`includes/hardening.php`): browser protection headers on public pages; no WordPress/WooCommerce version tags; anonymous visitors can no longer list usernames (REST users, `?author=N`); one login-error answer on `wp-login.php`. No Content-Security-Policy or Permissions-Policy is set, so card-payment frames are not affected. Switch all of it off with `add_filter( 'ppc_hardening', '__return_false' );` in a small plugin if a security plugin already does this.
+- **Branded emails** (`includes/emails.php`): the logo and brand colours are applied to every WooCommerce email without changing saved settings; WooCommerce > PokePiece rules has a switch.
+- **Product feed**: `{site}/?ppc_feed=google` (see SEO-PLAN).
+- **Launch report**: `wp pokepiece preflight` also flags caching plugins, page builders, form plugins, an old Site Icon and the email header image.
+- **After going live**: purge every cache (page, object, CDN) once; exclude cart, checkout and account from page caching.
+
 ## Rollback
 Re-activate the previous theme, deactivate `pokepiece-core`, re-enable his snippet. Data is untouched by our code, apart from the order meta `_ppc_window_start` and `_ppc_window_free`, which is harmless.
 

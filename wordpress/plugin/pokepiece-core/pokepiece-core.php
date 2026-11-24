@@ -21,7 +21,7 @@ add_action( 'plugins_loaded', function () {
 		add_action( 'admin_notices', function () { echo '<div class="notice notice-error"><p>PokePiece Core needs WooCommerce to be active.</p></div>'; } );
 		return;
 	}
-	foreach ( array( 'settings', 'free-shipping', 'special-delivery', 'setup', 'audit', 'preflight', 'feed' ) as $f ) { require_once PPC_DIR . "includes/$f.php"; }
+	foreach ( array( 'settings', 'free-shipping', 'special-delivery', 'setup', 'audit', 'preflight', 'feed', 'hardening', 'emails' ) as $f ) { require_once PPC_DIR . "includes/$f.php"; }
 } );
 
 // HPOS (custom order tables) compatibility: this plugin only uses the WooCommerce CRUD API.

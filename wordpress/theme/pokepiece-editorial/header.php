@@ -40,9 +40,9 @@ if ( count( $groups ) > 5 ) {
 				</ul>
 			</nav>
 			<div class="pp-actions">
-				<button class="pp-searchbtn" type="button" data-pp-search aria-haspopup="dialog" aria-controls="pp-search-pop"><?php echo pp_icon( 'search' ); ?><span><?php esc_html_e( 'Search', 'pokepiece' ); ?></span></button>
+				<button class="pp-searchbtn" type="button" data-pp-search aria-label="<?php esc_attr_e( 'Search', 'pokepiece' ); ?>" aria-haspopup="dialog" aria-controls="pp-search-pop"><?php echo pp_icon( 'search' ); ?><span><?php esc_html_e( 'Search', 'pokepiece' ); ?></span></button>
 				<a class="pp-iconbtn pp-act-account" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php echo is_user_logged_in() ? esc_attr__( 'My account', 'pokepiece' ) : esc_attr__( 'Sign in or create account', 'pokepiece' ); ?>"<?php echo is_user_logged_in() ? '' : ' data-pp-account aria-haspopup="dialog"'; ?>><?php echo pp_icon( 'user' ); ?></a>
-				<button class="pp-iconbtn pp-cart-open" type="button" aria-controls="pp-cart-drawer" aria-expanded="false" aria-label="<?php esc_attr_e( 'Open cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'cart' ); ?><?php echo pp_cart_count_html(); // phpcs:ignore ?></button>
+				<button class="pp-iconbtn pp-cart-open" type="button" aria-controls="pp-cart-drawer" aria-expanded="false" aria-label="<?php echo esc_attr( pp_cart_label() ); ?>"><?php echo pp_icon( 'cart' ); ?><?php echo pp_cart_count_html(); // phpcs:ignore ?></button>
 			</div>
 		</div>
 	</div>
@@ -67,8 +67,8 @@ if ( count( $groups ) > 5 ) {
 
 <div class="pp-backdrop" hidden></div>
 
-<aside class="pp-drawer" id="pp-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="pp-cart-title" hidden>
+<div class="pp-drawer" id="pp-cart-drawer" role="dialog" aria-modal="true" aria-labelledby="pp-cart-title" hidden>
 	<div class="pp-drawer__head"><h2 id="pp-cart-title"><?php esc_html_e( 'Your cart', 'pokepiece' ); ?></h2><button class="pp-iconbtn pp-close" type="button" aria-label="<?php esc_attr_e( 'Close cart', 'pokepiece' ); ?>"><?php echo pp_icon( 'close' ); ?></button></div>
 	<p class="pp-drawer__status" role="status" aria-live="polite"></p>
 	<?php echo pp_cart_drawer_body(); // phpcs:ignore ?>
-</aside>
+</div>

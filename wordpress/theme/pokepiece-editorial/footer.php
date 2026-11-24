@@ -40,7 +40,7 @@
 			<div class="pp-sp__res" hidden><ul class="pp-sp__grid"></ul><a class="pp-btn pp-btn--ghost pp-sp__all" href="#" hidden><?php esc_html_e( 'See all results', 'pokepiece' ); ?></a></div>
 			<div class="pp-sp__feat">
 				<p class="pp-sp__label"><?php esc_html_e( 'Popular right now', 'pokepiece' ); ?></p>
-				<ul class="pp-sp__grid"><?php foreach ( pp_search_featured( 8 ) as $p ) { pp_search_tile( $p ); } ?></ul>
+				<ul class="pp-sp__grid"><?php echo pp_search_featured_html(); // phpcs:ignore WordPress.Security.EscapeOutput -- built from escaped tiles ?></ul>
 				<p class="pp-sp__label"><?php esc_html_e( 'Browse', 'pokepiece' ); ?></p>
 				<p class="pp-sp__cats"><?php foreach ( pp_category_links() as $l ) : ?><a class="pp-sp__cat" href="<?php echo esc_url( $l[1] ); ?>"><?php echo esc_html( $l[0] ); ?></a><?php endforeach; ?></p>
 			</div>

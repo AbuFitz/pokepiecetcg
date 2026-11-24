@@ -177,3 +177,18 @@ add_action( 'wp_head', function () {
 	$p = wc_get_product( get_the_ID() ); $c = $p ? pp_plate_colour( $p->get_image_id() ) : ''; if ( ! $c ) { return; }
 	echo '<style>.single-product .woocommerce-product-gallery__image{background:' . esc_html( $c ) . '}.single-product .woocommerce-product-gallery__image img{mix-blend-mode:normal}</style>';
 } );
+
+// Coupon link: WooCommerce gives it an aria-label ("Enter your coupon code") that does not contain its visible words; screen-reader and voice-control users then cannot say what they see.
+add_filter( 'woocommerce_checkout_coupon_message', function ( $m ) { return preg_replace( '/\saria-label="[^"]*"/', '', (string) $m ); } );
+
+// Product names are plain text. Markup in a title (pasted from elsewhere, or malicious) is removed on the public site, so it can never render or run.
+add_filter( 'the_title', function ( $t, $id = 0 ) { return ( ! is_admin() && $id && 'product' === get_post_type( $id ) ) ? wp_strip_all_tags( (string) $t ) : $t; }, 20, 2 );
+
+// A plain add-to-cart link (?add-to-cart=ID: no-JavaScript visitors, shared links, old bookmarks) used to leave the visitor on whatever page it was clicked from with
+// NO message, and re-added the item on every refresh. Send them to the product page, where WooCommerce prints "added to your cart" or the reason it was refused.
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['add-to-cart'] ) || wp_doing_ajax() || is_admin() || 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) { return; } // phpcs:ignore WordPress.Security.NonceVerification
+	$id = absint( $_GET['add-to-cart'] ); // phpcs:ignore WordPress.Security.NonceVerification
+	$to = $id && 'publish' === get_post_status( $id ) ? get_permalink( $id ) : wc_get_page_permalink( 'shop' );
+	if ( $to ) { if ( function_exists( 'WC' ) && WC()->session && ! WC()->session->has_session() ) { WC()->session->set_customer_session_cookie( true ); } wp_safe_redirect( $to ); exit; } // a first-time visitor has no session yet, so the message would be lost across the redirect
+}, 30 );

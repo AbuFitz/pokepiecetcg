@@ -3,6 +3,11 @@
 defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WooCommerce' ) ) { return; }
 
+/** Accessible name of the cart button: always contains the visible item count. */
+function pp_cart_label() {
+	$n = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
+	return $n ? sprintf( _n( 'Open cart, %d item', 'Open cart, %d items', $n, 'pokepiece' ), $n ) : __( 'Open cart', 'pokepiece' );
+}
 function pp_cart_count_html() {
 	$n = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
 	return '<span class="pp-cart-count" data-count="' . (int) $n . '"' . ( $n ? '' : ' hidden' ) . '>' . (int) $n . '</span>';

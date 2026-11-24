@@ -59,7 +59,7 @@ function pp_seo_description() {
 function pp_seo_title() {
 	if ( is_front_page() ) { return pp_seo_home_title(); }
 	if ( is_singular( 'product' ) ) {
-		$n = html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ); $tail = ' | ' . get_bloginfo( 'name' ); $uk = preg_match( '/\bUK\b/i', $n ) ? '' : ' UK';
+		$n = html_entity_decode( wp_strip_all_tags( get_the_title() ), ENT_QUOTES, 'UTF-8' ); $tail = ' | ' . get_bloginfo( 'name' ); $uk = preg_match( '/\bUK\b/i', $n ) ? '' : ' UK';
 		if ( mb_strlen( $n . $uk . $tail ) > 65 ) { $uk = ''; } // long names: drop the " UK" first
 		if ( mb_strlen( $n . $tail ) > 65 ) { $n = rtrim( mb_strimwidth( $n, 0, 65 - mb_strlen( $tail ), '…' ) ); } // then trim the name itself so the brand always fits
 		return $n . $uk . $tail;
@@ -72,7 +72,7 @@ function pp_seo_title() {
 add_filter( 'document_title_separator', function () { return '|'; } );
 add_filter( 'pre_get_document_title', function ( $t ) {
 	if ( pp_seo_plugin_active() ) { return $t; }
-	$o = pp_seo_title(); return $o ?: $t;
+	$o = pp_seo_title(); return $o ? esc_html( wp_strip_all_tags( $o ) ) : $t; // WordPress prints this value as-is when it is returned here, so it is escaped here
 } );
 
 /** URLs that are only a different view of the same listing (filter, sort, price): keep them out of the index, point them at the clean address. */
@@ -116,7 +116,7 @@ add_filter( 'rank_math/frontend/robots', function ( $r ) { if ( pp_seo_is_param_
 add_action( 'wp_head', function () {
 	if ( pp_seo_plugin_active() || is_404() ) { return; }
 	if ( is_search() || is_cart() || is_checkout() || is_account_page() ) { return; }
-	$desc = pp_seo_description(); $title = wp_get_document_title();
+	$desc = pp_seo_description(); $title = html_entity_decode( wp_get_document_title(), ENT_QUOTES, 'UTF-8' ); // decoded: it is escaped once, by esc_attr, below
 	$canon = pp_seo_canonical_url();
 	$url = is_front_page() ? home_url( '/' ) : ( $canon ?: ( is_singular() ? get_permalink() : home_url( add_query_arg( null, null ) ) ) );
 	if ( $canon ) { echo '<link rel="canonical" href="' . esc_url( $canon ) . '">' . "\n"; } // singular pages get theirs from WordPress core
@@ -136,7 +136,7 @@ add_action( 'wp_head', function () {
 	$org = array( '@type' => array( 'Organization', 'OnlineStore' ), '@id' => home_url( '/#org' ), 'name' => 'PokePieceTCG', 'url' => home_url( '/' ), 'logo' => PP_URI . '/assets/brand/icon-512.png', 'email' => pp_contact_email(), 'areaServed' => 'GB', 'description' => 'PokePieceTCG is a UK based trading card store for Pokémon, One Piece, Dragon Ball and other TCG booster boxes, sealed products, collector items and accessories. All products are authentic and sourced from trusted suppliers. Fast UK dispatch on all orders.', 'sameAs' => array_values( array_filter( array( pp_social( 'tiktok' ), pp_social( 'discord' ), esc_url( (string) get_option( 'pokepiece_google_profile', 'https://share.google/zSyE11bqZ6OTNXMwk' ) ) ) ) ) );
 	$site = array( '@type' => 'WebSite', '@id' => home_url( '/#site' ), 'url' => home_url( '/' ), 'name' => 'PokePieceTCG', 'publisher' => array( '@id' => home_url( '/#org' ) ), 'potentialAction' => array( '@type' => 'SearchAction', 'target' => home_url( '/?s={search_term_string}&post_type=product' ), 'query-input' => 'required name=search_term_string' ) );
 	$faq = array( '@type' => 'FAQPage', 'mainEntity' => array_map( fn( $f ) => array( '@type' => 'Question', 'name' => $f[0], 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $f[1] ) ), pp_faqs() ) );
-	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@graph' => array( $org, $site, $faq ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
+	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@graph' => array( $org, $site, $faq ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</script>' . "\n";
 }, 3 );
 
 // Category/Shop band: if the merchant has not written a description, show a short factual intro (crawlable text, no claims beyond the owner's wording).
@@ -169,10 +169,10 @@ add_filter( 'rank_math/snippet/rich_snippet_product_entity', function ( $e ) {
 add_action( 'wp_head', function () {
 	if ( pp_seo_plugin_active() || ! ( is_shop() || is_product_category() ) || pp_seo_is_param_view() || is_search() ) { return; }
 	global $wp_query; $items = array(); $pos = ( max( 1, (int) get_query_var( 'paged' ) ) - 1 ) * (int) $wp_query->get( 'posts_per_page' ) + 1;
-	foreach ( (array) $wp_query->posts as $post ) { $items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'url' => get_permalink( $post ), 'name' => get_the_title( $post ) ); }
+	foreach ( (array) $wp_query->posts as $post ) { $items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'url' => get_permalink( $post ), 'name' => html_entity_decode( wp_strip_all_tags( get_the_title( $post ) ), ENT_QUOTES, 'UTF-8' ) ); }
 	if ( ! $items ) { return; }
 	$url = pp_seo_canonical_url();
-	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'CollectionPage', '@id' => $url . '#page', 'url' => $url, 'name' => pp_seo_title() ?: wp_get_document_title(), 'description' => pp_seo_description(), 'isPartOf' => array( '@id' => home_url( '/#site' ) ), 'mainEntity' => array( '@type' => 'ItemList', 'numberOfItems' => count( $items ), 'itemListElement' => $items ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
+	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'CollectionPage', '@id' => $url . '#page', 'url' => $url, 'name' => pp_seo_title() ?: wp_get_document_title(), 'description' => pp_seo_description(), 'isPartOf' => array( '@id' => home_url( '/#site' ) ), 'mainEntity' => array( '@type' => 'ItemList', 'numberOfItems' => count( $items ), 'itemListElement' => $items ) ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</script>' . "\n";
 }, 4 );
 
 /* ---- Internal links: every shop, category and product page links on to the other ranges with descriptive anchors (crawlable, useful to shoppers) ---- */

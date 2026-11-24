@@ -7,8 +7,9 @@ add_action( 'rest_api_init', function () {
 		'methods' => 'GET', 'permission_callback' => '__return_true',
 		'args' => array( 'q' => array( 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ) ),
 		'callback' => function ( WP_REST_Request $r ) {
-			$q = trim( (string) $r['q'] );
+			$q = mb_substr( trim( preg_replace( '/\s+/', ' ', (string) $r['q'] ) ), 0, 60 ); // public endpoint: bounded input
 			if ( mb_strlen( $q ) < 2 ) { return array( 'items' => array(), 'total' => 0 ); }
+			$ck = 'pp_s_' . md5( mb_strtolower( $q ) ); $hit = get_transient( $ck ); if ( is_array( $hit ) ) { return $hit; } // repeated searches (typing, bots) cost one lookup for a minute
 			$ids = array();
 			// Title / content search, plus exact-ish SKU match; also tolerate OP14 vs OP-14.
 			$variants = array_unique( array( $q, str_replace( '-', '', $q ), preg_replace( '/([a-z]+)(\d)/i', '$1-$2', $q ) ) );
@@ -25,10 +26,10 @@ add_action( 'rest_api_init', function () {
 				$p = wc_get_product( $id ); if ( ! $p || ! $p->is_visible() ) { continue; }
 				[ $k, $t ] = pp_stock_state( $p );
 				$mode = pp_product_mode( $p );
-				$items[] = array( 'id' => $id, 'title' => $p->get_name(), 'url' => get_permalink( $id ), 'img' => wp_get_attachment_image_url( $p->get_image_id(), 'pp-plate' ) ?: wp_get_attachment_image_url( $p->get_image_id(), 'medium' ) ?: '',
+				$items[] = array( 'id' => $id, 'title' => wp_strip_all_tags( $p->get_name() ), 'url' => get_permalink( $id ), 'img' => wp_get_attachment_image_url( $p->get_image_id(), 'pp-plate' ) ?: wp_get_attachment_image_url( $p->get_image_id(), 'medium' ) ?: '',
 					'price' => wp_strip_all_tags( html_entity_decode( $p->get_price_html() ) ), 'stock' => $t, 'stockKey' => $k, 'mode' => $mode ? pp_modes()[ $mode ]['short'] : '', 'modeKey' => $mode );
 			}
-			return array( 'items' => $items, 'total' => $total, 'all' => esc_url_raw( add_query_arg( array( 's' => $q, 'post_type' => 'product' ), home_url( '/' ) ) ) );
+			$out = array( 'items' => $items, 'total' => $total, 'all' => esc_url_raw( add_query_arg( array( 's' => $q, 'post_type' => 'product' ), home_url( '/' ) ) ) ); set_transient( $ck, $out, 60 ); return $out;
 		},
 	) );
 	register_rest_route( 'pokepiece/v1', '/quickview/(?P<id>\d+)', array(

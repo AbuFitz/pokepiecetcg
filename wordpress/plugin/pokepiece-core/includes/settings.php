@@ -20,6 +20,7 @@ function ppc_render_settings() {
 			'fs_keyword' => sanitize_text_field( wp_unslash( $_POST['fs_keyword'] ?? 'standard' ) ),
 			'fs_notice'  => empty( $_POST['fs_notice'] ) ? 'no' : 'yes',
 			'fs_thanks'  => empty( $_POST['fs_thanks'] ) ? 'no' : 'yes',
+			'email_brand' => empty( $_POST['email_brand'] ) ? 'no' : 'yes',
 			'sd_enabled' => empty( $_POST['sd_enabled'] ) ? 'no' : 'yes',
 			'sd_price'   => (string) max( 0, (float) wc_format_decimal( wp_unslash( $_POST['sd_price'] ?? '0' ) ) ),
 			'sd_label'   => sanitize_text_field( wp_unslash( $_POST['sd_label'] ?? '' ) ),
@@ -37,6 +38,7 @@ function ppc_render_settings() {
 	printf( '<tr><th>Shipping method name contains</th><td><input type="text" name="fs_keyword" value="%s"><p class="description">Only shipping options whose name contains this word become free (default "standard"). Special Delivery and other methods are never changed.</p></td></tr>', esc_attr( ppc_opt( 'fs_keyword', 'standard' ) ) );
 	printf( '<tr><th>Show a message in cart and checkout</th><td><label><input type="checkbox" name="fs_notice" %s> Tell the customer when the offer is applied</label></td></tr>', checked( 'yes' === ppc_opt( 'fs_notice', 'yes' ), true, false ) );
 	printf( '<tr><th>Mention the offer on the thank-you page</th><td><label><input type="checkbox" name="fs_thanks" %s> After an order, say they have free standard shipping for the next hours</label></td></tr>', checked( 'yes' === ppc_opt( 'fs_thanks', 'no' ), true, false ) );
+	echo '<h2>Order emails</h2><table class="form-table">'; printf( '<tr><th>Brand the emails</th><td><label><input type="checkbox" name="email_brand" %s> Use the PokePieceTCG logo and colours in every order email</label><p class="description">Off = use whatever is saved under WooCommerce > Settings > Emails.</p></td></tr>', checked( ppc_emails_branded(), true, false ) ); echo '</table>';
 	echo '<h2>Special Delivery option</h2><p>Offered as a tick-box on product pages, in the cart and at checkout, charged as a fee line. It is not a product, so it never appears in the shop. After switching it on, set the old upgrade product to Draft or Private.</p><table class="form-table">';
 	printf( '<tr><th>Option enabled</th><td><label><input type="checkbox" name="sd_enabled" %s> On</label><p class="description">Needs a price above 0 to take effect.</p></td></tr>', checked( 'yes' === ppc_opt( 'sd_enabled', 'no' ), true, false ) );
 	printf( '<tr><th>Price (%s)</th><td><input type="text" inputmode="decimal" name="sd_price" value="%s"></td></tr>', esc_html( get_woocommerce_currency_symbol() ), esc_attr( ppc_opt( 'sd_price', '' ) ) );

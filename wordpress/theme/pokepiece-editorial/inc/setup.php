@@ -113,6 +113,8 @@ add_action( 'wp_head', function () {
 // roughly a quarter of the size. Only when the server's image library can write WebP; originals are never touched. Re-cut existing sizes with
 // `wp media regenerate --yes` after install.
 add_filter( 'image_editor_output_format', function ( $formats, $filename, $mime ) {
+	// Indexed-colour (palette) PNGs cannot be written as WebP by the GD image library (it raises a warning and the size is lost): leave those as PNG.
+	if ( 'image/png' === $mime && $filename && is_readable( $filename ) ) { $h = (string) file_get_contents( $filename, false, null, 0, 26 ); if ( strlen( $h ) >= 26 && 3 === ord( $h[25] ) ) { return $formats; } }
 	if ( function_exists( 'wp_image_editor_supports' ) && wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) && in_array( $mime, array( 'image/png', 'image/jpeg' ), true ) ) { $formats[ $mime ] = 'image/webp'; }
 	return $formats;
 }, 10, 3 );
@@ -125,3 +127,6 @@ add_action( 'do_faviconico', function () {
 	$f = PP_DIR . '/assets/brand/favicon.ico'; if ( ! is_readable( $f ) ) { return; }
 	header( 'Content-Type: image/x-icon' ); header( 'Cache-Control: public, max-age=86400' ); readfile( $f ); exit;
 }, 1 );
+
+// Declare light-only so browser-forced dark modes do not invert the page.
+add_action( 'wp_head', function () { echo '<meta name="color-scheme" content="light">' . "\n"; }, 1 );

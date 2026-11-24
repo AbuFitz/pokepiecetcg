@@ -7,17 +7,26 @@ defined( 'ABSPATH' ) || exit;
 
 function pp_registration_enabled() { return 'yes' === get_option( 'woocommerce_enable_myaccount_registration' ); }
 
-function pp_account_throttle( $bucket ) {
-	$key = 'pp_acc_' . $bucket . '_' . md5( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) );
-	$n = (int) get_transient( $key );
-	if ( $n >= 8 ) { wp_send_json_error( array( 'message' => __( 'Too many attempts. Please wait a few minutes and try again.', 'pokepiece' ) ), 429 ); }
-	set_transient( $key, $n + 1, 15 * MINUTE_IN_SECONDS );
+/**
+ * Attempt limits. Behind a hosting proxy every visitor can share ONE IP address, so a strict per-IP limit would let a few bad attempts lock everybody out. The strict
+ * limit is therefore per ACCOUNT (the email/username being tried); the per-IP limit is only a generous ceiling against floods.
+ */
+function pp_account_throttle( $bucket, $who = '', $per_who = 8, $per_ip = 60 ) {
+	$limits = array( 'pp_acc_' . $bucket . '_ip_' . md5( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) => $per_ip );
+	if ( '' !== $who ) { $limits[ 'pp_acc_' . $bucket . '_u_' . md5( strtolower( $who ) ) ] = $per_who; }
+	foreach ( $limits as $k => $max ) { if ( (int) get_transient( $k ) >= $max ) { wp_send_json_error( array( 'message' => __( 'Too many attempts. Please wait a few minutes and try again.', 'pokepiece' ) ), 429 ); } }
+	foreach ( $limits as $k => $max ) { set_transient( $k, (int) get_transient( $k ) + 1, 15 * MINUTE_IN_SECONDS ); }
 }
+
+/** Fresh nonces for pages that were cached for longer than WordPress accepts them (about 24 hours). The page asks once, then repeats its request. */
+function pp_ajax_nonces() { wp_send_json_success( apply_filters( 'pokepiece_nonces', array( 'acc' => wp_create_nonce( 'pp_account' ), 'cart' => wp_create_nonce( 'pp_cart' ) ) ) ); }
+add_action( 'wp_ajax_nopriv_pokepiece_nonces', 'pp_ajax_nonces' );
+add_action( 'wp_ajax_pokepiece_nonces', 'pp_ajax_nonces' );
 
 add_action( 'wp_ajax_nopriv_pokepiece_login', function () {
 	check_ajax_referer( 'pp_account', 'nonce' );
-	pp_account_throttle( 'login' );
 	$login = sanitize_text_field( wp_unslash( $_POST['username'] ?? '' ) );
+	pp_account_throttle( 'login', $login );
 	$pass  = (string) wp_unslash( $_POST['password'] ?? '' );
 	if ( '' === $login || '' === $pass ) { wp_send_json_error( array( 'message' => __( 'Enter your email or username and your password.', 'pokepiece' ) ), 422 ); }
 	if ( is_email( $login ) && ( $u = get_user_by( 'email', $login ) ) ) { $login = $u->user_login; }
@@ -29,13 +38,13 @@ add_action( 'wp_ajax_nopriv_pokepiece_login', function () {
 add_action( 'wp_ajax_nopriv_pokepiece_register', function () {
 	check_ajax_referer( 'pp_account', 'nonce' );
 	if ( ! pp_registration_enabled() ) { wp_send_json_error( array( 'message' => __( 'Account creation is not available.', 'pokepiece' ) ), 403 ); }
-	pp_account_throttle( 'register' );
+	pp_account_throttle( 'register', sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ), 3, 30 );
 	if ( ! empty( $_POST['website'] ) ) { wp_send_json_success( array( 'redirect' => home_url( '/' ) ) ); } // honeypot
 	$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 	$pass  = (string) wp_unslash( $_POST['password'] ?? '' );
 	if ( ! is_email( $email ) ) { wp_send_json_error( array( 'message' => __( 'Enter a valid email address.', 'pokepiece' ) ), 422 ); }
 	if ( strlen( $pass ) < 8 ) { wp_send_json_error( array( 'message' => __( 'Choose a password of at least 8 characters.', 'pokepiece' ) ), 422 ); }
-	if ( email_exists( $email ) ) { wp_send_json_error( array( 'message' => __( 'We couldn’t create that account. If you already have one, sign in or reset your password.', 'pokepiece' ) ), 409 ); }
+	if ( email_exists( $email ) ) { wp_send_json_error( array( 'message' => __( 'We couldn’t create that account. If you already have one, sign in or reset your password.', 'pokepiece' ) ), 422 ); } // same status as every other failure: the response does not reveal whether an email has an account
 	$id = wc_create_new_customer( $email, '', $pass );
 	if ( is_wp_error( $id ) ) { wp_send_json_error( array( 'message' => __( 'We couldn’t create that account. Please try again.', 'pokepiece' ) ), 422 ); }
 	wc_set_customer_auth_cookie( $id );
@@ -57,7 +66,7 @@ function pp_account_modal() {
 		<div class="pp-acc__main">
 			<div class="pp-acc__tabs" role="tablist"><button type="button" role="tab" id="pp-tab-in" aria-selected="true" aria-controls="pp-pane-in"><?php esc_html_e( 'Sign in', 'pokepiece' ); ?></button><?php if ( $reg ) : ?><button type="button" role="tab" id="pp-tab-up" aria-selected="false" aria-controls="pp-pane-up" tabindex="-1"><?php esc_html_e( 'Create account', 'pokepiece' ); ?></button><?php endif; ?></div>
 			<h2 id="pp-acc-title" class="screen-reader-text"><?php esc_html_e( 'Account', 'pokepiece' ); ?></h2>
-			<form class="pp-acc__form" id="pp-pane-in" role="tabpanel" aria-labelledby="pp-tab-in" data-action="pokepiece_login" novalidate>
+			<form class="pp-acc__form" id="pp-pane-in" data-action="pokepiece_login" novalidate>
 				<label for="pp-in-user"><?php esc_html_e( 'Email or username', 'pokepiece' ); ?></label><input id="pp-in-user" name="username" type="text" autocomplete="username" required>
 				<label for="pp-in-pass"><?php esc_html_e( 'Password', 'pokepiece' ); ?></label><div class="pp-pass"><input id="pp-in-pass" name="password" type="password" autocomplete="current-password" required><button type="button" class="pp-pass__toggle" aria-pressed="false" aria-controls="pp-in-pass"><?php esc_html_e( 'Show', 'pokepiece' ); ?></button></div>
 				<div class="pp-acc__row"><label class="pp-check"><input type="checkbox" name="remember" value="1"><span><?php esc_html_e( 'Remember me', 'pokepiece' ); ?></span></label><a class="pp-ulink" href="<?php echo esc_url( wc_lostpassword_url() ); ?>"><?php esc_html_e( 'Lost your password?', 'pokepiece' ); ?></a></div>
@@ -65,7 +74,7 @@ function pp_account_modal() {
 				<button class="pp-btn pp-btn--primary pp-btn--block" type="submit"><?php esc_html_e( 'Sign in', 'pokepiece' ); ?></button>
 			</form>
 			<?php if ( $reg ) : ?>
-			<form class="pp-acc__form" id="pp-pane-up" role="tabpanel" aria-labelledby="pp-tab-up" data-action="pokepiece_register" hidden novalidate>
+			<form class="pp-acc__form" id="pp-pane-up" data-action="pokepiece_register" hidden novalidate>
 				<label for="pp-up-email"><?php esc_html_e( 'Email address', 'pokepiece' ); ?></label><input id="pp-up-email" name="email" type="email" autocomplete="email" required>
 				<label for="pp-up-pass"><?php esc_html_e( 'Password (8+ characters)', 'pokepiece' ); ?></label><div class="pp-pass"><input id="pp-up-pass" name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="pp-pass__toggle" aria-pressed="false" aria-controls="pp-up-pass"><?php esc_html_e( 'Show', 'pokepiece' ); ?></button></div>
 				<input type="text" name="website" tabindex="-1" autocomplete="off" class="pp-hp" aria-hidden="true">
