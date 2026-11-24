@@ -153,7 +153,8 @@ async function t(name, fn) { try { await fn(); results.push(['PASS', name]); } c
     await p.click('li.pp-card--in .add_to_cart_button >> nth=0'); await p.waitForSelector('#pp-cart-drawer.is-open');
     assert.equal(await p.locator('.pp-line').count(), 1); assert.equal((await p.textContent('.pp-cart-count')).trim(), '1');
     await p.click('.pp-line [data-pp-qty="1"]'); await p.waitForFunction(() => document.querySelector('.pp-line output')?.textContent === '2');
-    assert.equal((await p.textContent('.pp-cart-count')).trim(), '2');
+    // the number in the drawer reacts instantly; the header count and subtotal arrive when the server confirms
+    await p.waitForFunction(() => document.querySelector('.pp-cart-count')?.textContent.trim() === '2' && !document.querySelector('.pp-line.is-busy'), null, { timeout: 8000 });
     assert.match(await p.textContent('.pp-subtotal strong'), /£\d+\.\d\d/);
     // body not locked after close; reopen works
     await p.click('#pp-cart-drawer .pp-close'); await p.waitForSelector('#pp-cart-drawer', { state: 'hidden' });
